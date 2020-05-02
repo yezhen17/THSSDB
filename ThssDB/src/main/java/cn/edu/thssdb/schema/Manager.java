@@ -1,5 +1,7 @@
 package cn.edu.thssdb.schema;
 
+import cn.edu.thssdb.exception.DatabaseNotExistException;
+import cn.edu.thssdb.exception.DuplicateDatabaseException;
 import cn.edu.thssdb.server.ThssDB;
 
 import java.util.HashMap;
@@ -31,19 +33,23 @@ public class Manager {
   /**
    * [method] 创建数据库
    * @param name {String} 数据库名称
-   * @exception TODO
+   * @exception DuplicateDatabaseException 重复数据库
    */
   private void createDatabaseIfNotExists(String name) {
-    // TODO
+    if (databases.containsKey(name))
+      throw new DuplicateDatabaseException();
+    databases.put(name, new Database(name));
   }
 
   /**
    * [method] 删除数据库
    * @param name {String} 数据库名称
-   * @exception TODO
+   * @exception DatabaseNotExistException 数据库不存在
    */
   private void deleteDatabase(String name) {
-    // TODO
+    if (!databases.containsKey(name))
+      throw new DatabaseNotExistException();
+    databases.remove(name);
   }
 
   /**
@@ -53,6 +59,7 @@ public class Manager {
    */
   public void switchDatabase(String name) {
     // TODO
+    // 将现数据库存储，读取新数据库
   }
 
   /**
