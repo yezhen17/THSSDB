@@ -1,18 +1,16 @@
 package cn.edu.thssdb.schema;
 
-import cn.edu.thssdb.schema.Row;
-
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 
 public class PersistentStorage<V> {
-    private String file_name;
+    public String file_name;
     public PersistentStorage(String file_name) {
         this.file_name = file_name;
     }
 
-    private void serialize(ArrayList<V> input) throws IOException {
+    public void serialize(ArrayList<V> input) throws IOException {
         ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(file_name));
         for (V obj: input) {
             objectOutputStream.writeObject(obj);
@@ -21,18 +19,31 @@ public class PersistentStorage<V> {
         objectOutputStream.close();
     }
 
-    private ArrayList<V> deserialize() throws IOException, ClassNotFoundException {
-        ArrayList<V> objs = new ArrayList<>();
-        ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(file_name));
-        while (true) {
-            V obj = (V) objectInputStream.readObject();
-            if (obj != null) {
-                objs.add(obj);
-            } else {
-                break;
-            }
+    public void serialize(Iterator<V> iterator) throws IOException {
+        ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(file_name));
+        while (iterator.hasNext()) {
+            objectOutputStream.writeObject(iterator.next());
         }
-        objectInputStream.close();
-        return objs;
+        objectOutputStream.flush();
+        objectOutputStream.close();
+    }
+
+    public ArrayList<V> deserialize() throws ClassNotFoundException {
+        try {
+            ArrayList<V> objs = new ArrayList<>();
+            ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(file_name));
+            while (true) {
+                try {
+                    V obj = (V) objectInputStream.readObject();
+                    objs.add(obj);
+                } catch (EOFException e) {
+                    break;
+                }
+            }
+            objectInputStream.close();
+            return objs;
+        } catch (IOException e) {
+            return null;
+        }
     }
 }
