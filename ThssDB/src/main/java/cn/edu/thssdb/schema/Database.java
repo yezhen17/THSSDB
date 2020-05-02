@@ -7,6 +7,7 @@ import cn.edu.thssdb.exception.TableNotExistException;
 import cn.edu.thssdb.query.QueryResult;
 import cn.edu.thssdb.query.QueryTable;
 import cn.edu.thssdb.type.ColumnType;
+import cn.edu.thssdb.utils.Global;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -31,7 +32,8 @@ public class Database {
     this.name = name;
     this.tables = new HashMap<>();
     this.lock = new ReentrantReadWriteLock();
-    this.persistentStorage = new PersistentStorage<>("database_tmp.meta");
+    String storage_path = Global.DATA_ROOT_FOLDER + "\\" + name + "\\" + name + ".meta";
+    this.persistentStorage = new PersistentStorage<>(storage_path);
     recover();
   }
 

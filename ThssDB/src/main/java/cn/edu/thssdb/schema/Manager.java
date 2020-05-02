@@ -35,7 +35,7 @@ public class Manager {
    * @param name {String} 数据库名称
    * @exception DuplicateDatabaseException 重复数据库
    */
-  private void createDatabaseIfNotExists(String name) {
+  private void createDatabaseIfNotExists(String name) throws ClassNotFoundException {
     if (databases.containsKey(name))
       throw new DuplicateDatabaseException();
     databases.put(name, new Database(name));
