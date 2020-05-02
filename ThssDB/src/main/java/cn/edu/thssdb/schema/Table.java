@@ -9,34 +9,55 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+/***************
+ * [class] 表
+ ***************/
 public class Table implements Iterable<Row> {
-  ReentrantReadWriteLock lock;
-  private String databaseName;
-  public String tableName;
-  public ArrayList<Column> columns;
-  public BPlusTree<Entry, Row> index;
-  private int primaryIndex;
+  ReentrantReadWriteLock lock;            // 可重入读写锁
+  private String databaseName;            // 数据库名称
+  public String tableName;                // 表名称
+  public ArrayList<Column> columns;       // 列 表
+  public BPlusTree<Entry, Row> index;     // B+树索引
+  private int primaryIndex;               // 主键索引
 
+  /**
+   * [方法] 构造方法
+   */
   public Table(String databaseName, String tableName, Column[] columns) {
     // TODO
   }
 
+  /**
+   * [方法] 恢复表
+   */
   private void recover() {
     // TODO
   }
 
+  /**
+   * [方法] 插入行
+   */
   public void insert() {
     // TODO
   }
 
+  /**
+   * [方法] 删除行
+   */
   public void delete() {
     // TODO
   }
 
+  /**
+   * [方法] 更新行
+   */
   public void update() {
     // TODO
   }
 
+  /**
+   * [方法] 序列化
+   */
   private void serialize() throws IOException {
     // TODO
     // 序列化和反序列化的基础用法，不过怎么和索引结合还是个问题
@@ -50,6 +71,9 @@ public class Table implements Iterable<Row> {
     objectOutputStream.close();
   }
 
+  /**
+   * [方法] 反序列化
+   */
   private ArrayList<Row> deserialize() throws IOException, ClassNotFoundException {
     // TODO
     ArrayList<Row> rows = new ArrayList<>();
@@ -67,6 +91,9 @@ public class Table implements Iterable<Row> {
     // return null;
   }
 
+  /**
+   * [内部类] 表迭代器（按行）
+   */
   private class TableIterator implements Iterator<Row> {
     private Iterator<Pair<Entry, Row>> iterator;
 
@@ -85,6 +112,9 @@ public class Table implements Iterable<Row> {
     }
   }
 
+  /**
+   * [方法] 创建迭代器（按行）
+   */
   @Override
   public Iterator<Row> iterator() {
     return new TableIterator(this);
