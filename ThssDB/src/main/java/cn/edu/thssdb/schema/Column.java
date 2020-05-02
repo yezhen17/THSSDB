@@ -8,14 +8,14 @@ import cn.edu.thssdb.type.ColumnType;
 public class Column implements Comparable<Column> {
   private String name;        // 名字
   private ColumnType type;    // 类型
-  private int primary;        // 是否为主键
+  private boolean primary;    // 是否为主键
   private boolean notNull;    // 是否可以为空
   private int maxLength;      // 最大长度（For String）
 
   /**
    * [method] 构造方法
    */
-  public Column(String name, ColumnType type, int primary, boolean notNull, int maxLength) {
+  public Column(String name, ColumnType type, boolean primary, boolean notNull, int maxLength) {
     this.name = name;
     this.type = type;
     this.primary = primary;

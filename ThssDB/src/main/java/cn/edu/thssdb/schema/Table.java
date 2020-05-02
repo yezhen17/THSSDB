@@ -26,11 +26,13 @@ public class Table implements Iterable<Row> {
    * @param databaseName {String} 数据库名称
    * @param tableName {String} 表名称
    * @param columns {Column[]} 列定义表
+   * @param primaryIndex {int} 主键索引
    */
-  public Table(String databaseName, String tableName, Column[] columns) {
+  public Table(String databaseName, String tableName, Column[] columns, int primaryIndex) {
     this.databaseName = databaseName;
     this.tableName = tableName;
     this.columns = new ArrayList<>(Arrays.asList(columns));
+    this.primaryIndex = primaryIndex;
   }
 
   /**
@@ -132,5 +134,13 @@ public class Table implements Iterable<Row> {
   @Override
   public Iterator<Row> iterator() {
     return new TableIterator(this);
+  }
+
+  /**
+   * [method] 检查列定义
+   */
+  public static boolean checkColumns(Column[] columns, int primaryIndex) {
+    // TODO 可整合至他处
+    return true;
   }
 }

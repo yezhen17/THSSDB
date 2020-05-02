@@ -1,7 +1,13 @@
 package cn.edu.thssdb.schema;
 
+import cn.edu.thssdb.exception.DatabaseNotExistException;
+import cn.edu.thssdb.exception.DuplicateDatabaseException;
+import cn.edu.thssdb.exception.DuplicateTableException;
+import cn.edu.thssdb.exception.TableNotExistException;
 import cn.edu.thssdb.query.QueryResult;
 import cn.edu.thssdb.query.QueryTable;
+import cn.edu.thssdb.type.ColumnType;
+
 import java.util.HashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -27,21 +33,27 @@ public class Database {
 
   /**
    * [method] 创建表
+   * [note] 传入的数据需合法
    * @param name {String} 表名称
    * @param columns {Column[]} 列定义
-   * @exception TODO
+   * @param primaryIndex {int} 主键索引
+   * @exception DuplicateTableException 重复表
    */
-  public void create(String name, Column[] columns) {
-    // TODO
+  public void create(String name, Column[] columns, int primaryIndex) {
+    if (tables.containsKey(name))
+      throw new DuplicateTableException();
+    tables.put(name, new Table(this.name, name, columns, primaryIndex));
   }
 
   /**
    * [method] 删除表
    * @param name {String} 表名称
-   * @exception TODO
+   * @exception TableNotExistException 表不存在
    */
   public void drop(String name) {
-    // TODO
+    if (!tables.containsKey(name))
+      throw new TableNotExistException();
+    tables.remove(name);
   }
 
   /**
@@ -51,7 +63,7 @@ public class Database {
    * @exception TODO
    */
   public String select(QueryTable[] queryTables) {
-    // TODO
+    // TODO 查询模块
     QueryResult queryResult = new QueryResult(queryTables);
     return null;
   }
@@ -82,4 +94,8 @@ public class Database {
   public void quit() {
     // TODO
   }
+
+
+
+
 }
