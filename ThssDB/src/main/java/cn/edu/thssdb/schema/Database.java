@@ -8,6 +8,8 @@ import cn.edu.thssdb.query.QueryResult;
 import cn.edu.thssdb.query.QueryTable;
 import cn.edu.thssdb.type.ColumnType;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -19,15 +21,17 @@ public class Database {
   private String name;                        // 数据库名称
   private HashMap<String, Table> tables;      // 表哈希表
   ReentrantReadWriteLock lock;                // 可重入读写锁
+  private PersistentStorage<HashMap<String, Table>> persistentStorage;// 持久化存储
 
   /**
    * [method] 构造方法
    * @param name {String} 数据库名称
    */
-  public Database(String name) {
+  public Database(String name) throws ClassNotFoundException {
     this.name = name;
     this.tables = new HashMap<>();
     this.lock = new ReentrantReadWriteLock();
+    this.persistentStorage = new PersistentStorage<>("database_tmp.meta");
     recover();
   }
 
@@ -73,8 +77,9 @@ public class Database {
    * [note] 从持久化数据中恢复数据库
    * @exception TODO
    */
-  private void recover() {
+  private void recover() throws ClassNotFoundException {
     // TODO
+    tables = persistentStorage.deserialize_single();
   }
 
   /**
@@ -82,8 +87,9 @@ public class Database {
    * [note] 将数据库持久化存储
    * @exception TODO
    */
-  private void persist() {
+  private void persist() throws IOException {
     // TODO
+    persistentStorage.serialize_single(tables);
   }
 
 

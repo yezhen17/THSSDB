@@ -60,6 +60,7 @@ public class Manager {
   public void switchDatabase(String name) {
     // TODO
     // 将现数据库存储，读取新数据库
+    // databases.get(name)
   }
 
   /**
