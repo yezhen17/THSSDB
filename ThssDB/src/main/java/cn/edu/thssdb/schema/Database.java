@@ -22,7 +22,7 @@ public class Database {
   private String name;                        // 数据库名称
   private HashMap<String, Table> tables;      // 表哈希表
   ReentrantReadWriteLock lock;                // 可重入读写锁
-  private PersistentStorage<HashMap<String, Table>> persistentStorage;// 持久化存储
+  // private PersistentStorage<HashMap<String, Table>> persistentStorage;// 持久化存储
 
   /**
    * [method] 构造方法
@@ -32,8 +32,8 @@ public class Database {
     this.name = name;
     this.tables = new HashMap<>();
     this.lock = new ReentrantReadWriteLock();
-    String storage_path = Global.DATA_ROOT_FOLDER + "\\" + name + "\\" + name + ".meta";
-    this.persistentStorage = new PersistentStorage<>(storage_path);
+    String meta_storage_path = Global.DATA_ROOT_FOLDER + "\\" + name + "\\" + name + ".meta";
+    // this.persistentStorage = new PersistentStorage<>(storage_path);
     recover();
   }
 
@@ -81,7 +81,7 @@ public class Database {
    */
   private void recover() throws ClassNotFoundException {
     // TODO
-    tables = persistentStorage.deserialize_single();
+    // tables = persistentStorage.deserialize_single();
   }
 
   /**
@@ -91,7 +91,7 @@ public class Database {
    */
   private void persist() throws IOException {
     // TODO
-    persistentStorage.serialize_single(tables);
+    // persistentStorage.serialize_single(tables);
   }
 
 
