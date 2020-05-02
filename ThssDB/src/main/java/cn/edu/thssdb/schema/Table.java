@@ -41,48 +41,69 @@ public class Table implements Iterable<Row> {
     String data_storage_path = Global.DATA_ROOT_FOLDER + "\\" + databaseName
             + "\\" + tableName + "\\" + tableName + ".data";
     this.persistentStorageData = new PersistentStorage<>(data_storage_path);
+    this.index = new BPlusTree<>();
   }
 
   public void loadFromStorage() {
     // TODO 加载元数据
-    recover(); // 加载数据
   }
 
   /**
    * [method] 恢复表
    * [note] 从持久化数据中恢复表
-   * @exception TODO
+   * @exception IllegalArgumentException
    */
-  private void recover() {
+  private void recover(ArrayList<Row> rows) {
     // TODO
+      for(Row row:rows){
+          index.put(row.getEntries().get(primaryIndex),row);
+      }
   }
 
-  /**
-   * [method] 插入行
-   * @param row {Row} 待插入行
-   * @exception TODO
-   */
-  public void insert(Row row) {
-    // TODO
-  }
+    /**
+     * [method] 插入行
+     * @param row {Row} 待插入行
+     * @exception IllegalArgumentException
+     */
+    public void insert(Row row) {
+        // TODO
+        index.put(row.getEntries().get(primaryIndex),row);
+    }
+
+    /**
+     * [method] 删除行
+     * TODO 可能利用索引
+     * @exception IllegalArgumentException
+     */
+    public void delete(Row row) {
+        // TODO
+        index.remove(row.getEntries().get(primaryIndex));
+    }
+
+    /**
+     * [method] 更新行
+     * TODO 可能利用索引
+     * @exception IllegalArgumentException
+     */
+    public void update(Row oldRow, Row newRow) {
+        // TODO
+        if(oldRow.getEntries().get(primaryIndex).compareTo(newRow.getEntries().get(primaryIndex))==0){
+            index.update(newRow.getEntries().get(primaryIndex),newRow);
+        }
+        else{
+            delete(oldRow);
+            insert(newRow);
+        }
+    }
 
   /**
-   * [method] 删除行
-   * TODO 可能利用索引
-   * @exception TODO
+   * [method] 查找行
+   * @exception IllegalArgumentException
    */
-  public void delete() {
-    // TODO
-  }
-
-  /**
-   * [method] 更新行
-   * TODO 可能利用索引
-   * @exception TODO
-   */
-  public void update() {
-    // TODO
-  }
+  public Row search(Entry entry) {
+        // TODO
+        return index.get(entry);
+    }
 
   /**
    * [method] 序列化
