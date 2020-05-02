@@ -13,7 +13,7 @@ public class Column implements Comparable<Column> {
   private int maxLength;      // 最大长度（For String）
 
   /**
-   * [方法] 构造方法
+   * [method] 构造方法
    */
   public Column(String name, ColumnType type, int primary, boolean notNull, int maxLength) {
     this.name = name;
@@ -24,7 +24,7 @@ public class Column implements Comparable<Column> {
   }
 
   /**
-   * [重写] 比较
+   * [override] 比较
    */
   @Override
   public int compareTo(Column e) {
@@ -32,7 +32,7 @@ public class Column implements Comparable<Column> {
   }
 
   /**
-   * [方法] 转化为字符串
+   * [method] 转化为字符串
    * @return 值对应字符串
    */
   public String toString() {

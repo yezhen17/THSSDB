@@ -14,7 +14,7 @@ public class Row implements Serializable {
   protected ArrayList<Entry> entries;       // 条目表
 
   /**
-   * [方法] 构造方法
+   * [method] 构造方法
    */
   public Row() {
     this.entries = new ArrayList<>();
@@ -24,7 +24,7 @@ public class Row implements Serializable {
   }
 
   /**
-   * [方法] 获取条目表
+   * [method] 获取条目表
    * @return 条目表
    */
   public ArrayList<Entry> getEntries() {
@@ -32,7 +32,7 @@ public class Row implements Serializable {
   }
 
   /**
-   * [方法] 追加条目表
+   * [method] 追加条目表
    * @param  entries {ArrayList<Entry>} 条目表
    */
   public void appendEntries(ArrayList<Entry> entries) {
@@ -40,7 +40,7 @@ public class Row implements Serializable {
   }
 
   /**
-   * [方法] 转化为字符串
+   * [method] 转化为字符串
    * @return 值对应字符串
    */
   public String toString() {

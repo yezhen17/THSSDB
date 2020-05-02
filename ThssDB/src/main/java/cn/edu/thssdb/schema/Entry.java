@@ -10,14 +10,15 @@ public class Entry implements Comparable<Entry>, Serializable {
   public Comparable value;       // 值
 
   /**
-   * [方法] 构造方法
+   * [method] 构造方法
+   * @param value {Comparable} 值
    */
   public Entry(Comparable value) {
     this.value = value;
   }
 
   /**
-   * [重写] 比较
+   * [override] 比较
    */
   @Override
   public int compareTo(Entry e) {
@@ -25,7 +26,7 @@ public class Entry implements Comparable<Entry>, Serializable {
   }
 
   /**
-   * [重写] 判等
+   * [override] 判等
    * @return 是否相等
    */
   @Override
@@ -39,7 +40,7 @@ public class Entry implements Comparable<Entry>, Serializable {
   }
 
   /**
-   * [方法] 转化为字符串
+   * [method] 转化为字符串
    * @return 值对应字符串
    */
   public String toString() {
@@ -47,7 +48,7 @@ public class Entry implements Comparable<Entry>, Serializable {
   }
 
   /**
-   * [方法] 获取哈希码
+   * [override] 获取哈希码
    * @return 值对应哈希码
    */
   @Override

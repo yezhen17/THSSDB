@@ -6,6 +6,7 @@ import javafx.util.Pair;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -16,47 +17,60 @@ public class Table implements Iterable<Row> {
   ReentrantReadWriteLock lock;            // 可重入读写锁
   private String databaseName;            // 数据库名称
   public String tableName;                // 表名称
-  public ArrayList<Column> columns;       // 列 表
+  public ArrayList<Column> columns;       // 列定义表
   public BPlusTree<Entry, Row> index;     // B+树索引
   private int primaryIndex;               // 主键索引
 
   /**
-   * [方法] 构造方法
+   * [method] 构造方法
+   * @param databaseName {String} 数据库名称
+   * @param tableName {String} 表名称
+   * @param columns {Column[]} 列定义表
    */
   public Table(String databaseName, String tableName, Column[] columns) {
-    // TODO
+    this.databaseName = databaseName;
+    this.tableName = tableName;
+    this.columns = new ArrayList<>(Arrays.asList(columns));
   }
 
   /**
-   * [方法] 恢复表
+   * [method] 恢复表
+   * [note] 从持久化数据中恢复表
+   * @exception TODO
    */
   private void recover() {
     // TODO
   }
 
   /**
-   * [方法] 插入行
+   * [method] 插入行
+   * @param row {Row} 待插入行
+   * @exception TODO
    */
-  public void insert() {
+  public void insert(Row row) {
     // TODO
   }
 
   /**
-   * [方法] 删除行
+   * [method] 删除行
+   * TODO 可能利用索引
+   * @exception TODO
    */
   public void delete() {
     // TODO
   }
 
   /**
-   * [方法] 更新行
+   * [method] 更新行
+   * TODO 可能利用索引
+   * @exception TODO
    */
   public void update() {
     // TODO
   }
 
   /**
-   * [方法] 序列化
+   * [method] 序列化
    */
   private void serialize() throws IOException {
     // TODO
@@ -72,7 +86,7 @@ public class Table implements Iterable<Row> {
   }
 
   /**
-   * [方法] 反序列化
+   * [method] 反序列化
    */
   private ArrayList<Row> deserialize() throws IOException, ClassNotFoundException {
     // TODO
@@ -92,7 +106,7 @@ public class Table implements Iterable<Row> {
   }
 
   /**
-   * [内部类] 表迭代器（按行）
+   * [class] 表迭代器（按行）
    */
   private class TableIterator implements Iterator<Row> {
     private Iterator<Pair<Entry, Row>> iterator;
@@ -113,7 +127,7 @@ public class Table implements Iterable<Row> {
   }
 
   /**
-   * [方法] 创建迭代器（按行）
+   * [method] 创建迭代器（按行）
    */
   @Override
   public Iterator<Row> iterator() {

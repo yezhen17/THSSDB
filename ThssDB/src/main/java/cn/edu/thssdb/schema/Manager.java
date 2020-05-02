@@ -14,7 +14,7 @@ public class Manager {
   private static ReentrantReadWriteLock lock = new ReentrantReadWriteLock();    // 可重入读写锁
 
   /**
-   * [方法] 获取管理器实例
+   * [method] 获取管理器实例
    * @return 管理器实例
    */
   public static Manager getInstance() {
@@ -22,35 +22,41 @@ public class Manager {
   }
 
   /**
-   * [方法] 构造方法
+   * [method] 构造方法
    */
   public Manager() {
     // TODO
   }
 
   /**
-   * [方法] 创建数据库
+   * [method] 创建数据库
+   * @param name {String} 数据库名称
+   * @exception TODO
    */
-  private void createDatabaseIfNotExists() {
+  private void createDatabaseIfNotExists(String name) {
     // TODO
   }
 
   /**
-   * [方法] 删除数据库
+   * [method] 删除数据库
+   * @param name {String} 数据库名称
+   * @exception TODO
    */
-  private void deleteDatabase() {
+  private void deleteDatabase(String name) {
     // TODO
   }
 
   /**
-   * [方法] 切换数据库
+   * [method] 切换数据库
+   * @param name {String} 数据库名称
+   * @exception TODO
    */
-  public void switchDatabase() {
+  public void switchDatabase(String name) {
     // TODO
   }
 
   /**
-   * [内部类] Holder类
+   * [class] Holder类
    */
   private static class ManagerHolder {
     private static final Manager INSTANCE = new Manager();
