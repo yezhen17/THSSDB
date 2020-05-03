@@ -1,5 +1,6 @@
 package cn.edu.thssdb.schema;
 
+import cn.edu.thssdb.exception.DuplicateTableException;
 import cn.edu.thssdb.exception.SerializeException;
 import cn.edu.thssdb.index.BPlusTree;
 import cn.edu.thssdb.utils.Global;
@@ -54,47 +55,63 @@ public class Table implements Iterable<Row> {
    * @exception IllegalArgumentException
    */
   private void recover(ArrayList<Row> rows) {
-    // TODO
+    try {
+      lock.writeLock().lock();
       for(Row row:rows){
-          index.put(row.getEntries().get(primaryIndex),row);
+        index.put(row.getEntries().get(primaryIndex), row);
       }
+    } finally {
+      lock.writeLock().unlock();
+    }
   }
 
-    /**
-     * [method] 插入行
-     * @param row {Row} 待插入行
-     * @exception IllegalArgumentException
-     */
-    public void insert(Row row) {
-        // TODO
-        index.put(row.getEntries().get(primaryIndex),row);
+  /**
+   * [method] 插入行
+   * @param row {Row} 待插入行
+   * @exception IllegalArgumentException
+   */
+  public void insert(Row row) {
+    try {
+      lock.writeLock().lock();
+      index.put(row.getEntries().get(primaryIndex),row);
+    } finally {
+      lock.writeLock().unlock();
     }
+  }
 
-    /**
-     * [method] 删除行
-     * TODO 可能利用索引
-     * @exception IllegalArgumentException
-     */
-    public void delete(Row row) {
-        // TODO
-        index.remove(row.getEntries().get(primaryIndex));
+  /**
+   * [method] 删除行
+   * TODO 可能利用索引
+   * @exception IllegalArgumentException
+   */
+  public void delete(Row row) {
+    try {
+      lock.writeLock().lock();
+      index.remove(row.getEntries().get(primaryIndex));
+    } finally {
+      lock.writeLock().unlock();
     }
+  }
 
-    /**
-     * [method] 更新行
-     * TODO 可能利用索引
-     * @exception IllegalArgumentException
-     */
-    public void update(Row oldRow, Row newRow) {
-        // TODO
-        if(oldRow.getEntries().get(primaryIndex).compareTo(newRow.getEntries().get(primaryIndex))==0){
-            index.update(newRow.getEntries().get(primaryIndex),newRow);
-        }
-        else{
-            delete(oldRow);
-            insert(newRow);
-        }
+  /**
+   * [method] 更新行
+   * TODO 可能利用索引
+   * @exception IllegalArgumentException
+   */
+  public void update(Row oldRow, Row newRow) {
+    try {
+      lock.writeLock().lock();
+      if(oldRow.getEntries().get(primaryIndex).compareTo(newRow.getEntries().get(primaryIndex))==0) {
+        index.update(newRow.getEntries().get(primaryIndex), newRow);
+      }
+      else{
+        delete(oldRow);
+        insert(newRow);
+      }
+    } finally {
+      lock.writeLock().unlock();
     }
+  }
 
   /**
    * [method] 查找行
