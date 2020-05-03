@@ -142,7 +142,6 @@ public class Table implements Iterable<Row> {
     }
   }
 
-
   /**
    * [method] 恢复表
    * [note] 从持久化数据中恢复表
@@ -174,14 +173,26 @@ public class Table implements Iterable<Row> {
   }
 
   /**
-   * [method] 删除行
-   * TODO 可能利用索引
+   * [method] 由Row删除行
    * @exception IllegalArgumentException
    */
   public void delete(Row row) {
     try {
       lock.writeLock().lock();
       index.remove(row.getEntries().get(primaryIndex));
+    } finally {
+      lock.writeLock().unlock();
+    }
+  }
+
+  /**
+   * [method] 由Entry（主键的）删除行
+   * @exception IllegalArgumentException
+   */
+  public void delete(Entry entry) {
+    try {
+      lock.writeLock().lock();
+      index.remove(entry);
     } finally {
       lock.writeLock().unlock();
     }
@@ -208,13 +219,46 @@ public class Table implements Iterable<Row> {
   }
 
   /**
-   * [method] 查找行
+   * [method] 由Entry查找行
    * @exception IllegalArgumentException
    */
   public Row search(Entry entry) {
-        // TODO
-        return index.get(entry);
+    // TODO
+    return index.get(entry);
+  }
+
+  /**
+   * [method] 更通用地，由column名和值查找行，这类函数还需根据查询模块的设计再调整和优化
+   * @exception IllegalArgumentException
+   */
+  public ArrayList<Row> search(String column_name, Comparable value, int compare_type) {
+    ArrayList<Row> res = new ArrayList<>();
+    int i = 0;
+    boolean has_column = false;
+    for (Column c : columns) {
+      if (c.getName() == column_name) {
+        has_column = true;
+        break;
+      }
+      i++;
     }
+    assert has_column; // 参数检查打算在解析时进行，这里只是示意，由name找column index也可以封装
+    if (i == primaryIndex) {
+      if (compare_type == 0) {
+        res.add(index.get(new Entry(value)));
+      }
+      // TODO
+    } else {
+      for (Iterator<Row> it = iterator(); it.hasNext(); ) {
+        Row r = it.next();
+        // 兼容 > == < 后续可以根据查询模块设计调整
+        if (new Entry(value).compareTo(r.getEntries().get(i)) == compare_type) {
+          res.add(r);
+        }
+      }
+    }
+    return res;
+  }
 
   /**
    * [method] 序列化

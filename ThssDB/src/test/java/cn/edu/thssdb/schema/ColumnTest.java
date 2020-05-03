@@ -4,12 +4,17 @@ import cn.edu.thssdb.type.ColumnType;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.IOException;
+import static org.junit.Assert.assertEquals;
 
 public class ColumnTest {
+  Column test;
   @Before
   public void setUp() {
-    Column test = new Column("name", ColumnType.INT, true, false, 100);
-    // System.out.println(test.toString(' '));
+    test = new Column("name", ColumnType.INT, true, false, 100);
+  }
+
+  @Test
+  public void testToString() {
+    assertEquals(test.toString(' '), "name INT true false 100");
   }
 }

@@ -22,7 +22,9 @@ public class DatabaseTest {
 
   @Test
   public void testPersist()  {
-
+//    Comparable<Integer> i;
+//    i = new Integer(0);
+//    System.out.println(i.compareTo(Integer.valueOf(1)));
   }
 
   @Test

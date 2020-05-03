@@ -31,6 +31,10 @@ public class Column implements Comparable<Column> {
     return name.compareTo(e.name);
   }
 
+  public String getName() {
+    return name;
+  }
+
   /**
    * [method] 转化为字符串
    * @return 值对应字符串

@@ -67,21 +67,27 @@ public class TableTest {
 
   @Test
   public void testRecover() {
-//        try {
-//            ArrayList<Row> rows = new ArrayList<>();
-//            Method method = Table.class.getDeclaredMethod("recover",rows.getClass());
-//            method.setAccessible(true);
-//            method.invoke(table);
-//        }
-//        catch (NoSuchMethodException e){
-//            e.printStackTrace();
-//        } catch (IllegalAccessException e) {
-//            e.printStackTrace();
-//        } catch (InvocationTargetException e) {
-//            e.printStackTrace();
-//        }
-
-
+    try {
+      Entry[] entry = new Entry[5];
+      entry[0] = new Entry(7);
+      entry[1] = new Entry((long) 1);
+      entry[2] = new Entry(2.0);
+      entry[3] = new Entry((double) 3.0);
+      entry[4] = new Entry("test str2");
+      ArrayList<Row> rows = new ArrayList<>();
+      rows.add(new Row(entry));
+      Method method = table.getClass().getDeclaredMethod("recover",rows.getClass());
+      method.setAccessible(true);
+      method.invoke(table, rows);
+      assertEquals(rows.get(0),table.search(new Entry(7)));
+    }
+    catch (NoSuchMethodException e){
+      e.printStackTrace();
+    } catch (IllegalAccessException e) {
+      e.printStackTrace();
+    } catch (InvocationTargetException e) {
+      e.printStackTrace();
+    }
   }
 
   @Test
