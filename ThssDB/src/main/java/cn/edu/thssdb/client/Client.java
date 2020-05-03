@@ -21,9 +21,12 @@ import org.slf4j.LoggerFactory;
 import java.io.PrintStream;
 import java.util.Scanner;
 
+/***************
+ * [class] 客户端
+ ***************/
 public class Client {
 
-  private static final Logger logger = LoggerFactory.getLogger(Client.class);
+  private static final Logger logger = LoggerFactory.getLogger(Client.class);     // 日志
 
   static final String HOST_ARGS = "h";
   static final String HOST_NAME = "host";
@@ -42,6 +45,9 @@ public class Client {
   private static IService.Client client;
   private static CommandLine commandLine;
 
+  /**
+   * [method] 入口方法
+   */
   public static void main(String[] args) {
     commandLine = parseCmd(args);
     if (commandLine.hasOption(HELP_ARGS)) {
@@ -50,17 +56,21 @@ public class Client {
     }
     try {
       echoStarting();
-      String host = commandLine.getOptionValue(HOST_ARGS, Global.DEFAULT_SERVER_HOST);
-      int port = Integer.parseInt(commandLine.getOptionValue(PORT_ARGS, String.valueOf(Global.DEFAULT_SERVER_PORT)));
+      String host = commandLine.getOptionValue(HOST_ARGS, Global.DEFAULT_SERVER_HOST);    // 获取 host
+      int port = Integer.parseInt(commandLine.getOptionValue(PORT_ARGS, String.valueOf(Global.DEFAULT_SERVER_PORT)));   // 获取 port
+      // 创建连接
       transport = new TSocket(host, port);
       transport.open();
       protocol = new TBinaryProtocol(transport);
       client = new IService.Client(protocol);
+      // ***** MAIN LOOP *****
       boolean open = true;
-      while (true) {
+      while (open) {
         print(Global.CLI_PREFIX);
         String msg = SCANNER.nextLine();
+        // *** START ***
         long startTime = System.currentTimeMillis();
+        // TODO 命令添加
         switch (msg.trim()) {
           case Global.SHOW_TIME:
             getTime();
@@ -73,26 +83,20 @@ public class Client {
             break;
         }
         long endTime = System.currentTimeMillis();
+        // *** END ***
         println("It costs " + (endTime - startTime) + " ms.");
-        if (!open) {
-          break;
-        }
       }
+      // ***** LOOP END *****
+      // 关闭连接
       transport.close();
     } catch (TTransportException e) {
       logger.error(e.getMessage());
     }
   }
 
-  private static void getTime() {
-    GetTimeReq req = new GetTimeReq();
-    try {
-      println(client.getTime(req).getTime());
-    } catch (TException e) {
-      logger.error(e.getMessage());
-    }
-  }
-
+  /**
+   * [method] 创建命令行选项
+   */
   static Options createOptions() {
     Options options = new Options();
     options.addOption(Option.builder(HELP_ARGS)
@@ -119,6 +123,9 @@ public class Client {
     return options;
   }
 
+  /**
+   * [method] 解析命令行
+   */
   static CommandLine parseCmd(String[] args) {
     Options options = createOptions();
     CommandLineParser parser = new DefaultParser();
@@ -133,26 +140,45 @@ public class Client {
     return cmd;
   }
 
-  static void showHelp() {
-    // TODO
-    println("DO IT YOURSELF");
+  /**
+   * [method] 打印信息
+   */
+  static void print(String msg) {
+    SCREEN_PRINTER.print(msg);
+  }
+  static void println() {
+    SCREEN_PRINTER.println();
+  }
+  static void println(String msg) {
+    SCREEN_PRINTER.println(msg);
   }
 
+  /**
+   * [method] 打印开始信息
+   */
   static void echoStarting() {
     println("----------------------");
     println("Starting ThssDB Client");
     println("----------------------");
   }
 
-  static void print(String msg) {
-    SCREEN_PRINTER.print(msg);
+  /**
+   * [method] 打印帮助信息
+   */
+  static void showHelp() {
+    // TODO 添加帮助信息
+    println("DO IT YOURSELF");
   }
 
-  static void println() {
-    SCREEN_PRINTER.println();
-  }
-
-  static void println(String msg) {
-    SCREEN_PRINTER.println(msg);
+  /**
+   * [method] 请求 - 打印时间
+   */
+  private static void getTime() {
+    GetTimeReq req = new GetTimeReq();
+    try {
+      println(client.getTime(req).getTime());
+    } catch (TException e) {
+      logger.error(e.getMessage());
+    }
   }
 }

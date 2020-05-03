@@ -24,6 +24,7 @@ public class Database {
   ReentrantReadWriteLock lock;                // 可重入读写锁
   // private PersistentStorage<HashMap<String, Table>> persistentStorage;// 持久化存储
 
+
   /**
    * [method] 构造方法
    * @param name {String} 数据库名称
@@ -46,9 +47,19 @@ public class Database {
    * @exception DuplicateTableException 重复表
    */
   public void create(String name, Column[] columns, int primaryIndex) {
-    if (tables.containsKey(name))
-      throw new DuplicateTableException();
-    tables.put(name, new Table(this.name, name, columns, primaryIndex));
+    try {
+      lock.readLock().lock();
+      if (tables.containsKey(name))
+        throw new DuplicateTableException();
+    } finally {
+      lock.readLock().unlock();
+    }
+    try {
+      lock.writeLock().lock();
+      tables.put(name, new Table(this.name, name, columns, primaryIndex));
+    } finally {
+      lock.writeLock().unlock();
+    }
   }
 
   /**
@@ -57,9 +68,19 @@ public class Database {
    * @exception TableNotExistException 表不存在
    */
   public void drop(String name) {
-    if (!tables.containsKey(name))
-      throw new TableNotExistException();
-    tables.remove(name);
+    try {
+      lock.readLock().lock();
+      if (!tables.containsKey(name))
+        throw new TableNotExistException();
+    } finally {
+      lock.readLock().unlock();
+    }
+    try {
+      lock.writeLock().lock();
+      tables.remove(name);
+    } finally {
+      lock.writeLock().unlock();
+    }
   }
 
   /**
@@ -70,7 +91,12 @@ public class Database {
    */
   public String select(QueryTable[] queryTables) {
     // TODO 查询模块
-    QueryResult queryResult = new QueryResult(queryTables);
+    try {
+      lock.readLock().lock();
+      QueryResult queryResult = new QueryResult(queryTables);
+    } finally {
+      lock.readLock().unlock();
+    }
     return null;
   }
 
