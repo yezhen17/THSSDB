@@ -12,20 +12,21 @@ import static org.junit.Assert.assertEquals;
 
 
 public class DatabaseTest {
-    private HashMap<String, Table> tables;
+  private HashMap<String, Table> tables;
 
-    @Before
-    public void setUp() throws IOException {
-        tables.put("test1", new Table("db1", "t1", null, 0));
-    }
+  @Before
+  public void setUp() throws IOException {
+    tables = new HashMap<>();
+    // tables.put("test1", new Table("db1", "t1", null, 0));
+  }
 
-    @Test
-    public void testPersist() throws IOException {
+  @Test
+  public void testPersist()  {
 
-    }
+  }
 
-    @Test
-    public void testRecover() throws IOException {
+  @Test
+  public void testRecover()  {
 
-    }
+  }
 }

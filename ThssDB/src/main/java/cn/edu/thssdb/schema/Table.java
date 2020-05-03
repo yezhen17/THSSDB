@@ -1,9 +1,6 @@
 package cn.edu.thssdb.schema;
 
-import cn.edu.thssdb.exception.DuplicateTableException;
-import cn.edu.thssdb.exception.SerializeException;
-import cn.edu.thssdb.exception.TableMetaFileNotFoundException;
-import cn.edu.thssdb.exception.WrongMetaFormatException;
+import cn.edu.thssdb.exception.*;
 import cn.edu.thssdb.index.BPlusTree;
 import cn.edu.thssdb.type.ColumnType;
 import cn.edu.thssdb.utils.Global;
@@ -21,7 +18,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * [class] 表
  ***************/
 public class Table implements Iterable<Row> {
-  ReentrantReadWriteLock lock;            // 可重入读写锁
+  private ReentrantReadWriteLock lock;            // 可重入读写锁
   private String databaseName;            // 数据库名称
   public String tableName;                // 表名称
   public ArrayList<Column> columns;       // 列定义表
@@ -31,24 +28,57 @@ public class Table implements Iterable<Row> {
   private Meta tableMeta;
 
   /**
-   * [method] 构造方法
+   * [method] 无metadata构造方法
    * @param databaseName {String} 数据库名称
    * @param tableName {String} 表名称
    * @param columns {Column[]} 列定义表
    * @param primaryIndex {int} 主键索引
    */
-  public Table(String databaseName, String tableName, Column[] columns, int primaryIndex) throws IOException {
+  public Table(String databaseName, String tableName, Column[] columns, int primaryIndex) throws CustomIOException {
     // 还有很大的问题，需要区分新建Table和加载；或者增加一个加载的函数
-    this.databaseName = databaseName;
-    this.tableName = tableName;
+    initData(databaseName, tableName, true);
+    this.lock = new ReentrantReadWriteLock();
     this.columns = new ArrayList<>(Arrays.asList(columns));
     this.primaryIndex = primaryIndex;
+    this.index = new BPlusTree<>();
+    // persistMeta();
+  }
+
+  /**
+   * [method] 读取metadata构造方法
+   * @param databaseName {String} 数据库名称
+   * @param tableName {String} 表名称
+   */
+  public Table(String databaseName, String tableName) throws CustomIOException, TableMetaFileNotFoundException {
+    initData(databaseName, tableName, false);
+    this.lock = new ReentrantReadWriteLock();
+    this.columns = new ArrayList<>();
+    this.index = new BPlusTree<>();
+    recoverMeta();
+  }
+
+  /**
+   * [method] 初始化元数据和数据存储相关
+   * @param databaseName {String} 数据库名称
+   * @param tableName {String} 表名称
+   * @param just_created {boolean} 是否是新建的Table
+   * @exception IllegalArgumentException
+   */
+  private void initData(String databaseName, String tableName, boolean just_created) {
+    this.databaseName = databaseName;
+    this.tableName = tableName;
     String folder = Global.DATA_ROOT_FOLDER + "\\" + databaseName + "\\" + tableName;
     String meta_name = tableName + ".meta";
     String data_name = tableName + ".data";
-    this.persistentStorageData = new PersistentStorage<>(folder, data_name);
-    this.tableMeta = new Meta(folder, meta_name, true);
-    this.index = new BPlusTree<>();
+    this.persistentStorageData = new PersistentStorage<>(folder, data_name, just_created);
+    this.tableMeta = new Meta(folder, meta_name, just_created);
+  }
+
+  /**
+   * [method] 将metadata持久化
+   * @exception CustomIOException
+   */
+  private void persistMeta() throws CustomIOException {
     ArrayList<String> meta_data = new ArrayList<>();
     meta_data.add(Global.DATABASE_NAME_META + " " + databaseName);
     meta_data.add(Global.TABLE_NAME_META + " " + tableName);
@@ -59,21 +89,16 @@ public class Table implements Iterable<Row> {
     this.tableMeta.writeToFile(meta_data);
   }
 
-  public Table(String databaseName, String tableName) throws IOException {
-    // TODO 加载元数据
-    this.databaseName = databaseName;
-    this.tableName = tableName;
-    String folder = Global.DATA_ROOT_FOLDER + "\\" + databaseName + "\\" + tableName;
-    String meta_name = tableName + ".meta";
-    String data_name = tableName + ".data";
-    this.persistentStorageData = new PersistentStorage<>(folder, data_name);
-    this.tableMeta = new Meta(folder, meta_name, false);
+  /**
+   * [method] 恢复metadata
+   * @exception TableMetaFileNotFoundException, CustomIOException
+   */
+  private void recoverMeta() throws TableMetaFileNotFoundException, CustomIOException {
     ArrayList<String []> meta_data = this.tableMeta.readFromFile();
     String [] database_name = meta_data.get(0);
     try {
       if (database_name[0] != Global.DATABASE_NAME_META) {
         throw new WrongMetaFormatException();
-
       }
       if (this.databaseName != database_name[1]) {
         throw new WrongMetaFormatException();
@@ -115,8 +140,8 @@ public class Table implements Iterable<Row> {
         throw new WrongMetaFormatException();
       }
     }
-
   }
+
 
   /**
    * [method] 恢复表
@@ -142,7 +167,7 @@ public class Table implements Iterable<Row> {
   public void insert(Row row) {
     try {
       lock.writeLock().lock();
-      index.put(row.getEntries().get(primaryIndex),row);
+      index.put(row.getEntries().get(primaryIndex), row);
     } finally {
       lock.writeLock().unlock();
     }

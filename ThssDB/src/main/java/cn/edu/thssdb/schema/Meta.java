@@ -1,71 +1,74 @@
 package cn.edu.thssdb.schema;
 
 
+import cn.edu.thssdb.exception.CustomIOException;
 import cn.edu.thssdb.exception.TableMetaFileNotFoundException;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class Meta<V> {
-    private String folder_name;
-    private String file_name;
-    private ArrayList<String []> lines;
-    public Meta(String folder_name, String file_name, boolean just_created) {
-        this.folder_name = folder_name;
-        this.file_name = file_name;
-        if (!just_created) {
-            File d = new File(folder_name);
-            d.mkdirs();
-            new File(folder_name + "\\" + file_name);
-        }
-
+public class Meta {
+  private String folder_name;
+  private String file_name;
+  private String full_path;
+  private ArrayList<String []> lines;
+  public Meta(String folder_name, String file_name, boolean just_created) {
+    this.folder_name = folder_name;
+    this.file_name = file_name;
+    this.full_path = folder_name + "\\" + file_name;
+    this.lines = new ArrayList<>();
+    if (!just_created) {
+      File d = new File(folder_name);
+      d.mkdirs();
+      new File(this.full_path);
     }
 
-    /**
-     * [method] 读取元数据
-     * @param
-     * @exception TableMetaFileNotFoundException
-     * @return
-     */
-    public ArrayList<String[]> readFromFile() throws IOException {
-        String str;
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(file_name));
-            while ((str = reader.readLine()) != null) // 判断最后一行不存在，为空结束循环
-            {
-                System.out.println(str);//原样输出读到的内容
-                lines.add(str.split(" "));
-            }
-        } catch (FileNotFoundException e) {
-            throw new TableMetaFileNotFoundException();
-        } catch (IOException e) {
-            throw new IOException();
-        }
-        return lines;
-    }
+  }
 
-    /**
-     * [method] 写入元数据
-     * @param
-     * @exception TableMetaFileNotFoundException
-     * @return
-     */
-    public void writeToFile(ArrayList<String> meta_data) throws IOException {
-        String str;
-        try {
-            BufferedWriter writer = new BufferedWriter(new FileWriter(file_name));
-            for (String line : meta_data) {
-                writer.write(line);
-                writer.newLine();
-            }
-        } catch (IOException e) {
-            throw new IOException();
-        }
+  /**
+   * [method] 读取元数据
+   * @param
+   * @exception TableMetaFileNotFoundException, CustomIOException
+   * @return 元数据
+   */
+  public ArrayList<String[]> readFromFile() throws TableMetaFileNotFoundException, CustomIOException {
+    String str;
+    try {
+      BufferedReader reader = new BufferedReader(new FileReader(full_path));
+      while ((str = reader.readLine()) != null) {
+        lines.add(str.split(" "));
+      }
+      reader.close();
+    } catch (FileNotFoundException e) {
+      throw new TableMetaFileNotFoundException();
+    } catch (IOException e) {
+      throw new CustomIOException();
     }
+    return lines;
+  }
 
-    public void deleteFile() {
-
+  /**
+   * [method] 写入元数据
+   * @param meta_data
+   * @exception CustomIOException
+   * @return
+   */
+  public void writeToFile(ArrayList<String> meta_data) throws CustomIOException {
+    try {
+      BufferedWriter writer = new BufferedWriter(new FileWriter(full_path));
+      for (String line : meta_data) {
+        writer.write(line);
+        writer.newLine();
+      }
+      writer.close();
+    } catch (IOException e) {
+      throw new CustomIOException();
     }
+  }
+
+  public void deleteFile() {
+
+  }
 }
 
