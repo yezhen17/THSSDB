@@ -35,6 +35,7 @@ public class Manager {
    * @param name {String} 数据库名称
    * @exception DuplicateDatabaseException 重复数据库
    */
+<<<<<<< HEAD
   private void createDatabaseIfNotExists(String name) {
     try {
       lock.readLock().lock();
@@ -49,6 +50,12 @@ public class Manager {
     } finally {
       lock.writeLock().unlock();
     }
+=======
+  private void createDatabaseIfNotExists(String name) throws ClassNotFoundException {
+    if (databases.containsKey(name))
+      throw new DuplicateDatabaseException();
+    databases.put(name, new Database(name));
+>>>>>>> 1b50dea9d1f7b9028512ef60a5e54dcfa0072669
   }
 
   /**
@@ -80,6 +87,7 @@ public class Manager {
   public void switchDatabase(String name) {
     // TODO
     // 将现数据库存储，读取新数据库
+    // databases.get(name)
   }
 
   /**

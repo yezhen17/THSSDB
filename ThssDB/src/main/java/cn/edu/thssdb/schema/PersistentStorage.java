@@ -10,6 +10,13 @@ public class PersistentStorage<V> {
         this.file_name = file_name;
     }
 
+    public void serialize_single(V input) throws IOException {
+        ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(file_name));
+        objectOutputStream.writeObject(input);
+        objectOutputStream.flush();
+        objectOutputStream.close();
+    }
+
     public void serialize(ArrayList<V> input) throws IOException {
         ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(file_name));
         for (V obj: input) {
@@ -26,6 +33,18 @@ public class PersistentStorage<V> {
         }
         objectOutputStream.flush();
         objectOutputStream.close();
+    }
+
+    public V deserialize_single() throws ClassNotFoundException {
+        try {
+            ArrayList<V> objs = new ArrayList<>();
+            ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(file_name));
+            V obj = (V) objectInputStream.readObject();
+            objectInputStream.close();
+            return obj;
+        } catch (IOException e) {
+            return null;
+        }
     }
 
     public ArrayList<V> deserialize() throws ClassNotFoundException {

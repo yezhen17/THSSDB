@@ -2,6 +2,7 @@ package cn.edu.thssdb.schema;
 
 import cn.edu.thssdb.exception.SerializeException;
 import cn.edu.thssdb.index.BPlusTree;
+import cn.edu.thssdb.utils.Global;
 import javafx.util.Pair;
 
 import java.io.*;
@@ -20,7 +21,7 @@ public class Table implements Iterable<Row> {
   public ArrayList<Column> columns;       // 列定义表
   public BPlusTree<Entry, Row> index;     // B+树索引
   private int primaryIndex;               // 主键索引
-  private PersistentStorage<Row> persistentStorage;
+  private PersistentStorage<Row> persistentStorageData; // 数据持久化
 
   /**
    * [method] 构造方法
@@ -30,11 +31,21 @@ public class Table implements Iterable<Row> {
    * @param primaryIndex {int} 主键索引
    */
   public Table(String databaseName, String tableName, Column[] columns, int primaryIndex) {
+    // 还有很大的问题，需要区分新建Table和加载；或者增加一个加载的函数
     this.databaseName = databaseName;
     this.tableName = tableName;
     this.columns = new ArrayList<>(Arrays.asList(columns));
     this.primaryIndex = primaryIndex;
-    this.persistentStorage = new PersistentStorage<>("tmp.data"); // this is the storage file name
+    String meta_storage_path = Global.DATA_ROOT_FOLDER + "\\" + databaseName
+            + "\\" + tableName + "\\" + tableName + ".meta";
+    String data_storage_path = Global.DATA_ROOT_FOLDER + "\\" + databaseName
+            + "\\" + tableName + "\\" + tableName + ".data";
+    this.persistentStorageData = new PersistentStorage<>(data_storage_path);
+  }
+
+  public void loadFromStorage() {
+    // TODO 加载元数据
+    recover(); // 加载数据
   }
 
   /**
@@ -80,7 +91,7 @@ public class Table implements Iterable<Row> {
     // TODO
     try {
       lock.readLock().lock();
-      persistentStorage.serialize(iterator());
+      persistentStorageData.serialize(iterator());
     } finally {
       lock.readLock().unlock();
     }
@@ -89,9 +100,9 @@ public class Table implements Iterable<Row> {
   /**
    * [method] 反序列化
    */
-  private ArrayList<Row> deserialize() throws IOException, ClassNotFoundException {
+  private ArrayList<Row> deserialize() throws ClassNotFoundException {
     // TODO
-    return persistentStorage.deserialize();
+    return persistentStorageData.deserialize();
   }
 
   /**
