@@ -15,7 +15,7 @@ public class DatabaseTest {
     private HashMap<String, Table> tables;
 
     @Before
-    public void setUp() {
+    public void setUp() throws IOException {
         tables.put("test1", new Table("db1", "t1", null, 0));
     }
 

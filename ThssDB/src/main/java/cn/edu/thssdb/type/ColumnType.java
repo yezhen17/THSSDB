@@ -13,4 +13,22 @@ public enum ColumnType {
     else if(o instanceof String) return STRING;
     else throw new IllegalArgumentException();
   }
+
+  public static ColumnType string2ColumnType(String s) throws Exception {
+    if(s == "INT") return INT;
+    else if(s == "LONG") return LONG;
+    else if(s == "FLOAT") return FLOAT;
+    else if(s == "DOUBLE") return DOUBLE;
+    else if(s == "STRING") return STRING;
+    else throw new Exception();
+  }
+
+  public static String columnType2String(ColumnType c) throws Exception {
+    if(c == INT) return "INT";
+    else if(c == LONG) return "LONG";
+    else if(c == FLOAT) return "FLOAT";
+    else if(c == DOUBLE) return "DOUBLE";
+    else if(c == STRING) return "STRING";
+    else throw new Exception();
+  }
 }

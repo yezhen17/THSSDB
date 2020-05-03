@@ -9,6 +9,7 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -30,7 +31,7 @@ public class TableTest {
 
 
     @Before
-    public void setUp() {
+    public void setUp() throws IOException {
         Column c0 = new Column("c0", ColumnType.INT,true,true,0);
         Column c1 = new Column("c1",ColumnType.LONG,false,false,0);
         Column c2 = new Column("c2",ColumnType.DOUBLE,false,false,0);

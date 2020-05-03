@@ -5,9 +5,14 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 public class PersistentStorage<V> {
+    public String folder_name;
     public String file_name;
-    public PersistentStorage(String file_name) {
+    public PersistentStorage(String folder_name, String file_name) {
+        this.folder_name = folder_name;
         this.file_name = file_name;
+        File d = new File(folder_name);
+        d.mkdirs();
+        new File(folder_name + "\\" + file_name);
     }
 
     public void serialize_single(V input) throws IOException {

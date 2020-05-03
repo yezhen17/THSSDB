@@ -57,6 +57,8 @@ public class Database {
     try {
       lock.writeLock().lock();
       tables.put(name, new Table(this.name, name, columns, primaryIndex));
+    } catch (IOException e) {
+      e.printStackTrace();
     } finally {
       lock.writeLock().unlock();
     }

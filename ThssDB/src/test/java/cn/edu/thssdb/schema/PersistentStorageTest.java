@@ -16,7 +16,7 @@ public class PersistentStorageTest {
 
     @Before
     public void setUp() {
-        persistentStorage = new PersistentStorage<>("tmp.data");
+        persistentStorage = new PersistentStorage<>("test", "tmp.data");
         test = new ArrayList<>();
         entries = new Entry[3][3];
         for (int i = 0; i < 3; i++) {
