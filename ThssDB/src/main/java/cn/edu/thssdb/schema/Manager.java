@@ -36,9 +36,19 @@ public class Manager {
    * @exception DuplicateDatabaseException 重复数据库
    */
   private void createDatabaseIfNotExists(String name) {
-    if (databases.containsKey(name))
-      throw new DuplicateDatabaseException();
-    databases.put(name, new Database(name));
+    try {
+      lock.readLock().lock();
+      if (databases.containsKey(name))
+        throw new DuplicateDatabaseException();
+    } finally {
+      lock.readLock().unlock();
+    }
+    try {
+      lock.writeLock().lock();
+      databases.put(name, new Database(name));
+    } finally {
+      lock.writeLock().unlock();
+    }
   }
 
   /**
@@ -47,9 +57,19 @@ public class Manager {
    * @exception DatabaseNotExistException 数据库不存在
    */
   private void deleteDatabase(String name) {
-    if (!databases.containsKey(name))
-      throw new DatabaseNotExistException();
-    databases.remove(name);
+    try {
+      lock.readLock().lock();
+      if (!databases.containsKey(name))
+        throw new DatabaseNotExistException();
+    } finally {
+      lock.readLock().unlock();
+    }
+    try {
+      lock.writeLock().lock();
+      databases.remove(name);
+    } finally {
+      lock.writeLock().unlock();
+    }
   }
 
   /**

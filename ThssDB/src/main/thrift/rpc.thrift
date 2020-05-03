@@ -8,6 +8,11 @@ struct Status {
 struct GetTimeReq {
 }
 
+struct GetTimeResp {
+  1: required string time
+  2: required Status status
+}
+
 struct ConnectReq{
   1: required string username
   2: required string password
@@ -24,11 +29,6 @@ struct DisconnetReq{
 
 struct DisconnetResp{
   1: required Status status
-}
-
-struct GetTimeResp {
-  1: required string time
-  2: required Status status
 }
 
 struct ExecuteStatementReq {
