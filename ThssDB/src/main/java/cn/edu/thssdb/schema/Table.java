@@ -35,7 +35,6 @@ public class Table implements Iterable<Row> {
    * @param primaryIndex {int} 主键索引
    */
   public Table(String databaseName, String tableName, Column[] columns, int primaryIndex) throws CustomIOException {
-    // 还有很大的问题，需要区分新建Table和加载；或者增加一个加载的函数
     initData(databaseName, tableName, true);
     this.lock = new ReentrantReadWriteLock();
     this.columns = new ArrayList<>(Arrays.asList(columns));
@@ -49,12 +48,13 @@ public class Table implements Iterable<Row> {
    * @param databaseName {String} 数据库名称
    * @param tableName {String} 表名称
    */
-  public Table(String databaseName, String tableName) throws CustomIOException, TableMetaFileNotFoundException {
+  public Table(String databaseName, String tableName) throws CustomIOException, MetaFileNotFoundException, ClassNotFoundException {
     initData(databaseName, tableName, false);
     this.lock = new ReentrantReadWriteLock();
     this.columns = new ArrayList<>();
     this.index = new BPlusTree<>();
     recoverMeta();
+    recover(deserialize());
   }
 
   /**
@@ -91,9 +91,9 @@ public class Table implements Iterable<Row> {
 
   /**
    * [method] 恢复metadata
-   * @exception TableMetaFileNotFoundException, CustomIOException
+   * @exception MetaFileNotFoundException, CustomIOException
    */
-  private void recoverMeta() throws TableMetaFileNotFoundException, CustomIOException {
+  private void recoverMeta() throws MetaFileNotFoundException, CustomIOException {
     ArrayList<String []> meta_data = this.tableMeta.readFromFile();
     String [] database_name = meta_data.get(0);
     try {
@@ -140,6 +140,16 @@ public class Table implements Iterable<Row> {
         throw new WrongMetaFormatException();
       }
     }
+  }
+
+  /**
+   * [method] 持久化表（可能是切换数据库时，或者缓存置换？）
+   * [note] 将表持久化
+   * @exception
+   */
+  public void persist() throws DataFileNotFoundException, CustomIOException {
+    serialize();
+    persistMeta();
   }
 
   /**
@@ -263,7 +273,7 @@ public class Table implements Iterable<Row> {
   /**
    * [method] 序列化
    */
-  private void serialize() throws IOException {
+  private void serialize() throws DataFileNotFoundException, CustomIOException {
     // TODO
     try {
       lock.readLock().lock();

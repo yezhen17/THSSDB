@@ -2,7 +2,7 @@ package cn.edu.thssdb.schema;
 
 
 import cn.edu.thssdb.exception.CustomIOException;
-import cn.edu.thssdb.exception.TableMetaFileNotFoundException;
+import cn.edu.thssdb.exception.MetaFileNotFoundException;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -29,10 +29,10 @@ public class Meta {
   /**
    * [method] 读取元数据
    * @param
-   * @exception TableMetaFileNotFoundException, CustomIOException
+   * @exception MetaFileNotFoundException, CustomIOException
    * @return 元数据
    */
-  public ArrayList<String[]> readFromFile() throws TableMetaFileNotFoundException, CustomIOException {
+  public ArrayList<String[]> readFromFile() throws MetaFileNotFoundException, CustomIOException {
     String str;
     try {
       BufferedReader reader = new BufferedReader(new FileReader(full_path));
@@ -41,7 +41,7 @@ public class Meta {
       }
       reader.close();
     } catch (FileNotFoundException e) {
-      throw new TableMetaFileNotFoundException();
+      throw new MetaFileNotFoundException();
     } catch (IOException e) {
       throw new CustomIOException();
     }

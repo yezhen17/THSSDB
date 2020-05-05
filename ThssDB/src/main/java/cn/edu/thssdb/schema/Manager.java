@@ -1,9 +1,9 @@
 package cn.edu.thssdb.schema;
 
-import cn.edu.thssdb.exception.DatabaseNotExistException;
-import cn.edu.thssdb.exception.DuplicateDatabaseException;
+import cn.edu.thssdb.exception.*;
 import cn.edu.thssdb.server.ThssDB;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -28,6 +28,9 @@ public class Manager {
    */
   public Manager() {
     // TODO
+//    for () {
+//      databases.put(name, new Database(name));
+//    }
   }
 
   /**
@@ -77,10 +80,12 @@ public class Manager {
    * @param name {String} 数据库名称
    * @exception TODO
    */
-  public void switchDatabase(String name) {
+  public void switchDatabase(String name) throws DataFileNotFoundException, CustomIOException, MetaFileNotFoundException {
     // TODO
     // 将现数据库存储，读取新数据库
-    // databases.get(name)
+    // databases.get(current_name).persist();
+
+    databases.get(name).recover();
   }
 
   /**

@@ -1,9 +1,6 @@
 package cn.edu.thssdb.schema;
 
-import cn.edu.thssdb.exception.DatabaseNotExistException;
-import cn.edu.thssdb.exception.DuplicateDatabaseException;
-import cn.edu.thssdb.exception.DuplicateTableException;
-import cn.edu.thssdb.exception.TableNotExistException;
+import cn.edu.thssdb.exception.*;
 import cn.edu.thssdb.query.QueryResult;
 import cn.edu.thssdb.query.QueryTable;
 import cn.edu.thssdb.type.ColumnType;
@@ -22,7 +19,7 @@ public class Database {
   private String name;                        // 数据库名称
   private HashMap<String, Table> tables;      // 表哈希表
   ReentrantReadWriteLock lock;                // 可重入读写锁
-  // private PersistentStorage<HashMap<String, Table>> persistentStorage;// 持久化存储
+  private Meta meta;// 持久化存储
 
 
   /**
@@ -30,12 +27,13 @@ public class Database {
    * @param name {String} 数据库名称
    */
   public Database(String name) throws ClassNotFoundException {
+    // 需要区分是加载已有数据库还是新建
     this.name = name;
     this.tables = new HashMap<>();
     this.lock = new ReentrantReadWriteLock();
-    String meta_storage_path = Global.DATA_ROOT_FOLDER + "\\" + name + "\\" + name + ".meta";
-    // this.persistentStorage = new PersistentStorage<>(storage_path);
-    recover();
+    String folder = Global.DATA_ROOT_FOLDER + "\\" + name;
+    String meta_name = name + ".meta";
+    this.meta = new Meta(folder, meta_name, true);
   }
 
   /**
@@ -105,11 +103,19 @@ public class Database {
   /**
    * [method] 恢复数据库
    * [note] 从持久化数据中恢复数据库
-   * @exception TODO
    */
-  private void recover() throws ClassNotFoundException {
+  public void recover() throws MetaFileNotFoundException, CustomIOException, WrongMetaFormatException {
     // TODO
-    // tables = persistentStorage.deserialize_single();
+    ArrayList<String[]> table_list = this.meta.readFromFile();
+
+    // 目前 一行一个table名
+    for (String [] table_info: table_list) {
+      try {
+        tables.put(table_info[0], new Table(this.name, table_info[0]));
+      } catch (Exception e) {
+        throw new WrongMetaFormatException();
+      }
+    }
   }
 
   /**
@@ -117,9 +123,13 @@ public class Database {
    * [note] 将数据库持久化存储
    * @exception TODO
    */
-  private void persist() throws IOException {
+  public void persist() throws DataFileNotFoundException, CustomIOException {
     // TODO
-    // persistentStorage.serialize_single(tables);
+    for(Object key: tables.keySet())
+    {
+      tables.get(key).persist();
+    }
+    this.meta.writeToFile((ArrayList<String>) tables.keySet()); // 目前 一行一个table名
   }
 
 

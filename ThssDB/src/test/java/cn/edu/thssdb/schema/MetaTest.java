@@ -1,7 +1,7 @@
 package cn.edu.thssdb.schema;
 
 import cn.edu.thssdb.exception.CustomIOException;
-import cn.edu.thssdb.exception.TableMetaFileNotFoundException;
+import cn.edu.thssdb.exception.MetaFileNotFoundException;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -24,13 +24,13 @@ public class MetaTest {
     File f = new File("test\\tmp.meta");
     assertTrue(f.isFile());
     f.delete();
-    assertThrows(TableMetaFileNotFoundException.class, () -> {
+    assertThrows(MetaFileNotFoundException.class, () -> {
       test.readFromFile();
     });
   }
 
   @Test
-  public void testReadOverWrite() throws CustomIOException, TableMetaFileNotFoundException {
+  public void testReadOverWrite() throws CustomIOException, MetaFileNotFoundException {
     String s1 = "FIRST SECOND THIRD";
     String s2 = "1 2 3";
     ArrayList<String> a = new ArrayList<>();

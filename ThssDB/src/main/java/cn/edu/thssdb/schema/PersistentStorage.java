@@ -1,5 +1,8 @@
 package cn.edu.thssdb.schema;
 
+import cn.edu.thssdb.exception.CustomIOException;
+import cn.edu.thssdb.exception.DataFileNotFoundException;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -26,22 +29,37 @@ public class PersistentStorage<V> {
     objectOutputStream.close();
   }
 
-  public void serialize(ArrayList<V> input) throws IOException {
-    ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(full_path));
-    for (V obj: input) {
-      objectOutputStream.writeObject(obj);
+  public void serialize(ArrayList<V> input) throws CustomIOException, DataFileNotFoundException {
+    try {
+      FileOutputStream fos = new FileOutputStream(full_path);
+      ObjectOutputStream objectOutputStream = new ObjectOutputStream(fos);
+      for (V obj: input) {
+        objectOutputStream.writeObject(obj);
+      }
+      objectOutputStream.flush();
+      objectOutputStream.close();
+    } catch (FileNotFoundException e) {
+      throw new DataFileNotFoundException();
+    } catch (IOException e) {
+      throw new CustomIOException();
     }
-    objectOutputStream.flush();
-    objectOutputStream.close();
   }
 
-  public void serialize(Iterator<V> iterator) throws IOException {
-    ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(full_path));
-    while (iterator.hasNext()) {
-      objectOutputStream.writeObject(iterator.next());
+  public void serialize(Iterator<V> iterator) throws CustomIOException, DataFileNotFoundException {
+    try {
+      FileOutputStream fos = new FileOutputStream(full_path);
+      ObjectOutputStream objectOutputStream = new ObjectOutputStream(fos);
+      while (iterator.hasNext()) {
+        objectOutputStream.writeObject(iterator.next());
+      }
+      objectOutputStream.flush();
+      objectOutputStream.close();
+    } catch (FileNotFoundException e) {
+      throw new DataFileNotFoundException();
+    } catch (IOException e) {
+      throw new CustomIOException();
     }
-    objectOutputStream.flush();
-    objectOutputStream.close();
+
   }
 
   public V deserialize_single() throws ClassNotFoundException {
