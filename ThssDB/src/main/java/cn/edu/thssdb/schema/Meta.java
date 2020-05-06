@@ -18,7 +18,7 @@ public class Meta {
     this.file_name = file_name;
     this.full_path = folder_name + "\\" + file_name;
     this.lines = new ArrayList<>();
-    if (!just_created) {
+    if (just_created) {
       File d = new File(folder_name);
       d.mkdirs();
       new File(this.full_path);

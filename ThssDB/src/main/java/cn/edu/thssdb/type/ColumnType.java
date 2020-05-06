@@ -15,11 +15,11 @@ public enum ColumnType {
   }
 
   public static ColumnType string2ColumnType(String s) throws Exception {
-    if(s == "INT") return INT;
-    else if(s == "LONG") return LONG;
-    else if(s == "FLOAT") return FLOAT;
-    else if(s == "DOUBLE") return DOUBLE;
-    else if(s == "STRING") return STRING;
+    if(s.equals("INT")) return INT;
+    else if(s.equals("LONG")) return LONG;
+    else if(s.equals("FLOAT")) return FLOAT;
+    else if(s.equals("DOUBLE")) return DOUBLE;
+    else if(s.equals("STRING")) return STRING;
     else throw new Exception();
   }
 

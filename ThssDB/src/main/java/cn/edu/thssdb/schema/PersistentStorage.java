@@ -15,7 +15,7 @@ public class PersistentStorage<V> {
     this.folder_name = folder_name;
     this.file_name = file_name;
     this.full_path = folder_name + "\\" + file_name;
-    if (!just_created) {
+    if (just_created) {
       File d = new File(folder_name);
       d.mkdirs();
       new File(this.full_path);
@@ -89,7 +89,7 @@ public class PersistentStorage<V> {
       objectInputStream.close();
       return objs;
     } catch (IOException e) {
-      return null;
+      return new ArrayList<>();
     }
   }
 }

@@ -113,6 +113,7 @@ public class Database {
       try {
         tables.put(table_info[0], new Table(this.name, table_info[0]));
       } catch (Exception e) {
+        e.printStackTrace();
         throw new WrongMetaFormatException();
       }
     }

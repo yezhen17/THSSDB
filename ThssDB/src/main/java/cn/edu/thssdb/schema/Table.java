@@ -95,32 +95,34 @@ public class Table implements Iterable<Row> {
    */
   private void recoverMeta() throws MetaFileNotFoundException, CustomIOException {
     ArrayList<String []> meta_data = this.tableMeta.readFromFile();
-    String [] database_name = meta_data.get(0);
     try {
-      if (database_name[0] != Global.DATABASE_NAME_META) {
+      String [] database_name = meta_data.get(0);
+      if (!database_name[0].equals(Global.DATABASE_NAME_META)) {
         throw new WrongMetaFormatException();
       }
-      if (this.databaseName != database_name[1]) {
+      if (!this.databaseName.equals(database_name[1])) {
         throw new WrongMetaFormatException();
       }
     } catch (Exception e) {
       throw new WrongMetaFormatException();
     }
-    String [] table_name = meta_data.get(1);
+
     try {
-      if (table_name[0] != Global.TABLE_NAME_META) {
+      String [] table_name = meta_data.get(1);
+      if (!table_name[0].equals(Global.TABLE_NAME_META)) {
         throw new WrongMetaFormatException();
 
       }
-      if (this.tableName != table_name[1]) {
+      if (!this.tableName.equals(table_name[1])) {
         throw new WrongMetaFormatException();
       }
     } catch (Exception e) {
       throw new WrongMetaFormatException();
     }
-    String [] primary_key = meta_data.get(2);
+
     try {
-      if (primary_key[0] != Global.PRIMARY_KEY_INDEX_META) {
+      String [] primary_key = meta_data.get(2);
+      if (!primary_key[0].equals(Global.PRIMARY_KEY_INDEX_META)) {
         throw new WrongMetaFormatException();
       }
       this.primaryIndex = Integer.parseInt(primary_key[1]);
@@ -132,8 +134,8 @@ public class Table implements Iterable<Row> {
       try {
         String name = column_info[0];
         ColumnType type = ColumnType.string2ColumnType(column_info[1]);
-        boolean primary = column_info[2] == "true";
-        boolean notNull = column_info[3] == "true";
+        boolean primary = column_info[2].equals("true");
+        boolean notNull = column_info[3].equals("true");
         int maxLength = Integer.parseInt(column_info[4]);
         this.columns.add(new Column(name, type, primary, notNull, maxLength));
       } catch (Exception e) {
