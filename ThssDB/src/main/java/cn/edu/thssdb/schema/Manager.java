@@ -28,9 +28,24 @@ public class Manager {
    */
   public Manager() {
     // TODO
+    databases = new HashMap<>();
 //    for () {
 //      databases.put(name, new Database(name));
 //    }
+  }
+
+  /**
+   * [method] 判断数据库是否存在
+   * @param name {String} 数据库名称
+   * @return {boolean} 数据库是否存在
+   */
+  public boolean contains(String name) {
+    try {
+      lock.readLock().lock();
+      return databases.containsKey(name);
+    } finally {
+      lock.readLock().unlock();
+    }
   }
 
   /**
@@ -38,7 +53,7 @@ public class Manager {
    * @param name {String} 数据库名称
    * @exception DuplicateDatabaseException 重复数据库
    */
-  private void createDatabaseIfNotExists(String name) throws ClassNotFoundException {
+  public void createDatabaseIfNotExists(String name) throws ClassNotFoundException {
     try {
       lock.readLock().lock();
       if (databases.containsKey(name))
@@ -59,7 +74,7 @@ public class Manager {
    * @param name {String} 数据库名称
    * @exception DatabaseNotExistException 数据库不存在
    */
-  private void deleteDatabase(String name) {
+  public void deleteDatabase(String name) {
     try {
       lock.readLock().lock();
       if (!databases.containsKey(name))

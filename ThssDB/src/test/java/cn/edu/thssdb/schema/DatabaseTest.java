@@ -1,6 +1,7 @@
 package cn.edu.thssdb.schema;
 
 import cn.edu.thssdb.exception.CustomIOException;
+import cn.edu.thssdb.exception.DuplicateTableException;
 import cn.edu.thssdb.exception.MetaFileNotFoundException;
 import cn.edu.thssdb.type.ColumnType;
 import org.junit.Before;
@@ -12,7 +13,8 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
 
 
 public class DatabaseTest {
@@ -28,6 +30,28 @@ public class DatabaseTest {
 //    cs[1] = new Column("c2", ColumnType.STRING, false, true, 100);
 //    tables.put("t1", new Table("db1", "t1", cs, 0));
 
+  }
+  @Test
+  public void testCreateAndDrop()  {
+    boolean flag = false;
+    Column [] cs = new Column[2];
+    cs[0] = new Column("c1", ColumnType.INT, true, true, 100);
+    cs[1] = new Column("c2", ColumnType.STRING, false, true, 100);
+    database.create("table_1", cs, 0);
+    assertTrue(database.contains("table_1"));
+    database.create("table_2", cs, 0);
+    assertTrue(database.contains("table_2"));
+    try {
+      database.create("table_2", cs, 0);
+    }
+    catch (DuplicateTableException e) {
+      flag = true;
+    }
+    assertTrue(flag);
+    database.drop("table_1");
+    assertFalse(database.contains("table_1"));
+    database.drop("table_2");
+    assertFalse(database.contains("table_2"));
   }
 
   @Test

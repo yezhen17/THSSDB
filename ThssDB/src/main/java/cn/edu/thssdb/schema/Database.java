@@ -37,6 +37,20 @@ public class Database {
   }
 
   /**
+   * [method] 判断表是否存在
+   * @param name {String} 表名称
+   * @return {boolean} 表是否存在
+   */
+  public boolean contains(String name) {
+    try {
+      lock.readLock().lock();
+      return tables.containsKey(name);
+    } finally {
+      lock.readLock().unlock();
+    }
+  }
+
+  /**
    * [method] 创建表
    * [note] 传入的数据需合法
    * @param name {String} 表名称
