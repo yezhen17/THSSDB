@@ -118,7 +118,7 @@ public class Database {
    * [method] 恢复数据库
    * [note] 从持久化数据中恢复数据库
    */
-  public void recover() throws WrongMetaFormatException {
+  public void recover() throws WrongMetaFormatException, MetaFileNotFoundException, CustomIOException, ClassNotFoundException {
     try {
       lock.writeLock().lock();
       ArrayList<String[]> table_list = this.meta.readFromFile();
@@ -126,8 +126,6 @@ public class Database {
       for (String [] table_info: table_list) {
         tables.put(table_info[0], new Table(this.name, table_info[0]));
       }
-    } catch (Exception e) {
-      throw new WrongMetaFormatException();
     } finally {
       lock.writeLock().unlock();
     }
@@ -138,7 +136,6 @@ public class Database {
    * [note] 将数据库持久化存储
    */
   public void persist() throws DataFileNotFoundException, CustomIOException {
-    // TODO
     try {
       lock.readLock().lock();
       ArrayList<String> keys = new ArrayList<>();
