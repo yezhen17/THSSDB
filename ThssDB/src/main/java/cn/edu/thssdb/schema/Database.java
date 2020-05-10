@@ -18,22 +18,22 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class Database {
   private String name;                        // 数据库名称
   private HashMap<String, Table> tables;      // 表哈希表
-  ReentrantReadWriteLock lock;                // 可重入读写锁
-  private Meta meta;// 持久化存储
+  private ReentrantReadWriteLock lock;                // 可重入读写锁
+  private Meta meta;                          // 元数据管理
 
 
   /**
    * [method] 构造方法
    * @param name {String} 数据库名称
    */
-  public Database(String name) throws ClassNotFoundException {
+  public Database(String name) throws CustomIOException {
     // 需要区分是加载已有数据库还是新建
     this.name = name;
     this.tables = new HashMap<>();
     this.lock = new ReentrantReadWriteLock();
     String folder = Global.DATA_ROOT_FOLDER + "\\" + name;
     String meta_name = name + ".meta";
-    this.meta = new Meta(folder, meta_name, true);
+    this.meta = new Meta(folder, meta_name, true); // 暂时不加载表到内存
   }
 
   /**
@@ -108,55 +108,67 @@ public class Database {
     try {
       lock.readLock().lock();
       QueryResult queryResult = new QueryResult(queryTables);
+      return null;
     } finally {
       lock.readLock().unlock();
     }
-    return null;
   }
 
   /**
    * [method] 恢复数据库
    * [note] 从持久化数据中恢复数据库
    */
-  public void recover() throws MetaFileNotFoundException, CustomIOException, WrongMetaFormatException {
-    // TODO
-    ArrayList<String[]> table_list = this.meta.readFromFile();
-
-    // 目前 一行一个table名
-    for (String [] table_info: table_list) {
-      try {
+  public void recover() throws WrongMetaFormatException {
+    try {
+      lock.writeLock().lock();
+      ArrayList<String[]> table_list = this.meta.readFromFile();
+      // 目前 一行一个table名
+      for (String [] table_info: table_list) {
         tables.put(table_info[0], new Table(this.name, table_info[0]));
-      } catch (Exception e) {
-        e.printStackTrace();
-        throw new WrongMetaFormatException();
       }
+    } catch (Exception e) {
+      throw new WrongMetaFormatException();
+    } finally {
+      lock.writeLock().unlock();
     }
   }
 
   /**
    * [method] 存储数据库（持久化）
    * [note] 将数据库持久化存储
-   * @exception TODO
    */
   public void persist() throws DataFileNotFoundException, CustomIOException {
     // TODO
-    for(Object key: tables.keySet())
-    {
-      tables.get(key).persist();
+    try {
+      lock.readLock().lock();
+      ArrayList<String> keys = new ArrayList<>();
+      for(String key: tables.keySet())
+      {
+        tables.get(key).persist();
+        keys.add(key);
+      }
+      this.meta.writeToFile(keys); // 目前 一行一个table名
+    } finally {
+      lock.readLock().unlock();
     }
-    this.meta.writeToFile((ArrayList<String>) tables.keySet()); // 目前 一行一个table名
   }
-
 
   /**
    * [method] 退出数据库
-   * @exception TODO
    */
-  public void quit() {
+  public void quit() throws DataFileNotFoundException, CustomIOException {
     // TODO
+    this.persist();
   }
 
-
-
-
+  /**
+   * [method] 删除数据库
+   */
+  public void wipeData() {
+    this.meta.deleteFile();
+    for (Table table: tables.values()) {
+      table.drop();
+    }
+    tables.clear();
+  }
 }

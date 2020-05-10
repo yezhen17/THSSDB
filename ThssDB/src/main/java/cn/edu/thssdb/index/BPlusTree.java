@@ -57,6 +57,10 @@ public final class BPlusTree<K extends Comparable<K>, V> implements Iterable<Pai
     }
   }
 
+  public void clear() {
+    root.clear();
+  }
+
   @Override
   public BPlusTreeIterator<K, V> iterator() {
     return new BPlusTreeIterator<>(this);

@@ -1,6 +1,7 @@
 package cn.edu.thssdb.schema;
 
 import cn.edu.thssdb.exception.CustomIOException;
+import cn.edu.thssdb.exception.DataFileNotFoundException;
 import cn.edu.thssdb.exception.DuplicateTableException;
 import cn.edu.thssdb.exception.MetaFileNotFoundException;
 import cn.edu.thssdb.type.ColumnType;
@@ -55,11 +56,29 @@ public class DatabaseTest {
   }
 
   @Test
-  public void testPersist()  {
-
-//    Comparable<Integer> i;
-//    i = new Integer(0);
-//    System.out.println(i.compareTo(Integer.valueOf(1)));
+  public void testPersist() throws IOException {
+    Column [] cs = new Column[2];
+    cs[0] = new Column("c1", ColumnType.INT, true, true, 100);
+    cs[1] = new Column("c2", ColumnType.STRING, false, true, 100);
+    database.create("t1", cs, 0);
+    database.persist();
+    File d = new File("data\\db1\\t1");
+    if (!d.exists()) {
+      d.mkdir();
+    }
+    File fr = new File("data\\db1\\db1.meta");
+    BufferedReader reader = new BufferedReader(new FileReader(fr));
+    String str;
+    ArrayList<String []> lines = new ArrayList<>();
+    while ((str = reader.readLine()) != null) {
+      lines.add(str.split(" "));
+    }
+    assertEquals(lines.get(0)[0], "t1");
+//    assertEquals(lines.get(1)[0], "db1");
+//    assertEquals(lines.get(2)[0], "0");
+//    assertEquals(lines.get(3)[0], "c1");
+//    assertEquals(lines.get(3)[1], "INT");
+    reader.close();
   }
 
   @Test

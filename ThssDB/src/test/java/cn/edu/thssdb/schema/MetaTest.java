@@ -15,7 +15,7 @@ import static org.junit.Assert.assertThrows;
 public class MetaTest {
   Meta test;
   @Before
-  public void setUp() {
+  public void setUp() throws CustomIOException {
     test = new Meta("test", "tmp.meta", true);
   }
 

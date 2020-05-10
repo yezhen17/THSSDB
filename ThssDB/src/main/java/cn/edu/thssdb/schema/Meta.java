@@ -3,6 +3,7 @@ package cn.edu.thssdb.schema;
 
 import cn.edu.thssdb.exception.CustomIOException;
 import cn.edu.thssdb.exception.MetaFileNotFoundException;
+import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -12,17 +13,31 @@ public class Meta {
   private String folder_name;
   private String file_name;
   private String full_path;
-  private ArrayList<String []> lines;
-  public Meta(String folder_name, String file_name, boolean just_created) {
+
+  public Meta(String folder_name, String file_name, boolean just_created) throws CustomIOException {
     this.folder_name = folder_name;
     this.file_name = file_name;
     this.full_path = folder_name + "\\" + file_name;
-    this.lines = new ArrayList<>();
-    if (just_created) {
-      File d = new File(folder_name);
+
+    File d = new File(this.folder_name);
+    if (!d.isDirectory()) {
       d.mkdirs();
-      new File(this.full_path);
     }
+    File f = new File(this.full_path);
+    if (!f.isFile()) {
+      try {
+        f.createNewFile();
+      } catch (IOException e) {
+        throw new CustomIOException();
+      }
+    }
+//    if (!exists(this.full_path)) {
+//
+//
+//    }
+//    if (just_created) {
+//
+//    }
 
   }
 
@@ -33,6 +48,7 @@ public class Meta {
    * @return 元数据
    */
   public ArrayList<String[]> readFromFile() throws MetaFileNotFoundException, CustomIOException {
+    ArrayList<String []> lines = new ArrayList<>();
     String str;
     try {
       BufferedReader reader = new BufferedReader(new FileReader(full_path));
@@ -68,7 +84,8 @@ public class Meta {
   }
 
   public void deleteFile() {
-
+      File f = new File(this.full_path);
+      f.delete();
   }
 }
 

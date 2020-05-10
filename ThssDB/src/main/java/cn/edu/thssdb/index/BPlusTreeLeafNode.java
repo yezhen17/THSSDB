@@ -98,4 +98,9 @@ public class BPlusTreeLeafNode<K extends Comparable<K>, V> extends BPlusTreeNode
     nodeSize = index + length;
     next = node.next;
   }
+
+  @Override
+  void clear() {
+    values.clear();
+  }
 }

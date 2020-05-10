@@ -1,9 +1,9 @@
 package cn.edu.thssdb.schema;
 
 import cn.edu.thssdb.exception.*;
-import cn.edu.thssdb.server.ThssDB;
+import cn.edu.thssdb.utils.Global;
 
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -12,8 +12,11 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * [note] 单例模式（Holder）
  ***************/
 public class Manager {
-  private HashMap<String, Database> databases;                                  // 数据库哈希表
-  private static ReentrantReadWriteLock lock = new ReentrantReadWriteLock();    // 可重入读写锁
+  private HashMap<String, Database> databases;   // 数据库哈希表
+  private static ReentrantReadWriteLock lock;    // 可重入读写锁
+  private String current_database = null;        // 当前的数据库
+  private Meta meta;                             // 元数据管理
+  private ArrayList<String> databasesList;       // 数据库名称列表
 
   /**
    * [method] 获取管理器实例
@@ -27,11 +30,22 @@ public class Manager {
    * [method] 构造方法
    */
   public Manager() {
-    // TODO
     databases = new HashMap<>();
-//    for () {
-//      databases.put(name, new Database(name));
-//    }
+    lock = new ReentrantReadWriteLock();
+    databasesList = new ArrayList<>();
+    try {
+      // 目前没有权限管理，可扩展
+      meta = new Meta(Global.DATA_ROOT_FOLDER, "manager.data", true);
+      ArrayList<String[]> db_list = this.meta.readFromFile();
+      System.out.println(db_list);
+      for (String [] db_info: db_list) {
+        databases.put(db_info[0], new Database(db_info[0]));
+        databasesList.add(db_info[0]);
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      throw new RuntimeException();
+    }
   }
 
   /**
@@ -53,7 +67,7 @@ public class Manager {
    * @param name {String} 数据库名称
    * @exception DuplicateDatabaseException 重复数据库
    */
-  public void createDatabaseIfNotExists(String name) throws ClassNotFoundException {
+  public void createDatabaseIfNotExists(String name) throws CustomIOException {
     try {
       lock.readLock().lock();
       if (databases.containsKey(name))
@@ -64,6 +78,7 @@ public class Manager {
     try {
       lock.writeLock().lock();
       databases.put(name, new Database(name));
+      databasesList.add(name);
     } finally {
       lock.writeLock().unlock();
     }
@@ -84,23 +99,65 @@ public class Manager {
     }
     try {
       lock.writeLock().lock();
+      databases.get(name).wipeData();
       databases.remove(name);
     } finally {
       lock.writeLock().unlock();
     }
   }
 
+
   /**
    * [method] 切换数据库
    * @param name {String} 数据库名称
-   * @exception TODO
    */
   public void switchDatabase(String name) throws DataFileNotFoundException, CustomIOException, MetaFileNotFoundException {
-    // TODO
-    // 将现数据库存储，读取新数据库
-    // databases.get(current_name).persist();
 
-    databases.get(name).recover();
+    try {
+      lock.writeLock().lock();
+      if (current_database != null) {
+        databases.get(current_database).quit();
+      }
+      if (databasesList.contains(name)) {
+        databases.get(name).recover();
+        current_database = name;
+      } else {
+        throw new DatabaseNotExistException();
+      }
+    } finally {
+    lock.writeLock().unlock();
+    }
+  }
+
+  /**
+   * [method] 获取当前数据库名称
+   * return {String} 当前数据库名称，没有则返回null
+   */
+  public String getCurrentDatabaseName() {
+    try {
+      lock.readLock().lock();
+      return current_database;
+    } finally {
+      lock.readLock().unlock();
+    }
+  }
+
+  /**
+   * [method] 展示所有数据库名称
+   * return {String} 返回一定格式的数据名称信息
+   * @return
+   */
+  public String showAllDatabases() {
+    try {
+      lock.readLock().lock();
+      StringBuffer info = new StringBuffer();
+      for (String name: databasesList) {
+        info.append(name + '\n');
+      }
+      return info.toString();
+    } finally {
+      lock.readLock().unlock();
+    }
   }
 
   /**

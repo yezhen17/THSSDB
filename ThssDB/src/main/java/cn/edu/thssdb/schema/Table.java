@@ -64,7 +64,7 @@ public class Table implements Iterable<Row> {
    * @param just_created {boolean} 是否是新建的Table
    * @exception IllegalArgumentException
    */
-  private void initData(String databaseName, String tableName, boolean just_created) {
+  private void initData(String databaseName, String tableName, boolean just_created) throws CustomIOException {
     this.databaseName = databaseName;
     this.tableName = tableName;
     String folder = Global.DATA_ROOT_FOLDER + "\\" + databaseName + "\\" + tableName;
@@ -291,6 +291,15 @@ public class Table implements Iterable<Row> {
   private ArrayList<Row> deserialize() throws ClassNotFoundException {
     // TODO
     return persistentStorageData.deserialize();
+  }
+
+  /**
+   * [method] 删除table（包括表本身）
+   */
+  public void drop() {
+    this.index.clear();
+    this.tableMeta.deleteFile();
+    this.persistentStorageData.deleteFile();
   }
 
   /**

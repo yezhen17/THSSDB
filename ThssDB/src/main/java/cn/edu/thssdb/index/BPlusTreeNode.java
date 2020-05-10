@@ -53,4 +53,6 @@ abstract class BPlusTreeNode<K extends Comparable<K>, V> {
     }
     nodeSize--;
   }
+
+  abstract void clear ();
 }

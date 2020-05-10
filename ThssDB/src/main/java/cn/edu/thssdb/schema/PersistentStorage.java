@@ -92,4 +92,9 @@ public class PersistentStorage<V> {
       return new ArrayList<>();
     }
   }
+
+  public void deleteFile() {
+    File f = new File(this.full_path);
+    f.delete();
+  }
 }
