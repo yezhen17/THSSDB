@@ -1,4 +1,4 @@
-// Generated from /Users/anyanzhe/workspace/ThssDB/src/main/java/cn/edu/thssdb/parser/SQL.g4 by ANTLR 4.8
+// Generated from E:/THSSDB/THSSDB/THSSDB/ThssDB/src/main/java/cn/edu/thssdb/parser\SQL.g4 by ANTLR 4.8
 package cn.edu.thssdb.parser;
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
@@ -131,6 +131,36 @@ public interface SQLVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitSelect_stmt(SQLParser.Select_stmtContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link SQLParser#select_content}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSelect_content(SQLParser.Select_contentContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link SQLParser#select_item_1}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSelect_item_1(SQLParser.Select_item_1Context ctx);
+	/**
+	 * Visit a parse tree produced by {@link SQLParser#select_item_2}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSelect_item_2(SQLParser.Select_item_2Context ctx);
+	/**
+	 * Visit a parse tree produced by {@link SQLParser#join_content}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitJoin_content(SQLParser.Join_contentContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link SQLParser#on_content}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitOn_content(SQLParser.On_contentContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link SQLParser#create_view_stmt}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -209,12 +239,6 @@ public interface SQLVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitResult_column(SQLParser.Result_columnContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link SQLParser#table_query}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitTable_query(SQLParser.Table_queryContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link SQLParser#auth_level}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -268,4 +292,10 @@ public interface SQLVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitPassword(SQLParser.PasswordContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link SQLParser#numeric_value}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNumeric_value(SQLParser.Numeric_valueContext ctx);
 }

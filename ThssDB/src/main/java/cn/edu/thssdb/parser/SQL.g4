@@ -78,8 +78,43 @@ value_entry :
     '(' literal_value ( ',' literal_value )* ')' ;
 
 select_stmt :
-    K_SELECT ( K_DISTINCT | K_ALL )? result_column ( ',' result_column )*
-        K_FROM table_query ( ',' table_query )* ( K_WHERE multiple_condition )? ;
+    K_SELECT select_content
+    K_FROM join_content
+    ( K_WHERE multiple_condition )?
+    ( K_ORDER K_BY column_full_name ( ',' column_full_name )* ( K_DESC | K_ASC )? )?
+    ;
+
+select_content:
+    ( select_item_1 ( ',' select_item_1 )* ) |
+    select_item_2
+    ;
+
+select_item_1:
+    numeric_value |
+    result_column |
+    ( K_AVG | K_MAX | K_MIN | K_COUNT | K_SUM ) '(' column_full_name ')' |
+    ( K_COUNT '(' '*' ')' ) |
+    column_full_name ( MUL | DIV | ADD | SUB ) numeric_value |
+    numeric_value ( MUL | DIV | ADD | SUB ) numeric_value |
+    numeric_value ( MUL | DIV | ADD | SUB ) column_full_name
+    ;
+
+select_item_2:
+    ( K_DISTINCT | K_ALL ) column_full_name ( ',' column_full_name )*
+    ;
+
+
+join_content:
+    ( table_name ',' table_name ) |
+    ( table_name K_NATURAL ( K_INNER )? K_JOIN table_name ) |
+    ( table_name ( K_INNER )? K_JOIN table_name K_ON on_content ) |
+    ( table_name ( K_LEFT | K_RIGHT | K_FULL ) ( K_OUTER )? K_JOIN table_name K_ON on_content )
+    ;
+
+on_content :
+    column_full_name '=' column_full_name ( ( K_AND | AND ) column_full_name '=' column_full_name )*
+    ;
+
 
 create_view_stmt :
     K_CREATE K_VIEW view_name K_AS select_stmt ;
@@ -92,7 +127,8 @@ update_stmt :
         K_SET column_name '=' expression ( K_WHERE multiple_condition )? ;
 
 column_def :
-    column_name type_name column_constraint* ;
+    ( (column_name type_name (K_PRIMARY K_KEY)?  (K_NOT K_NULL)?) |
+    (column_name type_name (K_NOT K_NULL)?  (K_PRIMARY K_KEY)?)  ) ;
 
 type_name :
     T_INT
@@ -107,8 +143,8 @@ column_constraint :
 
 multiple_condition :
     condition
-    | multiple_condition AND multiple_condition
-    | multiple_condition OR multiple_condition ;
+    | multiple_condition (AND|K_AND) multiple_condition
+    | multiple_condition (OR|K_OR) multiple_condition ;
 
 condition :
     expression comparator expression;
@@ -134,9 +170,6 @@ result_column
     | table_name '.' '*'
     | column_full_name;
 
-table_query :
-    table_name
-    | table_name ( K_JOIN table_name )+ K_ON multiple_condition ;
 
 auth_level :
     K_SELECT | K_INSERT | K_UPDATE | K_DELETE | K_DROP ;
@@ -167,6 +200,11 @@ view_name :
 password :
     STRING_LITERAL ;
 
+numeric_value
+  : INTEGER_LITERAL
+  | FLOAT_LITERAL
+  ;
+
 EQ : '=';
 NE : '<>';
 LT : '<';
@@ -190,33 +228,49 @@ T_STRING : S T R I N G;
 
 K_ADD : A D D;
 K_ALL : A L L;
+K_AND : A N D;
 K_AS : A S;
+K_ASC : A S C;
+K_AVG : A V G;
 K_BY : B Y;
 K_COLUMN : C O L U M N;
+K_COUNT : C O U N T;
 K_CREATE : C R E A T E;
 K_DATABASE : D A T A B A S E;
 K_DATABASES : D A T A B A S E S;
 K_DELETE : D E L E T E;
+K_DESC : D E S C;
 K_DISTINCT : D I S T I N C T;
 K_DROP : D R O P;
 K_EXISTS : E X I S T S;
 K_FROM : F R O M;
+K_FULL : F U L L;
 K_GRANT : G R A N T;
 K_IF : I F;
 K_IDENTIFIED : I D E N T I F I E D;
+K_INNER : I N N E R;
 K_INSERT : I N S E R T;
 K_INTO : I N T O;
 K_JOIN : J O I N;
 K_KEY : K E Y;
+K_LEFT : L E F T;
+K_MAX : M A X;
+K_MIN : M I N;
+K_NATURAL : N A T U R A L;
 K_NOT : N O T;
 K_NULL : N U L L;
 K_ON : O N;
+K_OR : O R;
+K_ORDER : O R D E R;
+K_OUTER : O U T E R;
 K_PRIMARY : P R I M A R Y;
 K_QUIT : Q U I T;
 K_REVOKE : R E V O K E;
+K_RIGHT : R I G H T;
 K_SELECT : S E L E C T;
 K_SET : S E T;
 K_SHOW : S H O W;
+K_SUM : S U M;
 K_TABLE : T A B L E;
 K_TO : T O;
 K_UPDATE : U P D A T E;
@@ -226,8 +280,18 @@ K_VALUES : V A L U E S;
 K_VIEW : V I E W;
 K_WHERE : W H E R E;
 
+
 IDENTIFIER :
     [a-zA-Z_] [a-zA-Z_0-9]* ;
+
+INTEGER_LITERAL
+  : DIGIT+
+  ;
+
+FLOAT_LITERAL
+  : DIGIT+ ( '.' DIGIT* )? ( E [-+]? DIGIT+ )?
+  | '.' DIGIT+ ( E [-+]? DIGIT+ )?
+  ;
 
 NUMERIC_LITERAL :
     DIGIT+ EXPONENT?
