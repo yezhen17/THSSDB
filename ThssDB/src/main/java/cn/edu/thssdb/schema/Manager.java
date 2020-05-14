@@ -111,8 +111,7 @@ public class Manager {
    * [method] 切换数据库
    * @param name {String} 数据库名称
    */
-  public void switchDatabase(String name) throws DataFileNotFoundException, CustomIOException, MetaFileNotFoundException {
-
+  public void switchDatabase(String name) throws DataFileNotFoundException, CustomIOException, MetaFileNotFoundException, ClassNotFoundException {
     try {
       lock.writeLock().lock();
       if (current_database != null) {
@@ -131,7 +130,7 @@ public class Manager {
 
   /**
    * [method] 获取当前数据库名称
-   * return {String} 当前数据库名称，没有则返回null
+   * @return {String} 当前数据库名称，没有则返回null
    */
   public String getCurrentDatabaseName() {
     try {
@@ -144,8 +143,7 @@ public class Manager {
 
   /**
    * [method] 展示所有数据库名称
-   * return {String} 返回一定格式的数据名称信息
-   * @return
+   * @return {String} 返回一定格式的数据名称信息
    */
   public String showAllDatabases() {
     try {

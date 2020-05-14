@@ -18,11 +18,22 @@ public class QueryResult {
     this.attrs = new ArrayList<>();
   }
 
+  // 笛卡尔积 循环
+
+  // FROM 子句
   public static Row combineRow(LinkedList<Row> rows) {
-    // TODO
+    // TODO ON 条件
+    // FROM ON 连接 Join
     return null;
   }
 
+  // WHERE 子句
+  public static boolean judge(Row row) {
+    // TODO
+    return false;
+  }
+
+  // SELECT 子句
   public Row generateQueryRecord(Row row) {
     // TODO
     return null;
