@@ -1,7 +1,5 @@
 package cn.edu.thssdb.tree;
 
-import com.sun.org.apache.xml.internal.resolver.readers.ExtendedXMLCatalogReader;
-
 public class ExpressionTree extends BaseTree<Expression> {
 
   @Override

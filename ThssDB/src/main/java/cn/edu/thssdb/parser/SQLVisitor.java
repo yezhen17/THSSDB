@@ -209,12 +209,6 @@ public interface SQLVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitComparator(SQLParser.ComparatorContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link SQLParser#expression}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitExpression(SQLParser.ExpressionContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link SQLParser#table_constraint}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

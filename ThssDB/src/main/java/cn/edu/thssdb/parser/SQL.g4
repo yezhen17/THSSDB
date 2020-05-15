@@ -119,28 +119,30 @@ drop_view_stmt :
 
 update_stmt :
     K_UPDATE table_name
-        K_SET column_name '=' expression ( K_WHERE multiple_condition )? ;
+        K_SET column_name '=' literal_value ( K_WHERE multiple_condition )? ;
 
 column_def :
-    ( (column_name type_name (K_PRIMARY K_KEY)?  (K_NOT K_NULL)?) |
-    (column_name type_name (K_NOT K_NULL)?  (K_PRIMARY K_KEY)?)  ) ;
+    ( column_name type_name (K_PRIMARY K_KEY)?  (K_NOT K_NULL)?)
+    | ( column_name type_name (K_NOT K_NULL)?  (K_PRIMARY K_KEY)? )
+    ;
 
 type_name :
     T_INT
     | T_LONG
     | T_FLOAT
     | T_DOUBLE
-    | T_STRING '(' NUMERIC_LITERAL ')' ;
+    | T_STRING '(' INTEGER_LITERAL ')' ;
 
 
 multiple_condition :
     condition
-    | multiple_condition (AND|K_AND) multiple_condition
-    | multiple_condition (OR|K_OR) multiple_condition ;
+    | '(' multiple_condition ')'
+    | multiple_condition ( AND | K_AND ) multiple_condition
+    | multiple_condition ( OR | K_OR ) multiple_condition
+    ;
 
 condition :
-    '(' condition ')'
-    | expression comparator expression
+    | comparer comparator comparer
     | column_full_name K_IS K_NULL
     ;
 
@@ -151,11 +153,6 @@ comparer :
 comparator :
     EQ | NE | LE | GE | LT | GT ;
 
-expression :
-    comparer
-    | expression ( MUL | DIV ) expression
-    | expression ( ADD | SUB ) expression
-    | '(' expression ')';
 
 table_constraint :
     K_PRIMARY K_KEY '(' column_name (',' column_name)* ')' ;

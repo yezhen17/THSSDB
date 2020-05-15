@@ -338,16 +338,6 @@ public interface SQLListener extends ParseTreeListener {
 	 */
 	void exitComparator(SQLParser.ComparatorContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link SQLParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void enterExpression(SQLParser.ExpressionContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link SQLParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void exitExpression(SQLParser.ExpressionContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link SQLParser#table_constraint}.
 	 * @param ctx the parse tree
 	 */
