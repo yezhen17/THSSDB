@@ -3,7 +3,6 @@ package cn.edu.thssdb.schema;
 
 import cn.edu.thssdb.exception.CustomIOException;
 import cn.edu.thssdb.exception.MetaFileNotFoundException;
-import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
 
 import java.io.*;
 import java.util.ArrayList;

@@ -1,5 +1,8 @@
 package cn.edu.thssdb.parser;
 
+import cn.edu.thssdb.parser.item.*;
+
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class MyVisitor extends SQLBaseVisitor{
@@ -24,8 +27,10 @@ public class MyVisitor extends SQLBaseVisitor{
     int n = ctx.getChildCount();
     ArrayList res = new ArrayList();
     //+2是为了跳过；
-    for (int i = 0; i < n; i += 2)
+    for (int i = 0; i < n; i += 2) {
       res.add(visit(ctx.getChild(i)));
+      System.out.println(ctx.getChild(i + 1).getText());
+    }
     //res的内容是自己定义的statement类的列表
     return res;
   }
@@ -49,6 +54,7 @@ public class MyVisitor extends SQLBaseVisitor{
     String dbName;
     if(ctx.getChildCount()>3){
       dbName = (String) visit(ctx.getChild(4));
+      System.out.println(ctx.getChild(3).getText());
     }
     else {
       dbName = (String) visit(ctx.getChild(2));
@@ -129,5 +135,162 @@ public class MyVisitor extends SQLBaseVisitor{
   @Override
   public Object visitTable_name(SQLParser.Table_nameContext ctx) {
     return ctx.getChild(0).getText();
+  }
+
+  @Override public Object visitSelect_stmt(SQLParser.Select_stmtContext ctx) {
+    SelectContentItem select_content = null;
+    FromItem from_content = null;
+    WhereItem where_content = null;
+    ArrayList<String> column_full_name = new ArrayList<>();
+    select_content = (SelectContentItem) visit(ctx.getChild(1));
+    from_content = (FromItem) visit(ctx.getChild(3));
+    ArrayList<ColumnFullNameItem> order_by_columns = new ArrayList<>();
+
+    if (ctx.getChildCount() > 4) {
+      if (ctx.getChild(4).getText().equalsIgnoreCase("WHERE")) {
+        where_content = (WhereItem) visit(ctx.getChild(5));
+      } else {
+        int i = 7;
+        while (true) {
+          order_by_columns.add((ColumnFullNameItem) visit(ctx.getChild(i)));
+          if (i + 1 >= ctx.getChildCount()) {
+            break;
+          }
+          String nxt = ctx.getChild(i + 1).getText();
+          if (!(nxt.equalsIgnoreCase(",") &&
+                  nxt.equalsIgnoreCase("DESC") &&
+                  nxt.equalsIgnoreCase("ASC"))) {
+            break;
+          }
+        }
+        column_full_name.add((String) visit(ctx.getChild(6)));
+      }
+      if (ctx.getChildCount() > 6) {
+
+      }
+      // select_content = (String) visit(ctx.getChild(4));
+    }
+    //todo add statement
+    return visitChildren(ctx);
+  }
+
+  @Override
+  public SelectContentItem visitSelect_content(SQLParser.Select_contentContext ctx) {
+    ArrayList<SelectItem> select_content = new ArrayList<>();
+    boolean is_distinct = false;
+    if (ctx.getChild(0).getText().equalsIgnoreCase("DISTINCT")) {
+      for (int i = 1; i < ctx.getChildCount(); i += 2) {
+        select_content.add((SelectItem) visit(ctx.getChild(i)));
+      }
+      is_distinct = true;
+    } else if (ctx.getChild(0).getText().equalsIgnoreCase("ALL")) {
+      for (int i = 1; i < ctx.getChildCount(); i += 2) {
+        select_content.add((SelectItem) visit(ctx.getChild(i)));
+      }
+    } else {
+      for (int i = 0; i < ctx.getChildCount(); i += 2) {
+        select_content.add((SelectItem) visit(ctx.getChild(i)));
+      }
+    }
+    return new SelectContentItem(select_content, is_distinct);
+  }
+
+  @Override
+  public FromItem visitJoin_content(SQLParser.Join_contentContext ctx) {
+    FromItem join_content = null;
+
+    ArrayList<String> child_text = new ArrayList<>();
+    for (int i = 0; i < ctx.getChildCount(); i++) {
+      child_text.add(ctx.getChild(i).getText());
+    }
+    if (child_text.get(1).equals(",")) {
+      join_content = new FromItem(child_text.get(0), child_text.get(2),
+              FromItem.JoinType.PRODUCT, new ArrayList<>());
+    } else if (child_text.get(1).equalsIgnoreCase("NATURAL")) {
+      int right_pos = 2;
+      if (child_text.get(1).equalsIgnoreCase("INNER")) {
+        right_pos = 3;
+      }
+      join_content = new FromItem(child_text.get(0), child_text.get(right_pos),
+              FromItem.JoinType.NATURAL_INNER_JOIN, new ArrayList<>());
+    } else if (child_text.get(1).equalsIgnoreCase("INNER")) {
+      join_content = new FromItem(child_text.get(0), child_text.get(3),
+              FromItem.JoinType.INNER_JOIN_ON, (ArrayList<OnItem>) visit(ctx.getChild(5))); // TODO
+    } else if (child_text.get(1).equalsIgnoreCase("JOIN")) {
+      join_content = new FromItem(child_text.get(0), child_text.get(2),
+              FromItem.JoinType.INNER_JOIN_ON, (ArrayList<OnItem>) visit(ctx.getChild(4))); // TODO
+    } else {
+      int right_pos = 3;
+      if (child_text.get(2).equalsIgnoreCase("OUTER")) {
+        right_pos = 4;
+      }
+      FromItem.JoinType join_type = FromItem.JoinType.LEFT_OUTER_JOIN_ON;
+      if (child_text.get(1).equalsIgnoreCase("RIGHT")) {
+        join_type = FromItem.JoinType.RIGHT_OUTER_JOIN_ON;
+      } else if (child_text.get(1).equalsIgnoreCase("FULL")) {
+        join_type = FromItem.JoinType.FULL_OUTER_JOIN_ON;
+      }
+      join_content = new FromItem(child_text.get(0), child_text.get(right_pos),
+              join_type, new ArrayList<>());
+    }
+    return join_content;
+  }
+
+  @Override
+  public ColumnFullNameItem visitColumn_full_name(SQLParser.Column_full_nameContext ctx) {
+    if (ctx.getChildCount() > 1) {
+      return new ColumnFullNameItem(ctx.getChild(0).getText(), ctx.getChild(2).getText());
+    } else {
+      return new ColumnFullNameItem(null, ctx.getChild(0).getText());
+    }
+  }
+
+  @Override
+  public ArrayList<OnItem> visitOn_content(SQLParser.On_contentContext ctx) {
+    int num = ctx.getChildCount() / 3;
+    ArrayList<OnItem> res = new ArrayList<>();
+    for (int i = 0; i < num; i++) {
+      res.add(new OnItem(
+              (ColumnFullNameItem) visit(ctx.getChild(3 * i)),
+              (ColumnFullNameItem) visit(ctx.getChild(3 * i + 2))
+      ));
+    }
+    return res;
+  }
+
+  @Override
+  public SelectItem visitNumeric_value(SQLParser.Numeric_valueContext ctx) {
+    return new SelectItem(Double.valueOf(ctx.getChild(0).getText()));
+  }
+
+  @Override
+  public SelectItem visitResult_column(SQLParser.Result_columnContext ctx) {
+    if (ctx.getChild(0).getText().equals("*")) {
+      return new SelectItem(null, "*");
+    } else {
+      return null;
+    }
+  }
+
+  @Override
+  public Object visitMultiple_condition(SQLParser.Multiple_conditionContext ctx) {
+    return super.visitMultiple_condition(ctx);
+  }
+
+  @Override
+  public Object visitExpression(SQLParser.ExpressionContext ctx) {
+    return super.visitExpression(ctx);
+  }
+
+  @Override
+  public SelectItem visitSelect_item(SQLParser.Select_itemContext ctx) {
+    int child_count = ctx.getChildCount();
+    if (child_count == 1) {
+      return (SelectItem) visit(ctx.getChild(0));
+    } else if (child_count == 3) {
+      return null; // todo
+    } else {
+      return null; // todo
+    }
   }
 }

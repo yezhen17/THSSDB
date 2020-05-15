@@ -24,22 +24,26 @@ public class SelectItem {
   private String aggregateFun;  // SUM,COUNT...
 
   public SelectItem(double constNum1){
+    this.type = 0;
     this.constNum1 = constNum1;
   }
 
   public SelectItem(String tableName, String columnName){
+    this.type = 1;
     this.tableName = tableName;
     this.columnName = columnName;
   }
 
-  public SelectItem(String tableName, String columnName,Double constNum1,String op){
+  public SelectItem(String tableName, String columnName, Double constNum1, String op){
+    this.type = 2;
     this.tableName = tableName;
     this.columnName = columnName;
     this.constNum1 = constNum1;
     this.op = op;
   }
 
-  public SelectItem(Double constNum1,Double constNum2,String op){
+  public SelectItem(Double constNum1, Double constNum2, String op){
+    this.type = 4;
     this.constNum1 = constNum1;
     this.constNum2 = constNum2;
     this.op = op;

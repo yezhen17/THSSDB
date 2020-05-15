@@ -1,5 +1,7 @@
 package cn.edu.thssdb.parser.item;
 
+import cn.edu.thssdb.schema.Column;
+
 public class OnItem {
   private String tableNameA;
   private String columnNameA;
@@ -11,6 +13,13 @@ public class OnItem {
     this.columnNameA = columnNameA;
     this.tableNameB = tableNameB;
     this.columnNameB = columnNameB;
+  }
+
+  public OnItem(ColumnFullNameItem A, ColumnFullNameItem B){
+    this.tableNameA = A.getTableName();
+    this.columnNameA = A.getColumnName();
+    this.tableNameB = B.getTableName();
+    this.columnNameB = B.getColumnName();
   }
 
   public String getTableNameA() {
