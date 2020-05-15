@@ -15,7 +15,7 @@ public class grammerTest {
             "use db;" +
             "drop table mytable; "+
             "drop table if exists mytable;" +
-            "select a, b from t1, t2 where t1.a = t2.b");
+            "select a, b from t1, t2 where t1.a = t2.b order by a DESC;");
     /*
     +
             "create table mydb (a int, b string(124) not null, primary key (a));" +

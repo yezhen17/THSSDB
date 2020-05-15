@@ -1,6 +1,7 @@
 package cn.edu.thssdb.parser;
 
 import cn.edu.thssdb.parser.item.*;
+import cn.edu.thssdb.schema.Column;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -14,8 +15,9 @@ public class MyVisitor extends SQLBaseVisitor{
   public Object visitParse(SQLParser.ParseContext ctx) {
     int n = ctx.getChildCount();
     ArrayList res = new ArrayList<>();
-    for (int i = 0; i <= n-1; ++i)
+    for (int i = 0; i <= n-1; ++i) {
       res.addAll((ArrayList)visit(ctx.getChild(i)));
+    }
     return res;
   }
 
@@ -29,6 +31,7 @@ public class MyVisitor extends SQLBaseVisitor{
     //+2是为了跳过；
     for (int i = 0; i < n; i += 2) {
       res.add(visit(ctx.getChild(i)));
+      // System.out.println(ctx instanceof SQLParser.Sql_stmt_listContext);
       System.out.println(ctx.getChild(i + 1).getText());
     }
     //res的内容是自己定义的statement类的列表
@@ -134,44 +137,59 @@ public class MyVisitor extends SQLBaseVisitor{
 
   @Override
   public Object visitTable_name(SQLParser.Table_nameContext ctx) {
+
     return ctx.getChild(0).getText();
   }
 
   @Override public Object visitSelect_stmt(SQLParser.Select_stmtContext ctx) {
-    SelectContentItem select_content = null;
-    FromItem from_content = null;
-    WhereItem where_content = null;
+    SelectContentItem select_content_item = null;
+    FromItem from_item = null;
+    WhereItem where_item = null;
+    OrderByItem order_by_item = null;
     ArrayList<String> column_full_name = new ArrayList<>();
-    select_content = (SelectContentItem) visit(ctx.getChild(1));
-    from_content = (FromItem) visit(ctx.getChild(3));
+    select_content_item = (SelectContentItem) visit(ctx.getChild(1));
+    from_item = (FromItem) visit(ctx.getChild(3));
     ArrayList<ColumnFullNameItem> order_by_columns = new ArrayList<>();
+    int order = 0;
+    boolean has_order = false;
+    int idx_first_order_column = -1;
 
     if (ctx.getChildCount() > 4) {
       if (ctx.getChild(4).getText().equalsIgnoreCase("WHERE")) {
-        where_content = (WhereItem) visit(ctx.getChild(5));
-      } else {
-        int i = 7;
-        while (true) {
-          order_by_columns.add((ColumnFullNameItem) visit(ctx.getChild(i)));
-          if (i + 1 >= ctx.getChildCount()) {
-            break;
-          }
-          String nxt = ctx.getChild(i + 1).getText();
-          if (!(nxt.equalsIgnoreCase(",") &&
-                  nxt.equalsIgnoreCase("DESC") &&
-                  nxt.equalsIgnoreCase("ASC"))) {
-            break;
-          }
+        where_item = (WhereItem) visit(ctx.getChild(5));
+        if (ctx.getChildCount() > 6) {
+          has_order = true;
+          idx_first_order_column = 9;
         }
-        column_full_name.add((String) visit(ctx.getChild(6)));
-      }
-      if (ctx.getChildCount() > 6) {
-
+      } else  {
+        idx_first_order_column = 7;
+        has_order = true;
       }
       // select_content = (String) visit(ctx.getChild(4));
     }
-    //todo add statement
-    return visitChildren(ctx);
+    if (has_order) {
+      order = 1;
+      int i =idx_first_order_column;
+      while (true) {
+        order_by_columns.add((ColumnFullNameItem) visit(ctx.getChild(i)));
+        if (i + 1 >= ctx.getChildCount()) {
+          break;
+        }
+        String nxt = ctx.getChild(i + 1).getText();
+        if (nxt.equalsIgnoreCase("DESC")) {
+          order = -1;
+        }
+        if (!nxt.equalsIgnoreCase(",")) {
+          break;
+        }
+        i += 2;
+      }
+      column_full_name.add((String) visit(ctx.getChild(6)));
+    }
+
+    order_by_item = new OrderByItem(order_by_columns, order);
+
+    return new WholeSelectionItem(select_content_item, from_item, where_item, order_by_item);
   }
 
   @Override
@@ -259,22 +277,25 @@ public class MyVisitor extends SQLBaseVisitor{
   }
 
   @Override
-  public SelectItem visitNumeric_value(SQLParser.Numeric_valueContext ctx) {
-    return new SelectItem(Double.valueOf(ctx.getChild(0).getText()));
+  public Double visitNumeric_value(SQLParser.Numeric_valueContext ctx) {
+    return Double.valueOf(ctx.getChild(0).getText());
   }
 
   @Override
-  public SelectItem visitResult_column(SQLParser.Result_columnContext ctx) {
+  public ColumnFullNameItem visitResult_column(SQLParser.Result_columnContext ctx) {
     if (ctx.getChild(0).getText().equals("*")) {
-      return new SelectItem(null, "*");
+      return new ColumnFullNameItem(null, "*");
+    } else if (ctx.getChildCount() > 1) {
+      return new ColumnFullNameItem(ctx.getChild(0).getText(), ctx.getChild(2).getText());
     } else {
-      return null;
+      return (ColumnFullNameItem) visit(ctx.getChild(0));
     }
   }
 
   @Override
   public Object visitMultiple_condition(SQLParser.Multiple_conditionContext ctx) {
-    return super.visitMultiple_condition(ctx);
+    //return super.visitMultiple_condition(ctx);
+    return null; //TODO
   }
 
   @Override
@@ -286,11 +307,36 @@ public class MyVisitor extends SQLBaseVisitor{
   public SelectItem visitSelect_item(SQLParser.Select_itemContext ctx) {
     int child_count = ctx.getChildCount();
     if (child_count == 1) {
-      return (SelectItem) visit(ctx.getChild(0));
+      if (ctx.getChild(0) instanceof SQLParser.Result_columnContext) {
+        return new SelectItem((ColumnFullNameItem) visit(ctx.getChild(0)));
+      } else {
+        return new SelectItem((Double) visit(ctx.getChild(0)));
+      }
+
     } else if (child_count == 3) {
-      return null; // todo
+      if (ctx.getChild(0) instanceof SQLParser.Column_full_nameContext) {
+        return new SelectItem((ColumnFullNameItem) visit(ctx.getChild(0)),
+                (Double) visit(ctx.getChild(2)),
+                ctx.getChild(1).getText().toUpperCase());
+      } else {
+        if (ctx.getChild(2) instanceof SQLParser.Column_full_nameContext) {
+          return new SelectItem((ColumnFullNameItem) visit(ctx.getChild(2)),
+                  (Double) visit(ctx.getChild(0)),
+                  ctx.getChild(1).getText().toUpperCase());
+        } else {
+          return new SelectItem((Double) visit(ctx.getChild(0)),
+                  (Double) visit(ctx.getChild(2)),
+                  ctx.getChild(1).getText().toUpperCase());
+        }
+      }
     } else {
-      return null; // todo
+      if (ctx.getChild(2).getText().equalsIgnoreCase("*")) {
+        return new SelectItem(new ColumnFullNameItem(null, "*"),
+                ctx.getChild(0).getText().toUpperCase());
+      } else {
+        return new SelectItem((ColumnFullNameItem) visit(ctx.getChild(2)),
+                ctx.getChild(0).getText().toUpperCase());
+      }
     }
   }
 }

@@ -3,25 +3,30 @@ package cn.edu.thssdb.parser.item;
 import java.util.ArrayList;
 
 public class OrderByItem {
-  private ArrayList<String> tableList;
-  private ArrayList<String> columnList;
-  private boolean isDesc;
+  private ArrayList<ColumnFullNameItem> columnList;
+  // private ArrayList<String> columnList;
+  private int order; // 1 asc; 0 no; -1 desc
 
-  public OrderByItem(ArrayList<String> tableList, ArrayList<String> columnList, boolean isDesc){
-    this.tableList = tableList;
+  public OrderByItem(ArrayList<ColumnFullNameItem> columnList, int order){
+//    this.tableList = tableList;
+//    this.columnList = columnList;
     this.columnList = columnList;
-    this.isDesc = isDesc;
+    this.order = order;
   }
 
-  public ArrayList<String> getTableList() {
-    return tableList;
-  }
+//  public ArrayList<String> getTableList() {
+//    return tableList;
+//  }
+//
+//  public ArrayList<String> getColumnList() {
+//    return columnList;
+//  }
 
-  public ArrayList<String> getColumnList() {
+  public ArrayList<ColumnFullNameItem> getColumnList() {
     return columnList;
   }
 
-  public boolean isDesc() {
-    return isDesc;
+  public int getOrder() {
+    return order;
   }
 }

@@ -1,5 +1,7 @@
 package cn.edu.thssdb.parser.item;
 
+import cn.edu.thssdb.schema.Column;
+
 import java.util.ArrayList;
 
 public class SelectItem {
@@ -28,10 +30,18 @@ public class SelectItem {
     this.constNum1 = constNum1;
   }
 
-  public SelectItem(String tableName, String columnName){
+  public SelectItem(ColumnFullNameItem columnFullNameItem){
     this.type = 1;
-    this.tableName = tableName;
-    this.columnName = columnName;
+    this.tableName = columnFullNameItem.getTableName();
+    this.columnName = columnFullNameItem.getColumnName();
+  }
+
+  public SelectItem(ColumnFullNameItem columnFullNameItem, Double constNum1, String op){
+    this.type = 2;
+    this.tableName = columnFullNameItem.getTableName();
+    this.columnName = columnFullNameItem.getColumnName();
+    this.constNum1 = constNum1;
+    this.op = op;
   }
 
   public SelectItem(String tableName, String columnName, Double constNum1, String op){
@@ -47,6 +57,13 @@ public class SelectItem {
     this.constNum1 = constNum1;
     this.constNum2 = constNum2;
     this.op = op;
+  }
+
+  public SelectItem(ColumnFullNameItem columnFullNameItem, String aggregateFun){
+    this.type = 5;
+    this.tableName = columnFullNameItem.getTableName();
+    this.columnName = columnFullNameItem.getColumnName();
+    this.aggregateFun = aggregateFun;
   }
 
   public SelectItem(String tableName,String columnName,String aggregateFun){
