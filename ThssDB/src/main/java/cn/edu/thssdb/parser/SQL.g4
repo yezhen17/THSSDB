@@ -85,10 +85,11 @@ select_stmt :
     ;
 
 select_content:
-    ( K_DISTINCT | K_ALL )? ( select_item ( ',' select_item )* )
+    ( select_item_1 ( ',' select_item_1 )* ) |
+    select_item_2
     ;
 
-select_item:
+select_item_1:
     numeric_value |
     result_column |
     ( K_AVG | K_MAX | K_MIN | K_COUNT | K_SUM ) '(' column_full_name ')' |
@@ -98,6 +99,9 @@ select_item:
     numeric_value ( MUL | DIV | ADD | SUB ) column_full_name
     ;
 
+select_item_2:
+    ( K_DISTINCT | K_ALL ) column_full_name ( ',' column_full_name )*
+    ;
 
 
 join_content:

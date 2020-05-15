@@ -1,5 +1,6 @@
 package cn.edu.thssdb.tree;
-
+import cn.edu.thssdb.schema.Column;
+import cn.edu.thssdb.schema.Row;
 import cn.edu.thssdb.type.ComparisonType;
 
 public class Expression {
