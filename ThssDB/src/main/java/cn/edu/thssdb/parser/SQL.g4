@@ -85,11 +85,10 @@ select_stmt :
     ;
 
 select_content:
-    ( select_item_1 ( ',' select_item_1 )* ) |
-    select_item_2
+    ( K_DISTINCT | K_ALL )? ( select_item ( ',' select_item )* )
     ;
 
-select_item_1:
+select_item:
     numeric_value |
     result_column |
     ( K_AVG | K_MAX | K_MIN | K_COUNT | K_SUM ) '(' column_full_name ')' |
@@ -97,10 +96,6 @@ select_item_1:
     column_full_name ( MUL | DIV | ADD | SUB ) numeric_value |
     numeric_value ( MUL | DIV | ADD | SUB ) numeric_value |
     numeric_value ( MUL | DIV | ADD | SUB ) column_full_name
-    ;
-
-select_item_2:
-    ( K_DISTINCT | K_ALL ) column_full_name ( ',' column_full_name )*
     ;
 
 
@@ -137,9 +132,6 @@ type_name :
     | T_DOUBLE
     | T_STRING '(' NUMERIC_LITERAL ')' ;
 
-column_constraint :
-    K_PRIMARY K_KEY
-    | K_NOT K_NULL ;
 
 multiple_condition :
     condition
@@ -147,7 +139,10 @@ multiple_condition :
     | multiple_condition (OR|K_OR) multiple_condition ;
 
 condition :
-    expression comparator expression;
+    '(' condition ')'
+    | expression comparator expression
+    | column_full_name K_IS K_NULL
+    ;
 
 comparer :
     column_full_name
@@ -175,7 +170,9 @@ auth_level :
     K_SELECT | K_INSERT | K_UPDATE | K_DELETE | K_DROP ;
 
 literal_value :
-    NUMERIC_LITERAL
+    //NUMERIC_LITERAL
+    FLOAT_LITERAL
+    | INTEGER_LITERAL
     | STRING_LITERAL
     | K_NULL ;
 
@@ -247,6 +244,7 @@ K_FROM : F R O M;
 K_FULL : F U L L;
 K_GRANT : G R A N T;
 K_IF : I F;
+K_IS : I S;
 K_IDENTIFIED : I D E N T I F I E D;
 K_INNER : I N N E R;
 K_INSERT : I N S E R T;

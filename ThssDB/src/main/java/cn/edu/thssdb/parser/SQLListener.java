@@ -218,25 +218,15 @@ public interface SQLListener extends ParseTreeListener {
 	 */
 	void exitSelect_content(SQLParser.Select_contentContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link SQLParser#select_item_1}.
+	 * Enter a parse tree produced by {@link SQLParser#select_item}.
 	 * @param ctx the parse tree
 	 */
-	void enterSelect_item_1(SQLParser.Select_item_1Context ctx);
+	void enterSelect_item(SQLParser.Select_itemContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link SQLParser#select_item_1}.
+	 * Exit a parse tree produced by {@link SQLParser#select_item}.
 	 * @param ctx the parse tree
 	 */
-	void exitSelect_item_1(SQLParser.Select_item_1Context ctx);
-	/**
-	 * Enter a parse tree produced by {@link SQLParser#select_item_2}.
-	 * @param ctx the parse tree
-	 */
-	void enterSelect_item_2(SQLParser.Select_item_2Context ctx);
-	/**
-	 * Exit a parse tree produced by {@link SQLParser#select_item_2}.
-	 * @param ctx the parse tree
-	 */
-	void exitSelect_item_2(SQLParser.Select_item_2Context ctx);
+	void exitSelect_item(SQLParser.Select_itemContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link SQLParser#join_content}.
 	 * @param ctx the parse tree
@@ -307,16 +297,6 @@ public interface SQLListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitType_name(SQLParser.Type_nameContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link SQLParser#column_constraint}.
-	 * @param ctx the parse tree
-	 */
-	void enterColumn_constraint(SQLParser.Column_constraintContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link SQLParser#column_constraint}.
-	 * @param ctx the parse tree
-	 */
-	void exitColumn_constraint(SQLParser.Column_constraintContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link SQLParser#multiple_condition}.
 	 * @param ctx the parse tree
