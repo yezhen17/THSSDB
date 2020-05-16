@@ -1,8 +1,12 @@
 package cn.edu.thssdb.operation;
 
 import cn.edu.thssdb.parser.item.MultipleConditionItem;
-import cn.edu.thssdb.schema.Entry;
-import cn.edu.thssdb.schema.Row;
+import cn.edu.thssdb.query.QueryColumn;
+import cn.edu.thssdb.schema.*;
+
+import javax.management.Query;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 public class DeleteOperation extends BaseOperation {
     private String tableName;
@@ -33,7 +37,33 @@ public class DeleteOperation extends BaseOperation {
      * [method] 执行操作
      */
     public void exec() {
-        // TODO 调用 cn.edu.thssdb.schema.Table.delete(cn.edu.thssdb.schema.Row) 或 cn.edu.thssdb.schema.Table.delete(cn.edu.thssdb.schema.Entry)
         // 判断 调用哪个重载
+      Manager manager = Manager.getInstance();
+      Database database = manager.getDatabaseByName(manager.getCurrentDatabaseName());
+
+      Table table = database.get(tableName);
+      if(table==null){
+        //todo 没有对应的表
+      } else {
+        if(whereItem == null){
+          table.delete();
+        } else {
+          Iterator<Row> rowIterator = table.iterator();
+          ArrayList<Column> columns = table.columns;
+          ArrayList<QueryColumn> queryColumns = new ArrayList<>();
+          for(Column column:columns){
+            queryColumns.add(new QueryColumn(column,tableName));
+          }
+          whereItem.setColumn(queryColumns);
+          while (rowIterator.hasNext()){
+            Row row = rowIterator.next();
+            if(whereItem.getTreeValue(row).getValue()){
+              table.delete(row);
+            }
+          }
+        }
+      }
+
+
     }
 }

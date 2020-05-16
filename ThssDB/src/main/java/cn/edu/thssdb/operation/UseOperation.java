@@ -1,5 +1,10 @@
 package cn.edu.thssdb.operation;
 
+import cn.edu.thssdb.exception.CustomIOException;
+import cn.edu.thssdb.exception.DataFileNotFoundException;
+import cn.edu.thssdb.exception.MetaFileNotFoundException;
+import cn.edu.thssdb.schema.Manager;
+
 public class UseOperation extends BaseOperation {
     private String name;      // 数据库名称
 
@@ -13,7 +18,8 @@ public class UseOperation extends BaseOperation {
     /**
      * [method] 执行操作
      */
-    public void exec() {
-        // TODO 调用 cn.edu.thssdb.schema.Manager.switchDatabase
+    public void exec() throws ClassNotFoundException, MetaFileNotFoundException, CustomIOException, DataFileNotFoundException {
+      Manager manager = Manager.getInstance();
+      manager.switchDatabase(name);
     }
 }

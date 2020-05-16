@@ -2,6 +2,8 @@ package cn.edu.thssdb.operation;
 
 import cn.edu.thssdb.schema.Column;
 import java.util.ArrayList;
+import cn.edu.thssdb.schema.Database;
+import cn.edu.thssdb.schema.Manager;
 
 public class CreateTableOperation extends BaseOperation {
     private String name;            // 表名称
@@ -21,6 +23,8 @@ public class CreateTableOperation extends BaseOperation {
      * [method] 执行操作
      */
     public void exec() {
-        // TODO 调用 cn.edu.thssdb.schema.Database.create
+      Manager manager = Manager.getInstance();
+      Database database = manager.getDatabaseByName(manager.getCurrentDatabaseName());
+      database.create(name,columns,primaryIndex);
     }
 }

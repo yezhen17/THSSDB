@@ -1,5 +1,7 @@
 package cn.edu.thssdb.operation;
 
+import cn.edu.thssdb.schema.Manager;
+
 public class DropDatabaseOperation extends BaseOperation {
     private String name;      // 数据库名称
 
@@ -14,6 +16,7 @@ public class DropDatabaseOperation extends BaseOperation {
      * [method] 执行操作
      */
     public void exec() {
-        // TODO 调用 cn.edu.thssdb.schema.Manager.deleteDatabase
+      Manager manager = Manager.getInstance();
+      manager.deleteDatabase(name);
     }
 }

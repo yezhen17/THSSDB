@@ -2,35 +2,36 @@ package cn.edu.thssdb.operation;
 
 import cn.edu.thssdb.parser.item.LiteralValueItem;
 import cn.edu.thssdb.parser.item.MultipleConditionItem;
-import cn.edu.thssdb.schema.Row;
+import cn.edu.thssdb.query.QueryColumn;
+import cn.edu.thssdb.schema.*;
+import cn.edu.thssdb.type.ColumnType;
+
+import java.util.ArrayList;
+import java.util.Iterator;
 
 public class UpdateOperation extends BaseOperation {
-  private Row oldRow;
-  private Row newRow;
   private String tableName;
-  private String columnNmae;
+  private String columnName;
   private LiteralValueItem literalValueItem;
-  private MultipleConditionItem multipleConditionItem = null;
+  private MultipleConditionItem whereItem = null;
+
+  private Table table = null;
 
   /**
    * [method] 构造方法
    */
-  public UpdateOperation(Row oldRow, Row newRow) {
-      this.oldRow = oldRow;
-      this.newRow = newRow;
-  }
 
   public UpdateOperation(String tableName, String columnNmae, LiteralValueItem literalValueItem) {
     this.tableName = tableName;
-    this.columnNmae = columnNmae;
+    this.columnName = columnNmae;
     this.literalValueItem = literalValueItem;
   }
 
-  public UpdateOperation(String tableName, String columnNmae, LiteralValueItem literalValueItem, MultipleConditionItem multipleConditionItem) {
+  public UpdateOperation(String tableName, String columnName, LiteralValueItem literalValueItem, MultipleConditionItem multipleConditionItem) {
     this.tableName = tableName;
-    this.columnNmae = columnNmae;
+    this.columnName = columnName;
     this.literalValueItem = literalValueItem;
-    this.multipleConditionItem = multipleConditionItem;
+    this.whereItem = multipleConditionItem;
   }
 
   /**
@@ -38,6 +39,93 @@ public class UpdateOperation extends BaseOperation {
      */
   public void exec() {
       // TODO 调用 cn.edu.thssdb.schema.Table.update
+    Manager manager = Manager.getInstance();
+    Database database = manager.getDatabaseByName(manager.getCurrentDatabaseName());
+
+    table = database.get(tableName);
+    if(table==null){
+      //todo 没有对应的表
+      return;
+    }
+
+    ArrayList<Column> columns = table.columns;
+    Column columnToUpdate = null;
+    for(Column column:columns){
+      if(column.getName().equals(columnName)){
+        columnToUpdate = column;
+        break;
+      }
+    }
+    if(columnToUpdate == null){
+      //todo 没有该列
+      return;
+    }
+
+    LiteralValueItem.Type itemType = literalValueItem.getType();
+    ColumnType columnType = columnToUpdate.getType();
+    String itemString = literalValueItem.getString();
+    Comparable valueToUpdate;
+
+    if(itemType==LiteralValueItem.Type.INT_OR_LONG){
+      if(columnType==ColumnType.INT){
+        valueToUpdate = Integer.valueOf(itemString);
+      } else if(columnType==ColumnType.LONG){
+        valueToUpdate = Long.valueOf(itemString);
+      } else {
+        //todo 类型不匹配
+        return;
+      }
+    } else if(itemType==LiteralValueItem.Type.FLOAT_OR_DOUBLE){
+      if(columnType==ColumnType.DOUBLE){
+        valueToUpdate = Double.valueOf(itemString);
+      } else if(columnType==ColumnType.FLOAT){
+        valueToUpdate = Float.valueOf(itemString);
+      } else {
+        //todo 类型不匹配
+        return;
+      }
+    } else {
+      if(columnType==ColumnType.STRING){
+        valueToUpdate = itemString;
+      } else {
+        //todo 类型不匹配
+        return;
+      }
+    }
+
+    Iterator<Row> rowIterator = table.iterator();
+    if(whereItem == null){
+      while (rowIterator.hasNext()){
+        Row oldRow = rowIterator.next();
+        table.update(oldRow,getNewRow(oldRow,valueToUpdate));
+      }
+    } else {
+      ArrayList<QueryColumn> queryColumns = new ArrayList<>();
+      for(Column column:columns){
+        queryColumns.add(new QueryColumn(column,tableName));
+      }
+      whereItem.setColumn(queryColumns);
+      while (rowIterator.hasNext()){
+        Row oldRow = rowIterator.next();
+        if(whereItem.getTreeValue(oldRow).getValue()){
+          table.update(oldRow,getNewRow(oldRow,valueToUpdate));
+        }
+      }
+    }
+
+  }
+
+  private Row getNewRow(Row oldRow, Comparable valueToUpdate) {
+    ArrayList<Entry> entries = new ArrayList<>();
+    for (int index = 0; index < table.columns.size(); index++) {
+      if (table.columns.get(index).getName().equals(columnName)) {
+        entries.add(new Entry(valueToUpdate));
+      } else {
+        entries.add(new Entry(oldRow.getEntries().get(index)));
+      }
+    }
+    Row newRow = new Row(entries);
+    return newRow;
   }
 
 

@@ -228,6 +228,16 @@ public interface SQLListener extends ParseTreeListener {
 	 */
 	void exitSelect_item(SQLParser.Select_itemContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link SQLParser#select_item_2}.
+	 * @param ctx the parse tree
+	 */
+	void enterSelect_item_2(SQLParser.Select_item_2Context ctx);
+	/**
+	 * Exit a parse tree produced by {@link SQLParser#select_item_2}.
+	 * @param ctx the parse tree
+	 */
+	void exitSelect_item_2(SQLParser.Select_item_2Context ctx);
+	/**
 	 * Enter a parse tree produced by {@link SQLParser#join_content}.
 	 * @param ctx the parse tree
 	 */

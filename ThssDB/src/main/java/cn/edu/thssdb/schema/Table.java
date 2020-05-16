@@ -21,9 +21,12 @@ public class Table implements Iterable<Row> {
   private ReentrantReadWriteLock lock;    // 可重入读写锁
   private String databaseName;            // 数据库名称
   public String tableName;                // 表名称
+
+
+
   public ArrayList<Column> columns;       // 列定义表
   public BPlusTree<Entry, Row> index;     // B+树索引
-  private int primaryIndex;               // 主键索引
+  public int primaryIndex;               // 主键索引
   private PersistentStorage<Row> persistentStorageData; // 数据持久化
   private Meta tableMeta;
 
@@ -197,6 +200,8 @@ public class Table implements Iterable<Row> {
     }
   }
 
+
+
   /**
    * [method] 由Entry（主键的）删除行
    * @exception IllegalArgumentException
@@ -205,6 +210,19 @@ public class Table implements Iterable<Row> {
     try {
       lock.writeLock().lock();
       index.remove(entry);
+    } finally {
+      lock.writeLock().unlock();
+    }
+  }
+
+  /**
+   * [method] 删除所有行
+   */
+  public void delete() {
+    try {
+      lock.writeLock().lock();
+      index.clear();
+      index = new BPlusTree<>();
     } finally {
       lock.writeLock().unlock();
     }

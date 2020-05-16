@@ -85,17 +85,21 @@ select_stmt :
     ;
 
 select_content:
-    ( K_DISTINCT | K_ALL )? ( select_item ( ',' select_item )* )
+    ( K_DISTINCT | K_ALL )? ( select_item ( ',' select_item )* ) |
+    ( K_DISTINCT | K_ALL )? ( select_item_2 ( ',' select_item_2 )* )
     ;
 
 select_item:
     numeric_value |
     result_column |
-    ( K_AVG | K_MAX | K_MIN | K_COUNT | K_SUM ) '(' column_full_name ')' |
-    ( K_COUNT '(' '*' ')' ) |
     column_full_name ( MUL | DIV | ADD | SUB ) numeric_value |
     numeric_value ( MUL | DIV | ADD | SUB ) numeric_value |
     numeric_value ( MUL | DIV | ADD | SUB ) column_full_name
+    ;
+
+select_item_2:
+    ( K_AVG | K_MAX | K_MIN | K_COUNT | K_SUM ) '(' column_full_name ')' |
+    ( K_COUNT '(' '*' ')' )
     ;
 
 
