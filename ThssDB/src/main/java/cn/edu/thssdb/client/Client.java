@@ -38,9 +38,8 @@ public class Client {
   static final String PORT_ARGS = "p";
   static final String PORT_NAME = "port";
 
-  private static boolean isRunning = true;      // 运行状态
   private static boolean isConnected = false;   // 连接状态
-  private static long sessionId = -1;           // Session ID
+  private static long SessionID = -1;           // Session ID
 
   /**
    * [method] 入口方法
@@ -61,9 +60,10 @@ public class Client {
       TProtocol protocol = new TBinaryProtocol(transport);
       client = new IService.Client(protocol);
       // ***** MAIN LOOP *****
-      isRunning = true;
+      // 运行状态
+      boolean isRunning = true;
       isConnected = false;
-      sessionId = -1;
+      SessionID = -1;
       String msg, username, password, statement;
       while (isRunning) {
         print(Global.CLI_PREFIX);
@@ -91,7 +91,7 @@ public class Client {
             if (!isConnected) {
               println(Global.ERROR_NOT_CONNECTED);
             } else {
-              disconnect(sessionId);
+              disconnect(SessionID);
             }
             break;
           case Global.EXECUTE:
@@ -101,7 +101,7 @@ public class Client {
             } else {
               print(Global.INPUT_STATEMENT);
               statement = SCANNER.nextLine().trim();
-              execute(sessionId, statement);
+              execute(SessionID, statement);
             }
             break;
           case Global.QUIT:
@@ -159,8 +159,17 @@ public class Client {
     try {
       // 请求发送 & 响应获取
       ConnectResp resp = client.connect(req);
-      // 响应处理 TODO
-      println(String.valueOf(resp));
+      // 响应处理
+      Status status = resp.getStatus();
+      if (status.code == Global.SUCCESS_CODE) {
+        // 成功
+        isConnected = true;
+        SessionID = resp.getSessionId();
+        println(Global.SUCCESS_CONNECT);
+      } else if (status.code == Global.FAILURE_CODE){
+        // 失败
+        println(Global.FAILURE_CONNECT);
+      }
     } catch (TException e) {
       logger.error(e.getMessage());
     }
@@ -180,8 +189,17 @@ public class Client {
     try {
       // 请求发送 & 响应获取
       DisconnetResp resp = client.disconnect(req);
-      // 响应处理 TODO
-      println(String.valueOf(resp));
+      // 响应处理
+      Status status = resp.getStatus();
+      if (status.code == Global.SUCCESS_CODE) {
+        // 成功
+        isConnected = false;
+        SessionID = -1;
+        println(Global.SUCCESS_DISCONNECT);
+      } else if (status.code == Global.FAILURE_CODE){
+        // 失败
+        println(Global.FAILURE_DISCONNECT);
+      }
     } catch (TException e) {
       logger.error(e.getMessage());
     }
@@ -204,14 +222,20 @@ public class Client {
       // 请求发送 & 响应获取
       ExecuteStatementResp resp = client.executeStatement(req);
       // 响应处理 TODO
-      println(String.valueOf(resp));
+      Status status = resp.getStatus();
+      if (status.code == Global.SUCCESS_CODE) {
+        // 成功
+        println(Global.SUCCESS_EXECUTE);
+      } else if (status.code == Global.FAILURE_CODE){
+        // 失败
+        println(Global.FAILURE_EXECUTE);
+      }
     } catch (TException e) {
       logger.error(e.getMessage());
     }
     long endTime = System.currentTimeMillis();
     println("It costs " + (endTime - startTime) + " ms.");
   }
-
 
   /**
    * [method] 创建命令行选项
