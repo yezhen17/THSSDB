@@ -2,7 +2,7 @@ package cn.edu.thssdb.operation;
 
 import cn.edu.thssdb.schema.Row;
 
-public class UpdateOperation {
+public class UpdateOperation extends BaseOperation {
     private Row oldRow;
     private Row newRow;
 

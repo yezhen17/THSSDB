@@ -3,7 +3,7 @@ package cn.edu.thssdb.operation;
 import cn.edu.thssdb.schema.Column;
 import java.util.ArrayList;
 
-public class CreateTableOperation {
+public class CreateTableOperation extends BaseOperation {
     private String name;            // 表名称
     private Column[] columns;       // 列定义
     private int primaryIndex;       // 主键索引

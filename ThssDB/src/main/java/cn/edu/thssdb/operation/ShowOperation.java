@@ -1,6 +1,6 @@
 package cn.edu.thssdb.operation;
 
-public class ShowOperation {
+public class ShowOperation extends BaseOperation {
 
   private String name;      // 表名称
 

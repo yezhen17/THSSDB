@@ -228,8 +228,9 @@ public class MyVisitor extends SQLBaseVisitor{
 
     order_by_item = new OrderByItem(order_by_columns, order);
 
-    WholeSelectionItem res = new WholeSelectionItem(select_content_item, from_item, where_item, order_by_item);
-    return res;
+    return new SelectOperation(select_content_item, from_item, where_item, order_by_item);
+//    WholeSelectionItem res = new WholeSelectionItem(select_content_item, from_item, where_item, order_by_item);
+//    return res;
   }
 
   @Override
@@ -469,4 +470,24 @@ public class MyVisitor extends SQLBaseVisitor{
       return new LiteralValueItem(LiteralValueItem.Type.INT_OR_LONG,str);
     }
   }
+
+  @Override
+  public Object visitDelete_stmt(SQLParser.Delete_stmtContext ctx) {
+    if (ctx.getChildCount() == 3) {
+      return new DeleteOperation(ctx.getChild(2).getText());
+    } else {
+      return new DeleteOperation(ctx.getChild(2).getText(), (MultipleConditionItem) visit(ctx.getChild(4)));
+    }
+  }
+
+  @Override
+  public Object visitUpdate_stmt(SQLParser.Update_stmtContext ctx) {
+    return super.visitUpdate_stmt(ctx);
+  }
+
+  @Override
+  public Object visitInsert_stmt(SQLParser.Insert_stmtContext ctx) {
+    return super.visitInsert_stmt(ctx);
+  }
 }
+

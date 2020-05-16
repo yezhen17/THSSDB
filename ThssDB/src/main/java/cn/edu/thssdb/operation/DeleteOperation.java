@@ -1,15 +1,27 @@
 package cn.edu.thssdb.operation;
 
+import cn.edu.thssdb.parser.item.MultipleConditionItem;
 import cn.edu.thssdb.schema.Entry;
 import cn.edu.thssdb.schema.Row;
 
-public class DeleteOperation {
+public class DeleteOperation extends BaseOperation {
+    private String tableName;
+    private MultipleConditionItem whereItem = null; // null则删除所有
     private Row row;            // 待删除行行描述
     private Entry entry;        // 待删除行主键描述
 
     /**
      * [method] 构造方法
      */
+    public DeleteOperation(String tableName) {
+        this.tableName = tableName;
+    }
+
+    public DeleteOperation(String tableName, MultipleConditionItem whereItem) {
+        this.tableName = tableName;
+        this.whereItem = whereItem;
+    }
+
     public DeleteOperation(Row row) {
         this.row = row;
     }

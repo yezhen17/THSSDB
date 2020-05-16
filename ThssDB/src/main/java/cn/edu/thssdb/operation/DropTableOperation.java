@@ -1,6 +1,6 @@
 package cn.edu.thssdb.operation;
 
-public class DropTableOperation {
+public class DropTableOperation extends BaseOperation {
     private String name;      // 表名称
 
     /**

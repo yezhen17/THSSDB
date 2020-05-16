@@ -1,25 +1,25 @@
 package cn.edu.thssdb.operation;
 
-import cn.edu.thssdb.parser.item.FromItem;
-import cn.edu.thssdb.parser.item.OrderByItem;
-import cn.edu.thssdb.parser.item.SelectItem;
+import cn.edu.thssdb.parser.SQLParser;
+import cn.edu.thssdb.parser.item.*;
 import cn.edu.thssdb.tree.ExpressionTree;
 
 import java.util.ArrayList;
 
-public class SelectOperation {
-  private ArrayList<SelectItem> selectItems;
+public class SelectOperation extends BaseOperation {
+  private SelectContentItem selectContentItem;
   private FromItem fromItem;
-  private ExpressionTree expressionTree;
+  private MultipleConditionItem whereItem;
   private OrderByItem orderByItem;
 
   /**
    * [method] 构造方法
    */
-  public SelectOperation(ArrayList<SelectItem> selectItems,FromItem fromItem, ExpressionTree expressionTree, OrderByItem orderByItem) {
-    this.selectItems = selectItems;
+  public SelectOperation(SelectContentItem selectContentItem,FromItem fromItem,
+                         MultipleConditionItem whereItem, OrderByItem orderByItem) {
+    this.selectContentItem = selectContentItem;
     this.fromItem = fromItem;
-    this.expressionTree = expressionTree;
+    this.whereItem = whereItem;
     this.orderByItem = orderByItem;
   }
 

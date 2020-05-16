@@ -1,6 +1,6 @@
 package cn.edu.thssdb.operation;
 
-public class DropDatabaseOperation {
+public class DropDatabaseOperation extends BaseOperation {
     private String name;      // 数据库名称
 
     /**

@@ -1,7 +1,7 @@
 package cn.edu.thssdb.operation;
 import cn.edu.thssdb.schema.Row;
 
-public class InsertOperation {
+public class InsertOperation extends BaseOperation {
     private Row row;            // 待插入行
 
     /**
