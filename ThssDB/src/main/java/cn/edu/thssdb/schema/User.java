@@ -18,6 +18,13 @@ public class User {
     public Permission permission;      // 权限
     public String database;            // 数据库
 
+    public User(String username, String password, Permission permission) {
+        this.username = username;
+        this.password = password;
+        this.permission = permission;
+        this.database = "";
+    }
+
     public User(String username, String password, Permission permission, String database) {
         this.username = username;
         this.password = password;

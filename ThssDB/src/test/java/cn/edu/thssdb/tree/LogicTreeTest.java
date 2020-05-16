@@ -9,6 +9,7 @@ public class LogicTreeTest {
 
   }
 
+  /*
   @Test
   public void testTree(){
     Node<Boolean> a = new Node("and", new Node(true), new Node(false));
@@ -16,5 +17,6 @@ public class LogicTreeTest {
     LogicTree t = new LogicTree(b);
     System.out.println(t.getTreeValue());
   }
+  */
 }
 

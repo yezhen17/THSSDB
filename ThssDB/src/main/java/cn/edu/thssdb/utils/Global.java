@@ -9,24 +9,29 @@ public class Global {
   public static String DEFAULT_SERVER_HOST = "127.0.0.1";
   public static int DEFAULT_SERVER_PORT = 6667;
 
+  public static final String ROOT_USERNAME = "THU";
+  public static final String ROOT_PASSWORD = "THU";
+
   public static final String CLI_PREFIX = "ThssDB>";
   public static final String INPUT_USERNAME = "Username:";
   public static final String INPUT_PASSWORD = "Password:";
   public static final String INPUT_STATEMENT = "Statement:";
-  public static final String SUCCESS_CONNECT = "[Success] Connect succeed.";
-  public static final String SUCCESS_DISCONNECT = "[Success] Disconnect succeed.";
-  public static final String SUCCESS_EXECUTE = "[Success] Execute succeed.";
-  public static final String FAILURE_CONNECT = "[Failure] Connect failed.";
-  public static final String FAILURE_DISCONNECT = "[Failure] Disconnect failed.";
-  public static final String FAILURE_EXECUTE = "[Failure] Execute failed.";
-  public static final String ERROR_INVALID_STATEMENT = "[Error] Invalid statement!";
-  public static final String ERROR_HAVE_CONNECTED = "[Error] You are connected, please disconnect first.";
-  public static final String ERROR_NOT_CONNECTED = "[Error] You are not connected, please connect first.";
   public static final String SHOW_TIME = "show time;";
   public static final String CONNECT = "connect;";
   public static final String DISCONNECT = "disconnect;";
   public static final String EXECUTE = "execute;";
   public static final String QUIT = "quit;";
+
+  public static final String ERROR_INVALID_STATEMENT = "[Error] Invalid statement!";
+  public static final String ERROR_HAVE_CONNECTED = "[Error] You are connected, please disconnect first.";
+  public static final String ERROR_NOT_CONNECTED = "[Error] You are not connected, please connect first.";
+  public static final String SUCCESS_CONNECT = "[Success] Connect succeed.";
+  public static final String SUCCESS_DISCONNECT = "[Success] Disconnect succeed.";
+  public static final String SUCCESS_EXECUTE = "[Success] Execute succeed.";
+  public static final String FAILURE_CONNECT_1 = "[Failure] Connect failed: user doesn't exist!";
+  public static final String FAILURE_CONNECT_2 = "[Failure] Connect failed: wrong password!";
+  public static final String FAILURE_DISCONNECT = "[Failure] Disconnect failed: user is not online!";
+  public static final String FAILURE_EXECUTE = "[Failure] Execute failed.";
 
 
   public static final String S_URL_INTERNAL = "jdbc:default:connection";

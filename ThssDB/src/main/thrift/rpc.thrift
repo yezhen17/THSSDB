@@ -20,7 +20,8 @@ struct ConnectReq{
 
 struct ConnectResp{
   1: required Status status
-  2: required i64 sessionId
+  2: required string information
+  3: required i64 sessionId
 }
 
 struct DisconnetReq{
@@ -29,6 +30,7 @@ struct DisconnetReq{
 
 struct DisconnetResp{
   1: required Status status
+  2: required string information
 }
 
 struct ExecuteStatementReq {
@@ -38,11 +40,11 @@ struct ExecuteStatementReq {
 
 struct ExecuteStatementResp{
   1: required Status status
-  2: required bool isAbort
-  3: required bool hasResult
-  4: optional list<string> columnsList      // only for query
-  5: optional list<list<string>> rowList    // only for query
-  6: optional string information
+  2: required string information
+  3: required bool isAbort
+  4: required bool hasResult
+  5: optional list<string> columnsList      // only for query
+  6: optional list<list<string>> rowList    // only for query
 }
 
 service IService {

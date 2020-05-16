@@ -1,7 +1,11 @@
 package cn.edu.thssdb.service;
 
+import cn.edu.thssdb.exception.UserNotExistException;
+import cn.edu.thssdb.exception.WrongPasswordException;
+import cn.edu.thssdb.exception.WrongUsernameOrPasswordException;
 import cn.edu.thssdb.rpc.thrift.*;
 import cn.edu.thssdb.schema.Manager;
+import cn.edu.thssdb.schema.UserManager;
 import cn.edu.thssdb.server.ThssDB;
 import cn.edu.thssdb.utils.Global;
 import org.apache.thrift.TException;
@@ -9,6 +13,9 @@ import org.apache.thrift.TException;
 import java.util.Date;
 
 public class IServiceHandler implements IService.Iface {
+  Manager dataManager = Manager.getInstance();
+  UserManager userManager = UserManager.getInstance();
+
   /**
    * [method] 接口 - 打印时间
    * @param req {GetTimeReq} 请求
@@ -34,16 +41,27 @@ public class IServiceHandler implements IService.Iface {
     String username = req.getUsername();
     String password = req.getPassword();
     ConnectResp resp = new ConnectResp();
-    // 操作执行 TODO
-    long sessionId = 0;
-    resp.setSessionId(sessionId);
-    resp.setStatus(new Status(Global.SUCCESS_CODE));
-    // System.out.println(ThssDB.test);
-
+    // 操作执行
+    try {
+      long sessionId = userManager.login(username, password);
+      // 成功
+      resp.setSessionId(sessionId);
+      resp.setStatus(new Status(Global.SUCCESS_CODE));
+      resp.setInformation(Global.SUCCESS_CONNECT);
+    } catch (UserNotExistException e) {
+      // 失败
+      resp.setSessionId(-1);
+      resp.setStatus(new Status(Global.FAILURE_CODE));
+      resp.setInformation(Global.FAILURE_CONNECT_1);
+    } catch (WrongPasswordException e) {
+      // 失败
+      resp.setSessionId(-1);
+      resp.setStatus(new Status(Global.FAILURE_CODE));
+      resp.setInformation(Global.FAILURE_CONNECT_2);
+    }
     // 响应回复
     return resp;
   }
-
 
   /**
    * [method] 接口 - 关闭连接
@@ -55,8 +73,16 @@ public class IServiceHandler implements IService.Iface {
     // 请求解析 & 响应创建
     long sessionId = req.getSessionId();
     DisconnetResp resp = new DisconnetResp();
-    // 操作执行 TODO
-    resp.setStatus(new Status(Global.SUCCESS_CODE));
+    // 操作执行
+    if (userManager.logout(sessionId)) {
+      // 成功
+      resp.setStatus(new Status(Global.SUCCESS_CODE));
+      resp.setInformation(Global.SUCCESS_DISCONNECT);
+    } else {
+      // 失败
+      resp.setStatus(new Status(Global.FAILURE_CODE));
+      resp.setInformation(Global.FAILURE_DISCONNECT);
+    }
     // 响应回复
     return resp;
   }
@@ -74,9 +100,10 @@ public class IServiceHandler implements IService.Iface {
     ExecuteStatementResp resp = new ExecuteStatementResp();
     // 操作执行 TODO 调用接口
     Manager manager = Manager.getInstance();
-    resp.setStatus(new Status(Global.SUCCESS_CODE));
     resp.setIsAbort(false);
     resp.setHasResult(false);
+    resp.setStatus(new Status(Global.FAILURE_CODE));
+    resp.setInformation(Global.FAILURE_EXECUTE);
     // 响应回复
     return resp;
   }

@@ -165,10 +165,12 @@ public class Client {
         // 成功
         isConnected = true;
         SessionID = resp.getSessionId();
-        println(Global.SUCCESS_CONNECT);
+        println(resp.getInformation());
       } else if (status.code == Global.FAILURE_CODE){
         // 失败
-        println(Global.FAILURE_CONNECT);
+        isConnected = false;
+        SessionID = -1;
+        println(resp.getInformation());
       }
     } catch (TException e) {
       logger.error(e.getMessage());
@@ -195,10 +197,12 @@ public class Client {
         // 成功
         isConnected = false;
         SessionID = -1;
-        println(Global.SUCCESS_DISCONNECT);
+        println(resp.getInformation());
       } else if (status.code == Global.FAILURE_CODE){
         // 失败
-        println(Global.FAILURE_DISCONNECT);
+        isConnected = false;
+        SessionID = -1;
+        println(resp.getInformation());
       }
     } catch (TException e) {
       logger.error(e.getMessage());
@@ -225,10 +229,10 @@ public class Client {
       Status status = resp.getStatus();
       if (status.code == Global.SUCCESS_CODE) {
         // 成功
-        println(Global.SUCCESS_EXECUTE);
+        println(resp.getInformation());
       } else if (status.code == Global.FAILURE_CODE){
         // 失败
-        println(Global.FAILURE_EXECUTE);
+        println(resp.getInformation());
       }
     } catch (TException e) {
       logger.error(e.getMessage());
