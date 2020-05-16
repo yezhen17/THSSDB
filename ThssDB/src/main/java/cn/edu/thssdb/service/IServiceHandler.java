@@ -1,14 +1,6 @@
 package cn.edu.thssdb.service;
 
-import cn.edu.thssdb.rpc.thrift.ConnectReq;
-import cn.edu.thssdb.rpc.thrift.ConnectResp;
-import cn.edu.thssdb.rpc.thrift.DisconnetResp;
-import cn.edu.thssdb.rpc.thrift.ExecuteStatementReq;
-import cn.edu.thssdb.rpc.thrift.ExecuteStatementResp;
-import cn.edu.thssdb.rpc.thrift.GetTimeReq;
-import cn.edu.thssdb.rpc.thrift.GetTimeResp;
-import cn.edu.thssdb.rpc.thrift.IService;
-import cn.edu.thssdb.rpc.thrift.Status;
+import cn.edu.thssdb.rpc.thrift.*;
 import cn.edu.thssdb.utils.Global;
 import org.apache.thrift.TException;
 
@@ -27,13 +19,18 @@ public class IServiceHandler implements IService.Iface {
   @Override
   public ConnectResp connect(ConnectReq req) throws TException {
     // TODO
-    return null;
+    ConnectResp resp = new ConnectResp();
+    resp.setSessionId(0);
+    resp.setStatus(new Status(Global.SUCCESS_CODE));
+    return resp;
   }
 
   @Override
-  public DisconnetResp disconnect(DisconnetResp req) throws TException {
+  public DisconnetResp disconnect(DisconnetReq req) throws TException {
     // TODO
-    return null;
+    DisconnetResp resp = new DisconnetResp();
+    resp.setStatus(new Status(Global.SUCCESS_CODE));
+    return resp;
   }
 
   @Override

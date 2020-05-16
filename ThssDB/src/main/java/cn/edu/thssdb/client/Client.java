@@ -1,5 +1,7 @@
 package cn.edu.thssdb.client;
 
+import cn.edu.thssdb.rpc.thrift.ConnectReq;
+import cn.edu.thssdb.rpc.thrift.DisconnetReq;
 import cn.edu.thssdb.rpc.thrift.GetTimeReq;
 import cn.edu.thssdb.rpc.thrift.IService;
 import cn.edu.thssdb.utils.Global;
@@ -177,6 +179,31 @@ public class Client {
     GetTimeReq req = new GetTimeReq();
     try {
       println(client.getTime(req).getTime());
+    } catch (TException e) {
+      logger.error(e.getMessage());
+    }
+  }
+
+  /**
+   * [method] 请求 - 进行连接
+   */
+  private static void connect() {
+    ConnectReq req = new ConnectReq();
+    try {
+      println(String.valueOf(client.connect(req).getSessionId()));
+    } catch (TException e) {
+      logger.error(e.getMessage());
+    }
+  }
+
+
+  /**
+   * [method] 请求 - 关闭连接
+   */
+  private static void disconnect() {
+    DisconnetReq req = new DisconnetReq();
+    try {
+      println(String.valueOf(client.disconnect(req)));
     } catch (TException e) {
       logger.error(e.getMessage());
     }

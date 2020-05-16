@@ -18,9 +18,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class Database {
   private String name;                        // 数据库名称
   private HashMap<String, Table> tables;      // 表哈希表
-  private ReentrantReadWriteLock lock;                // 可重入读写锁
+  private ReentrantReadWriteLock lock;        // 可重入读写锁
   private Meta meta;                          // 元数据管理
-
 
   /**
    * [method] 构造方法
