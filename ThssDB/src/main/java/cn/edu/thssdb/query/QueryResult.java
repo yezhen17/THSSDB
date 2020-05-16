@@ -1,6 +1,7 @@
 package cn.edu.thssdb.query;
 
 import cn.edu.thssdb.parser.item.*;
+import cn.edu.thssdb.schema.Entry;
 import cn.edu.thssdb.schema.Row;
 
 import java.awt.image.AreaAveragingScaleFilter;
@@ -77,6 +78,8 @@ public class QueryResult {
         }
       }
     } else {
+      int column_count1 = metaInfos.get(0).getColumnNum();
+      int column_count2 = metaInfos.get(1).getColumnNum();
       int n1 = queryTables.n1;
       int n2 = queryTables.n2;
       boolean [] t1_count = new boolean[n1];
@@ -88,18 +91,36 @@ public class QueryResult {
           res.add(r);
           t1_count[i / n2] = true;
           t2_count[i % n2] = true;
+        } else {
+          if (retain_left) {
+            if ((i % n2) == (n2 - 1) && !t1_count[i / n2]) {
+              ArrayList<Entry> entries = new ArrayList<Entry>();
+              ArrayList<Entry> r_entries = r.getEntries();
+              for (int k = 0; k < column_count1; k++) {
+                entries.add(new Entry(r_entries.get(k)));
+              }
+              for (int k = 0; k < column_count2; k++) {
+                entries.add(new Entry(null));
+              }
+              res.add(new Row(entries));
+            }
+          }
+          if (retain_right) {
+            if ((i / n2) == (n1 - 1) && !t2_count[i % n2]) {
+              ArrayList<Entry> entries = new ArrayList<Entry>();
+              ArrayList<Entry> r_entries = r.getEntries();
+
+              for (int k = 0; k < column_count1; k++) {
+                entries.add(new Entry(null));
+              }
+              for (int k = column_count1; k < column_count1 + column_count2; k++) {
+                entries.add(new Entry(r_entries.get(k)));
+              }
+              res.add(new Row(entries));
+            }
+          }
         }
         i++;
-      }
-      for (int j = 0; j < n1; j++) {
-        if (!t1_count[j]) {
-          //TODO
-        }
-      }
-      for (int j = 0; j < n2; j++) {
-        if (!t2_count[j]) {
-          //TODO
-        }
       }
     }
 
@@ -117,6 +138,7 @@ public class QueryResult {
     }
 
     sortArray(res, orderByItem.getOrder(), sort_indices);
+
 
   }
 
@@ -142,15 +164,20 @@ public class QueryResult {
   }
 
 
-
-
-
 //  // WHERE 子句
 //  public static boolean judge(Row row, MultipleConditionItem whereItem) {
 //    // TODO
 //    // whereItem.setColumn(xxx);
 //    return whereItem.getTreeValue(row).getValue();
 //  }
+
+  private ArrayList<Integer> columnToIndices(ArrayList<SelectItem> columns) {
+    ArrayList<Integer> res = new ArrayList<>();
+    for (SelectItem c: columns) {
+
+    }
+    return res;
+  }
 
   // SELECT 子句
   public Row generateQueryRecord(Row row) {

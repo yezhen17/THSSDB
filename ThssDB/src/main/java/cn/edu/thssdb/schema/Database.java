@@ -123,7 +123,7 @@ public class Database {
    * @return {String} 查询结果
    * @exception TODO
    */
-  public String select(QueryTable[] queryTables) {
+  public String select(QueryTable queryTables) {
     // TODO 查询模块
     try {
       lock.readLock().lock();

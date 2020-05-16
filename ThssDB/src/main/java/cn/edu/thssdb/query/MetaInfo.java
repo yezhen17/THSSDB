@@ -19,11 +19,15 @@ class MetaInfo {
     return 0;
   }
 
-  public List<QueryColumn> getColumns() {
+  public ArrayList<QueryColumn> getColumns() {
     ArrayList<QueryColumn> a = new ArrayList<>();
     for (Column c: columns) {
       a.add(new QueryColumn(c, tableName));
     }
     return a;
+  }
+
+  public int getColumnNum() {
+    return columns.size();
   }
 }

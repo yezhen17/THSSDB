@@ -29,7 +29,6 @@ public class SelectOperation extends BaseOperation {
    */
   public void exec() {
     // TODO
-    Table table = null;
 
   }
 }

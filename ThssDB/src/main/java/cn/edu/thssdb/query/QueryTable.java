@@ -75,4 +75,8 @@ public class QueryTable implements Iterator<Row> {
   public int getTableNum() {
     return tableNum;
   }
+
+//  public Row getRow(int tableId, int rowId) {
+//    return tables.get(tableId).index
+//  }
 }
