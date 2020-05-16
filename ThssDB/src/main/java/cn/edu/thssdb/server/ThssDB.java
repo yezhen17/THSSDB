@@ -24,6 +24,8 @@ public class ThssDB {
   private static TServerSocket transport;
   private static TServer server;
 
+  public static String test = "AAA";
+
   private Manager manager;      // 管理器
 
   /**
@@ -41,14 +43,12 @@ public class ThssDB {
     ThssDB server = ThssDB.getInstance();
     server.start();
   }
-
   private void start() {
     handler = new IServiceHandler();
     processor = new IService.Processor(handler);
     Runnable setup = () -> setUp(processor);
     new Thread(setup).start();
   }
-
   private static void setUp(IService.Processor processor) {
     try {
       transport = new TServerSocket(Global.DEFAULT_SERVER_PORT);

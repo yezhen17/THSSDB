@@ -13,6 +13,12 @@ public class Global {
   public static final String INPUT_USERNAME = "Username:";
   public static final String INPUT_PASSWORD = "Password:";
   public static final String INPUT_STATEMENT = "Statement:";
+  public static final String SUCCESS_CONNECT = "[Success] Connect succeed.";
+  public static final String SUCCESS_DISCONNECT = "[Success] Disconnect succeed.";
+  public static final String SUCCESS_EXECUTE = "[Success] Execute succeed.";
+  public static final String FAILURE_CONNECT = "[Failure] Connect failed.";
+  public static final String FAILURE_DISCONNECT = "[Failure] Disconnect failed.";
+  public static final String FAILURE_EXECUTE = "[Failure] Execute failed.";
   public static final String ERROR_INVALID_STATEMENT = "[Error] Invalid statement!";
   public static final String ERROR_HAVE_CONNECTED = "[Error] You are connected, please disconnect first.";
   public static final String ERROR_NOT_CONNECTED = "[Error] You are not connected, please connect first.";
