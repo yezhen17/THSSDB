@@ -34,9 +34,9 @@ public class MultipleConditionItem extends BaseTree<ConditionItem> {
 
   @Override
   protected ConditionItem merge(ConditionItem v1, ConditionItem v2, String op, Row row) {
-    if (op.equals("and")) {
+    if (op.equalsIgnoreCase("and") || op.equals("&&")) {
       return new ConditionItem(v1.evaluate(row) && v2.evaluate(row));
-    } else if (op.equals("or")) {
+    } else if (op.equalsIgnoreCase("or") || op.equals("||")) {
       return new ConditionItem(v1.evaluate(row) || v2.evaluate(row));
     } else {
       return new ConditionItem(true); // 这种情况实际不会发生

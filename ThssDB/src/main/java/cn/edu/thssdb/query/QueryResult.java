@@ -34,14 +34,75 @@ public class QueryResult {
       this.columns.addAll(metaInfo.getColumns());
     }
 
-    whereItem.setColumn(this.columns);
-    for (QueryTable it = queryTables; it.hasNext(); ) {
-      Row r = it.next();
-      if (whereItem.getTreeValue(r).getValue()) {
-        res.add(r);
-      }
-
+    FromItem.JoinType joinType = fromItem.getJoinType();
+    for (OnItem c: fromItem.getOnItems()) {
+      whereItem = new MultipleConditionItem(whereItem, new MultipleConditionItem(
+              new ConditionItem(new ComparerItem(c.getColumnA()), new ComparerItem(c.getColumnB()),
+                      "==")), "AND");
     }
+    boolean retain_left = false;
+    boolean retain_right = false;
+    switch (joinType) {
+      case NATURAL_INNER_JOIN: {
+
+      }
+      case INNER_JOIN_ON: {
+        break;
+      }
+      case LEFT_OUTER_JOIN_ON: {
+        retain_left = true;
+        break;
+      }
+      case RIGHT_OUTER_JOIN_ON: {
+        retain_right = true;
+        break;
+      }
+      case FULL_OUTER_JOIN_ON: {
+        retain_left = true;
+        retain_right = true;
+        break;
+      }
+      default:{
+        break;
+      }
+    }
+
+    whereItem.setColumn(this.columns);
+
+    if (queryTables.getTableNum() == 1) {
+      for (QueryTable it = queryTables; it.hasNext(); ) {
+        Row r = it.next();
+        if (whereItem.getTreeValue(r).getValue()) {
+          res.add(r);
+        }
+      }
+    } else {
+      int n1 = queryTables.n1;
+      int n2 = queryTables.n2;
+      boolean [] t1_count = new boolean[n1];
+      boolean [] t2_count = new boolean[n2];
+      int i = 0;
+      for (QueryTable it = queryTables; it.hasNext(); ) {
+        Row r = it.next();
+        if (whereItem.getTreeValue(r).getValue()) {
+          res.add(r);
+          t1_count[i / n2] = true;
+          t2_count[i % n2] = true;
+        }
+        i++;
+      }
+      for (int j = 0; j < n1; j++) {
+        if (!t1_count[j]) {
+          //TODO
+        }
+      }
+      for (int j = 0; j < n2; j++) {
+        if (!t2_count[j]) {
+          //TODO
+        }
+      }
+    }
+
 
     ArrayList<Integer> sort_indices = new ArrayList<>();
     for (ColumnFullNameItem c: orderByItem.getColumnList()) {

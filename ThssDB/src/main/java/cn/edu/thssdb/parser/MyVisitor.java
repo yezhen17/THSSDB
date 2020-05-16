@@ -256,9 +256,12 @@ public class MyVisitor extends SQLBaseVisitor{
 
   @Override
   public FromItem visitJoin_content(SQLParser.Join_contentContext ctx) {
-    FromItem join_content = null;
+    FromItem join_content;
 
     ArrayList<String> child_text = new ArrayList<>();
+    if (ctx.getChildCount() == 1) {
+      return new FromItem(ctx.getChild(0).getText(), null, FromItem.JoinType.NONE, new ArrayList<>());
+    }
     for (int i = 0; i < ctx.getChildCount(); i++) {
       child_text.add(ctx.getChild(i).getText());
     }

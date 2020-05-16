@@ -37,4 +37,12 @@ public class OnItem {
   public String getColumnNameB() {
     return columnNameB;
   }
+
+  public ColumnFullNameItem getColumnA() {
+    return new ColumnFullNameItem(tableNameA, columnNameA);
+  }
+
+  public ColumnFullNameItem getColumnB() {
+    return new ColumnFullNameItem(tableNameB, columnNameB);
+  }
 }

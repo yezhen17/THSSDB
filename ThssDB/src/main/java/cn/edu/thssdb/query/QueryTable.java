@@ -13,6 +13,8 @@ public class QueryTable implements Iterator<Row> {
   private ArrayList<Table> tables;
   Iterator<Row> t1;
   Iterator<Row> t2;
+  int n1;
+  int n2;
   Row cache;
 
   QueryTable(ArrayList<Table> tables) {
@@ -21,9 +23,13 @@ public class QueryTable implements Iterator<Row> {
     this.tableNum = tables.size();
     if (this.tableNum == 1) {
       t1 = tables.get(0).iterator();
+      n1 = tables.get(0).index.size();
+      n2 = 1;
     } else {
       t1 = tables.get(0).iterator();
       t2 = tables.get(1).iterator();
+      n1 = tables.get(0).index.size();
+      n1 = tables.get(1).index.size();
       cache = t1.next();
     }
   }
@@ -64,5 +70,9 @@ public class QueryTable implements Iterator<Row> {
     ArrayList<Entry> a = r1.getEntries();
     a.addAll(r2.getEntries());
     return new Row(a);
+  }
+
+  public int getTableNum() {
+    return tableNum;
   }
 }

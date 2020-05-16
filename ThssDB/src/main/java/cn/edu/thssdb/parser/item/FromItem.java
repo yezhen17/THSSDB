@@ -12,7 +12,7 @@ public class FromItem {
   private ArrayList<OnItem> onItems;
 
   public enum JoinType{
-    PRODUCT, NATURAL_INNER_JOIN, INNER_JOIN_ON,
+    NONE, PRODUCT, NATURAL_INNER_JOIN, INNER_JOIN_ON,
     LEFT_OUTER_JOIN_ON, RIGHT_OUTER_JOIN_ON, FULL_OUTER_JOIN_ON
   }
 
