@@ -100,6 +100,7 @@ select_item:
 
 
 join_content:
+    table_name |
     ( table_name ',' table_name ) |
     ( table_name K_NATURAL ( K_INNER )? K_JOIN table_name ) |
     ( table_name ( K_INNER )? K_JOIN table_name K_ON on_content ) |

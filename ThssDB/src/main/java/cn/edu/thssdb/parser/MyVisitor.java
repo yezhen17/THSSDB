@@ -482,12 +482,60 @@ public class MyVisitor extends SQLBaseVisitor{
 
   @Override
   public Object visitUpdate_stmt(SQLParser.Update_stmtContext ctx) {
-    return super.visitUpdate_stmt(ctx);
+    if(ctx.getChildCount()==6){
+      String tableName = (String) visit(ctx.getChild(1));
+      String columnName = (String) visit(ctx.getChild(3));
+      LiteralValueItem literalValueItem = (LiteralValueItem) visit(ctx.getChild(5));
+      return new UpdateOperation(tableName,columnName,literalValueItem);
+    }
+    else{
+      String tableName = (String) visit(ctx.getChild(1));
+      String columnName = (String) visit(ctx.getChild(3));
+      LiteralValueItem literalValueItem = (LiteralValueItem) visit(ctx.getChild(5));
+      MultipleConditionItem multipleConditionItem = (MultipleConditionItem) visit(ctx.getChild(7));
+      return new UpdateOperation(tableName,columnName,literalValueItem,multipleConditionItem);
+    }
   }
 
   @Override
   public Object visitInsert_stmt(SQLParser.Insert_stmtContext ctx) {
-    return super.visitInsert_stmt(ctx);
+    String tableName = (String) visit(ctx.getChild(2));
+    int n = ctx.getChildCount();
+    ArrayList<String> columnNames = new ArrayList<>();
+    ArrayList<ArrayList<LiteralValueItem>> values = new ArrayList<>();
+    String text = (String) visit(ctx.getChild(3));
+    if(text.equalsIgnoreCase("VALUES")){
+      for(int i=4;i<n;i+=2){
+        values.add((ArrayList<LiteralValueItem>) visit(ctx.getChild(i)));
+      }
+      return new InsertOperation(tableName,values);
+    }
+    else{
+      int i;
+      for(i=4;i<n;i++){
+        if(ctx.getChild(i).getText().equalsIgnoreCase("VALUES"))
+          break;
+        if(ctx.getChild(i).getText().equalsIgnoreCase(",")||
+                ctx.getChild(i).getText().equalsIgnoreCase(")"))
+          continue;
+        columnNames.add((String) visit(ctx.getChild(i)));
+      }
+      i++;
+      for(;i<n;i+=2){
+        values.add((ArrayList<LiteralValueItem>) visit(ctx.getChild(i)));
+      }
+      return new InsertOperation(tableName,columnNames,values);
+    }
+  }
+
+  @Override
+  public Object visitValue_entry(SQLParser.Value_entryContext ctx) {
+    int n = ctx.getChildCount();
+    ArrayList<LiteralValueItem> literalValueItems = new ArrayList<>();
+    for(int i=1;i<n;i+=2){
+      literalValueItems.add((LiteralValueItem) visit(ctx.getChild(i)));
+    }
+    return literalValueItems;
   }
 }
 
