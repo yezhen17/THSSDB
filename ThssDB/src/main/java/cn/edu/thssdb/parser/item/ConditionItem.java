@@ -1,9 +1,14 @@
 package cn.edu.thssdb.parser.item;
 import cn.edu.thssdb.parser.item.ColumnFullNameItem;
+import cn.edu.thssdb.query.QueryColumn;
 import cn.edu.thssdb.schema.Column;
+import cn.edu.thssdb.schema.Entry;
 import cn.edu.thssdb.schema.Row;
+import cn.edu.thssdb.type.ColumnType;
 import cn.edu.thssdb.type.ComparisonType;
 import cn.edu.thssdb.utils.Global;
+
+import java.util.ArrayList;
 
 public class ConditionItem {
   private boolean value;
@@ -15,10 +20,15 @@ public class ConditionItem {
 //  ColumnFullNameItem c2 = null;
 //  LiteralValueItem l1 = null;
 //  LiteralValueItem l2 = null;
+  int idx1;
+  int idx2;
+  Entry e1;
+  Entry e2;
+  int type;
   private ComparisonType cmp;
   private boolean is_bool = true;
 
-    public ConditionItem(ComparerItem c1, ComparerItem c2, String cmp) {
+  public ConditionItem(ComparerItem c1, ComparerItem c2, String cmp) {
     this.c1 = c1;
     this.c2 = c2;
     this.cmp = ComparisonType.string2ComparisonType(cmp);
@@ -58,12 +68,34 @@ public class ConditionItem {
     this.is_bool = true;
   }
 
-  public boolean evaluate() {
+  public boolean evaluate(Row row) {
     if (this.is_bool) {
       return this.value;
     }
-    // int cmp_res = row.getEntries().get(c1).compareTo(row.getEntries().get(c1));
     int cmp_res = 0;
+    switch (this.type) {
+      case 0: {
+        cmp_res = row.getEntries().get(idx1).compareTo(row.getEntries().get(idx2));
+        break;
+      }
+      case 1: {
+        cmp_res = row.getEntries().get(idx1).compareTo(e2);
+        break;
+      }
+      case 2: {
+        cmp_res = e1.compareTo(row.getEntries().get(idx2));
+        break;
+      }
+      case 3: {
+        cmp_res = e1.compareTo(e2);
+        break;
+      }
+      default: {
+        break; // 不会出现
+      }
+    }
+    // int cmp_res = row.getEntries().get(c1).compareTo(row.getEntries().get(c1));
+
     boolean res;
     switch (cmp) {
       case LT: res = cmp_res == -1; break; // <
@@ -77,4 +109,77 @@ public class ConditionItem {
     return res;
   }
 
+  public boolean getValue() {
+    return this.value;
+  }
+
+  public void convertConditionToIndex(ArrayList<QueryColumn> columns) {
+    if (c1.getIsC()) {
+      int i = 0;
+      for (QueryColumn column : columns) {
+        if (column.compareTo(c1.getC())) {
+          idx1 = i;
+          break;
+        }
+        i++;
+      }
+      if (c2.getIsC()) {
+        type = 0;
+        i = 0;
+        for (QueryColumn column : columns) {
+          if (column.compareTo(c2.getC())) {
+            idx2 = i;
+            break;
+          }
+          i++;
+        }
+      } else {
+        type = 1;
+        ColumnType type = columns.get(idx1).getType();
+        String l = c2.getL().getString();
+        Comparable val = null;
+        if (c2.getL().getType() != LiteralValueItem.Type.NULL) {
+
+          // TODO 似乎不用catch
+          if(type == ColumnType.INT) val = Integer.valueOf(l);
+          else if(type == ColumnType.LONG) val = Long.valueOf(l);
+          else if(type == ColumnType.FLOAT) val = Float.valueOf(l);
+          else if(type == ColumnType.DOUBLE) val = Double.valueOf(l);
+          else if(type == ColumnType.STRING) val = l;
+        }
+        e2 = new Entry(val);
+      }
+    } else {
+      if (c2.getIsC()) {
+        type = 2;
+        int i = 0;
+        for (QueryColumn column : columns) {
+          if (column.compareTo(c2.getC())) {
+            idx2 = i;
+            break;
+          }
+          i++;
+        }
+        ColumnType type = columns.get(idx2).getType();
+        String l = c1.getL().getString();
+        Comparable val = null;
+        if (c1.getL().getType() != LiteralValueItem.Type.NULL) {
+
+          // TODO 似乎不用catch
+          if(type == ColumnType.INT) val = Integer.valueOf(l);
+          else if(type == ColumnType.LONG) val = Long.valueOf(l);
+          else if(type == ColumnType.FLOAT) val = Float.valueOf(l);
+          else if(type == ColumnType.DOUBLE) val = Double.valueOf(l);
+          else if(type == ColumnType.STRING) val = l;
+        }
+        e1 = new Entry(val);
+      } else {
+        type = 3;
+        // 两个都是值，无法判断类型，默认字符串比较
+        e1 = new Entry(c1.getL().getString());
+        e2 = new Entry(c2.getL().getString());
+      }
+
+    }
+  }
 }

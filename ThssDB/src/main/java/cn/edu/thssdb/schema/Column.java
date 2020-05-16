@@ -6,8 +6,8 @@ import cn.edu.thssdb.type.ColumnType;
  * [class] 列
  ***************/
 public class Column implements Comparable<Column> {
-  private String name;        // 名字
-  private ColumnType type;    // 类型
+  protected String name;        // 名字
+  protected ColumnType type;    // 类型
   private boolean primary;    // 是否为主键
   private boolean notNull;    // 是否可以为空
   private int maxLength;      // 最大长度（For String）
