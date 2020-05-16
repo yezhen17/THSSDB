@@ -4,6 +4,7 @@ import cn.edu.thssdb.operation.*;
 import cn.edu.thssdb.parser.item.*;
 import cn.edu.thssdb.schema.Column;
 import cn.edu.thssdb.type.ColumnType;
+import com.sun.org.apache.xalan.internal.xsltc.dom.SimpleResultTreeImpl;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -178,41 +179,57 @@ public class MyVisitor extends SQLBaseVisitor{
     return ctx.getChild(0).getText();
   }
 
-  @Override public Object visitSelect_stmt(SQLParser.Select_stmtContext ctx) {
-    SelectContentItem select_content = null;
-    FromItem from_content = null;
-    WhereItem where_content = null;
+  @Override
+  public Object visitSelect_stmt(SQLParser.Select_stmtContext ctx) {
+    SelectContentItem select_content_item = null;
+    FromItem from_item = null;
+    MultipleConditionItem where_item = null;
+    OrderByItem order_by_item = null;
     ArrayList<String> column_full_name = new ArrayList<>();
-    select_content = (SelectContentItem) visit(ctx.getChild(1));
-    from_content = (FromItem) visit(ctx.getChild(3));
+    select_content_item = (SelectContentItem) visit(ctx.getChild(1));
+    from_item = (FromItem) visit(ctx.getChild(3));
     ArrayList<ColumnFullNameItem> order_by_columns = new ArrayList<>();
+    int order = 0;
+    boolean has_order = false;
+    int idx_first_order_column = -1;
 
     if (ctx.getChildCount() > 4) {
       if (ctx.getChild(4).getText().equalsIgnoreCase("WHERE")) {
-        where_content = (WhereItem) visit(ctx.getChild(5));
-      } else {
-        int i = 7;
-        while (true) {
-          order_by_columns.add((ColumnFullNameItem) visit(ctx.getChild(i)));
-          if (i + 1 >= ctx.getChildCount()) {
-            break;
-          }
-          String nxt = ctx.getChild(i + 1).getText();
-          if (!(nxt.equalsIgnoreCase(",") &&
-                  nxt.equalsIgnoreCase("DESC") &&
-                  nxt.equalsIgnoreCase("ASC"))) {
-            break;
-          }
+        where_item = (MultipleConditionItem) visit(ctx.getChild(5));
+        if (ctx.getChildCount() > 6) {
+          has_order = true;
+          idx_first_order_column = 9;
         }
-        column_full_name.add((String) visit(ctx.getChild(6)));
-      }
-      if (ctx.getChildCount() > 6) {
-
+      } else  {
+        idx_first_order_column = 7;
+        has_order = true;
       }
       // select_content = (String) visit(ctx.getChild(4));
     }
-    //todo add statement
-    return visitChildren(ctx);
+    if (has_order) {
+      order = 1;
+      int i =idx_first_order_column;
+      while (true) {
+        order_by_columns.add((ColumnFullNameItem) visit(ctx.getChild(i)));
+        if (i + 1 >= ctx.getChildCount()) {
+          break;
+        }
+        String nxt = ctx.getChild(i + 1).getText();
+        if (nxt.equalsIgnoreCase("DESC")) {
+          order = -1;
+        }
+        if (!nxt.equalsIgnoreCase(",")) {
+          break;
+        }
+        i += 2;
+      }
+      column_full_name.add((String) visit(ctx.getChild(6)));
+    }
+
+    order_by_item = new OrderByItem(order_by_columns, order);
+
+    WholeSelectionItem res = new WholeSelectionItem(select_content_item, from_item, where_item, order_by_item);
+    return res;
   }
 
   @Override
@@ -300,34 +317,92 @@ public class MyVisitor extends SQLBaseVisitor{
   }
 
   @Override
-  public SelectItem visitNumeric_value(SQLParser.Numeric_valueContext ctx) {
-    return new SelectItem(Double.valueOf(ctx.getChild(0).getText()));
+  public Double visitNumeric_value(SQLParser.Numeric_valueContext ctx) {
+    return Double.valueOf(ctx.getChild(0).getText());
   }
 
   @Override
-  public SelectItem visitResult_column(SQLParser.Result_columnContext ctx) {
+  public ColumnFullNameItem visitResult_column(SQLParser.Result_columnContext ctx) {
     if (ctx.getChild(0).getText().equals("*")) {
-      return new SelectItem(null, "*");
+      return new ColumnFullNameItem(null, "*");
+    } else if (ctx.getChildCount() > 1) {
+      return new ColumnFullNameItem(ctx.getChild(0).getText(), ctx.getChild(2).getText());
     } else {
-      return null;
+      return (ColumnFullNameItem) visit(ctx.getChild(0));
     }
   }
 
   @Override
-  public Object visitMultiple_condition(SQLParser.Multiple_conditionContext ctx) {
-    return super.visitMultiple_condition(ctx);
+  public MultipleConditionItem visitMultiple_condition(SQLParser.Multiple_conditionContext ctx) {
+    if (ctx.getChildCount() == 1) {
+      return new MultipleConditionItem((ConditionItem) visit(ctx.getChild(0)));
+    } else {
+      if (ctx.getChild(0).getText().equalsIgnoreCase("(")) {
+        return (MultipleConditionItem) visit(ctx.getChild(1));
+      } else {
+        return new MultipleConditionItem((MultipleConditionItem) visit(ctx.getChild(0)),
+                (MultipleConditionItem) visit(ctx.getChild(2)),
+                ctx.getChild(1).getText());
+      }
+    }
+
   }
 
+  @Override
+  public Object visitComparer(SQLParser.ComparerContext ctx) {
+    if (ctx.getChild(0) instanceof SQLParser.Literal_valueContext) {
+      return new ComparerItem((LiteralValueItem) visit(ctx.getChild(0)));
+    } else {
+      return new ComparerItem((ColumnFullNameItem) visit(ctx.getChild(0)));
+    }
+  }
+
+  @Override
+  public Object visitCondition(SQLParser.ConditionContext ctx) {
+    if (ctx.getChild(1) instanceof SQLParser.ComparatorContext) {
+      return new ConditionItem((ComparerItem) visit(ctx.getChild(0)),
+              (ComparerItem) visit(ctx.getChild(2)),
+              ctx.getChild(1).getText());
+    } else {
+      return new ConditionItem(new ComparerItem((ColumnFullNameItem) ctx.getChild(0)),
+              new ComparerItem(), "IS_NULL");
+    }
+  }
 
   @Override
   public SelectItem visitSelect_item(SQLParser.Select_itemContext ctx) {
     int child_count = ctx.getChildCount();
     if (child_count == 1) {
-      return (SelectItem) visit(ctx.getChild(0));
+      if (ctx.getChild(0) instanceof SQLParser.Result_columnContext) {
+        return new SelectItem((ColumnFullNameItem) visit(ctx.getChild(0)));
+      } else {
+        return new SelectItem((Double) visit(ctx.getChild(0)));
+      }
+
     } else if (child_count == 3) {
-      return null; // todo
+      if (ctx.getChild(0) instanceof SQLParser.Column_full_nameContext) {
+        return new SelectItem((ColumnFullNameItem) visit(ctx.getChild(0)),
+                (Double) visit(ctx.getChild(2)),
+                ctx.getChild(1).getText().toUpperCase());
+      } else {
+        if (ctx.getChild(2) instanceof SQLParser.Column_full_nameContext) {
+          return new SelectItem((ColumnFullNameItem) visit(ctx.getChild(2)),
+                  (Double) visit(ctx.getChild(0)),
+                  ctx.getChild(1).getText().toUpperCase());
+        } else {
+          return new SelectItem((Double) visit(ctx.getChild(0)),
+                  (Double) visit(ctx.getChild(2)),
+                  ctx.getChild(1).getText().toUpperCase());
+        }
+      }
     } else {
-      return null; // todo
+      if (ctx.getChild(2).getText().equalsIgnoreCase("*")) {
+        return new SelectItem(new ColumnFullNameItem(null, "*"),
+                ctx.getChild(0).getText().toUpperCase());
+      } else {
+        return new SelectItem((ColumnFullNameItem) visit(ctx.getChild(2)),
+                ctx.getChild(0).getText().toUpperCase());
+      }
     }
   }
 

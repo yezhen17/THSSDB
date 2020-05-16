@@ -10,13 +10,13 @@ public class grammerTest {
   public static void main(String[] args) {
     
     CharStream input = CharStreams.fromString(
-//            "create database mydb;"+
-//            "drop database mydb; "+
-//            "drop database if exists mydb;"+
-//            "use db;" +
-//            "drop table mytable; "+
-//            "drop table if exists mytable;" +
-//            "select a, b from t1, t2 where t1.a = t2.b" +
+            "create database mydb;"+
+            "drop database mydb; "+
+            "drop database if exists mydb;"+
+            "use db;" +
+            "drop table mytable; "+
+            "drop table if exists mytable;" +
+            "select a, b from t1, t2 where t1.a = t2.b or a = 2 and 3 <> 5;" +
                     "update mydb set b = 'dafdfad';");
     /*
     +

@@ -3,12 +3,12 @@ package cn.edu.thssdb.parser.item;
 public class WholeSelectionItem {
   private SelectContentItem selectContentItem = null;
   private FromItem fromItem = null;
-  private WhereItem whereItem = null;
+  private MultipleConditionItem whereItem = null;
   private OrderByItem orderByItem = null;
 
   public WholeSelectionItem(SelectContentItem selectContentItem,
                             FromItem fromItem,
-                            WhereItem whereItem,
+                            MultipleConditionItem whereItem,
                             OrderByItem orderByItem) {
     this.selectContentItem = selectContentItem;
     this.fromItem = fromItem;
@@ -24,7 +24,7 @@ public class WholeSelectionItem {
     return this.fromItem;
   }
 
-  public WhereItem getWhereItem() {
+  public MultipleConditionItem getWhereItem() {
     return this.whereItem;
   }
 
