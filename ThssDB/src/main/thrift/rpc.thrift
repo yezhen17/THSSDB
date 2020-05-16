@@ -40,9 +40,9 @@ struct ExecuteStatementResp{
   1: required Status status
   2: required bool isAbort
   3: required bool hasResult
-  // only for query
-  4: optional list<string> columnsList
-  5: optional list<list<string>> rowList
+  4: optional list<string> columnsList      // only for query
+  5: optional list<list<string>> rowList    // only for query
+  6: optional string information
 }
 
 service IService {
