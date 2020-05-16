@@ -2,11 +2,9 @@ package cn.edu.thssdb.service;
 
 import cn.edu.thssdb.exception.UserNotExistException;
 import cn.edu.thssdb.exception.WrongPasswordException;
-import cn.edu.thssdb.exception.WrongUsernameOrPasswordException;
 import cn.edu.thssdb.rpc.thrift.*;
 import cn.edu.thssdb.schema.Manager;
 import cn.edu.thssdb.schema.UserManager;
-import cn.edu.thssdb.server.ThssDB;
 import cn.edu.thssdb.utils.Global;
 import org.apache.thrift.TException;
 
