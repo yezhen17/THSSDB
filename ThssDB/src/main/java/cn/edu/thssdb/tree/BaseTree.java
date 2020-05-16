@@ -5,7 +5,7 @@ import java.util.Iterator;
 
 public class BaseTree<V> {
 
-  private Node<V> root;
+  protected Node<V> root;
 
   public BaseTree() {
     root = null;
@@ -20,6 +20,10 @@ public class BaseTree<V> {
       return null;
     }
     return calculateTriple(root);
+  }
+
+  public Node<V> getRoot() {
+    return this.root;
   }
 
   private V calculateTriple(Node cur) {

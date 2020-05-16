@@ -1,16 +1,19 @@
 package cn.edu.thssdb.tree;
+import cn.edu.thssdb.parser.item.ColumnFullNameItem;
 import cn.edu.thssdb.schema.Column;
 import cn.edu.thssdb.schema.Row;
 import cn.edu.thssdb.type.ComparisonType;
 
 public class Expression {
   private boolean value;
-  private int c1;
-  private int c2;
+//  private int c1;
+//  private int c2;
+  ColumnFullNameItem c1;
+  ColumnFullNameItem c2;
   private ComparisonType cmp;
   private boolean is_bool;
 
-  public Expression(int c1, int c2, ComparisonType cmp) {
+  public Expression(ColumnFullNameItem c1, ColumnFullNameItem c2, ComparisonType cmp) {
     this.c1 = c1;
     this.c2 = c2;
     this.cmp = cmp;

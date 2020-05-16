@@ -6,7 +6,7 @@ public class Node<V> {
   private Node leftChild;
   private Node rightChild;
 
-  public Node(String op, Node left, Node right) {
+  public Node(String op, Node<V> left, Node<V> right) {
     this.op = op;
     this.leftChild = left;
     this.rightChild = right;
