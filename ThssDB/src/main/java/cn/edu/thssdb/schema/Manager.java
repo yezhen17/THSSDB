@@ -143,6 +143,23 @@ public class Manager {
   }
 
   /**
+   * [method] 通过名称获取数据库
+   * return {Database} 数据库，没有则返回null
+   */
+  public Database getDatabaseByName(String name) {
+    try {
+      lock.readLock().lock();
+      if(databases.containsKey(name)){
+        return databases.get(name);
+      } else {
+        return null;
+      }
+    } finally {
+      lock.readLock().unlock();
+    }
+  }
+
+  /**
    * [method] 展示所有数据库名称
    * return {String} 返回一定格式的数据名称信息
    * @return

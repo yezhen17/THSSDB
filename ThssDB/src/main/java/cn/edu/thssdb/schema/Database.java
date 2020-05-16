@@ -76,6 +76,27 @@ public class Database {
   }
 
   /**
+   * [method] 获取表
+   * @param name {String} 表名称
+   * @return {String} 查询结果,没有返回null
+   */
+  public Table get(String name) {
+    try {
+      lock.readLock().lock();
+      if (!tables.containsKey(name))
+        return null;
+    } finally {
+      lock.readLock().unlock();
+    }
+    try {
+      lock.writeLock().lock();
+      return tables.get(name);
+    } finally {
+      lock.writeLock().unlock();
+    }
+  }
+
+  /**
    * [method] 删除表
    * @param name {String} 表名称
    * @exception TableNotExistException 表不存在
@@ -167,4 +188,6 @@ public class Database {
     }
     tables.clear();
   }
+
+
 }
