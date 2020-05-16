@@ -22,6 +22,9 @@ public class Row implements Serializable {
   public Row(Entry[] entries) {
     this.entries = new ArrayList<>(Arrays.asList(entries));
   }
+  public Row(ArrayList<Entry> entries) {
+    this.entries = new ArrayList<>(entries);
+  }
 
   /**
    * [method] 获取条目表

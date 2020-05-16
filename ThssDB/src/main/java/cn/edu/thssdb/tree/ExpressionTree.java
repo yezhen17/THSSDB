@@ -2,7 +2,7 @@ package cn.edu.thssdb.tree;
 
 public class ExpressionTree extends BaseTree<Expression> {
 
-  @Override
+
   protected Expression merge(Expression v1, Expression v2, String op) {
     if (op.equals("and")) {
       return new Expression(v1.evaluate() && v2.evaluate());

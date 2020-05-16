@@ -12,6 +12,11 @@ public class QueryColumn extends Column {
     this.tableName = tableName;
   }
 
+  public QueryColumn (Column column, String tableName) {
+    super(column);
+    this.tableName = tableName;
+  }
+
   public boolean compareTo(QueryColumn c) {
     return c.name.equalsIgnoreCase(this.name) &&
             c.tableName.equalsIgnoreCase(this.tableName);

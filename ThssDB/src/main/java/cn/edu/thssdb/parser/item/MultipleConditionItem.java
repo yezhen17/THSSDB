@@ -21,7 +21,9 @@ public class MultipleConditionItem extends BaseTree<ConditionItem> {
   }
 
   public void setColumn(ArrayList<QueryColumn> columns) {
+
     this.columns = columns;
+    convertConditionToIndex(this.root);
   }
 
   //  public MultipleConditionItem(ConditionItem c1, ConditionItem c2, String op) {
@@ -41,7 +43,7 @@ public class MultipleConditionItem extends BaseTree<ConditionItem> {
     }
   }
 
-  public void convertConditionToIndex(Node<ConditionItem> cur) {
+  private void convertConditionToIndex(Node<ConditionItem> cur) {
     Node<ConditionItem> n1 = cur.getLeft();
     Node<ConditionItem> n2 = cur.getRight();
     if (!n1.isLeaf()) {

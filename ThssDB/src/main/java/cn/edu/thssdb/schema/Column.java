@@ -23,6 +23,14 @@ public class Column implements Comparable<Column> {
     this.maxLength = maxLength;
   }
 
+  public Column(Column column) {
+    this.name = column.getName();
+    this.type = column.getType();
+    this.primary = column.isPrimary();
+    this.notNull = column.isNotNull();
+    this.maxLength = column.getMaxLength();
+  }
+
   /**
    * [override] 比较
    */
@@ -43,4 +51,19 @@ public class Column implements Comparable<Column> {
     return name + delimitor + type + delimitor + primary + delimitor + notNull + delimitor + maxLength;
   }
 
+  public int getMaxLength() {
+    return maxLength;
+  }
+
+  public ColumnType getType() {
+    return type;
+  }
+
+  public boolean isNotNull() {
+    return notNull;
+  }
+
+  public boolean isPrimary() {
+    return primary;
+  }
 }
