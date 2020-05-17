@@ -383,15 +383,15 @@ public class MyVisitor extends SQLBaseVisitor{
         return new SelectItem((Double) visit(ctx.getChild(0)));
       }
 
-    } else if (child_count == 3) {
+    } else {
       if (ctx.getChild(0) instanceof SQLParser.Column_full_nameContext) {
         return new SelectItem((ColumnFullNameItem) visit(ctx.getChild(0)),
                 (Double) visit(ctx.getChild(2)),
                 ctx.getChild(1).getText().toUpperCase());
       } else {
         if (ctx.getChild(2) instanceof SQLParser.Column_full_nameContext) {
-          return new SelectItem((ColumnFullNameItem) visit(ctx.getChild(2)),
-                  (Double) visit(ctx.getChild(0)),
+          return new SelectItem((Double) visit(ctx.getChild(0)),
+                  (ColumnFullNameItem) visit(ctx.getChild(2)),
                   ctx.getChild(1).getText().toUpperCase());
         } else {
           return new SelectItem((Double) visit(ctx.getChild(0)),
@@ -399,14 +399,17 @@ public class MyVisitor extends SQLBaseVisitor{
                   ctx.getChild(1).getText().toUpperCase());
         }
       }
+    }
+  }
+
+  @Override
+  public Object visitSelect_item_2(SQLParser.Select_item_2Context ctx) {
+    if (ctx.getChild(2).getText().equalsIgnoreCase("*")) {
+      return new SelectItem(new ColumnFullNameItem(null, "*"),
+              ctx.getChild(0).getText().toUpperCase());
     } else {
-      if (ctx.getChild(2).getText().equalsIgnoreCase("*")) {
-        return new SelectItem(new ColumnFullNameItem(null, "*"),
-                ctx.getChild(0).getText().toUpperCase());
-      } else {
-        return new SelectItem((ColumnFullNameItem) visit(ctx.getChild(2)),
-                ctx.getChild(0).getText().toUpperCase());
-      }
+      return new SelectItem((ColumnFullNameItem) visit(ctx.getChild(2)),
+              ctx.getChild(0).getText().toUpperCase());
     }
   }
 

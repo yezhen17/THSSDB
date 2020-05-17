@@ -36,15 +36,15 @@ public class SelectItem {
     this.columnName = columnFullNameItem.getColumnName();
   }
 
-  public SelectItem(ColumnFullNameItem columnFullNameItem, Double constNum1, String op){
-    this.type = 2;
+  public SelectItem(ColumnFullNameItem columnFullNameItem, Double constNum2, String op){
+    this.type = 3;
     this.tableName = columnFullNameItem.getTableName();
     this.columnName = columnFullNameItem.getColumnName();
-    this.constNum1 = constNum1;
+    this.constNum2 = constNum2;
     this.op = op;
   }
 
-  public SelectItem(String tableName, String columnName, Double constNum1, String op){
+  public SelectItem(Double constNum1, ColumnFullNameItem columnFullNameItem, String op){
     this.type = 2;
     this.tableName = tableName;
     this.columnName = columnName;
@@ -63,7 +63,7 @@ public class SelectItem {
     this.type = 5;
     this.tableName = columnFullNameItem.getTableName();
     this.columnName = columnFullNameItem.getColumnName();
-    this.aggregateFun = aggregateFun;
+    this.aggregateFun = aggregateFun.toLowerCase();
   }
 
   public SelectItem(String tableName,String columnName,String aggregateFun){

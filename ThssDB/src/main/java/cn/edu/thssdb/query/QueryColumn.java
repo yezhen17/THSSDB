@@ -23,11 +23,28 @@ public class QueryColumn extends Column {
   }
 
   public boolean compareTo(ColumnFullNameItem c) {
-    return c.getColumnName().equalsIgnoreCase(this.name) &&
-            c.getTableName().equalsIgnoreCase(this.tableName);
+    return c.getColumnName().equalsIgnoreCase(this.name) && (c.getTableName() == null ||
+            c.getTableName().equalsIgnoreCase(this.tableName));
+  }
+
+  public boolean compareTo(String tableName, String columnName) {
+    return columnName.equalsIgnoreCase(this.name) && (tableName == null ||
+            tableName.equalsIgnoreCase(this.tableName));
   }
 
   public ColumnType getType() {
     return this.type;
+  }
+
+  public ColumnFullNameItem getColumn() {
+    return new ColumnFullNameItem(this.tableName, this.name);
+  }
+
+  public String getFullColumnName() {
+    if (this.tableName == null) {
+      return this.name.toLowerCase();
+    } else {
+      return this.tableName.toLowerCase() + "." + this.name.toLowerCase();
+    }
   }
 }

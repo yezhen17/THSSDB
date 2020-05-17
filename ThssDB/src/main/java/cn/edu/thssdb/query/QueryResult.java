@@ -1,10 +1,10 @@
 package cn.edu.thssdb.query;
 
+import cn.edu.thssdb.exception.WrongTableNameException;
 import cn.edu.thssdb.parser.item.*;
 import cn.edu.thssdb.schema.Entry;
 import cn.edu.thssdb.schema.Row;
 
-import java.awt.image.AreaAveragingScaleFilter;
 import java.lang.reflect.Array;
 import java.util.*;
 
@@ -17,7 +17,11 @@ public class QueryResult {
   private MultipleConditionItem whereItem;
   private OrderByItem orderByItem;
 
+  private int tableNum;
+
   private List<MetaInfo> metaInfos;
+
+  private ArrayList<QueryColumnPlusData> queryRes;
 
   private ArrayList<QueryColumn> columns;
   private List<Integer> index;
@@ -28,6 +32,7 @@ public class QueryResult {
     this.index = new ArrayList<>();
     this.attrs = new ArrayList<>();
 
+    this.tableNum = metaInfos.size();
     ArrayList<Row> res = new ArrayList<>();
 
     this.columns = new ArrayList<>();
@@ -39,16 +44,21 @@ public class QueryResult {
     for (OnItem c: fromItem.getOnItems()) {
       whereItem = new MultipleConditionItem(whereItem, new MultipleConditionItem(
               new ConditionItem(new ComparerItem(c.getColumnA()), new ComparerItem(c.getColumnB()),
-                      "==")), "AND");
+                      "=")), "AND");
     }
     boolean retain_left = false;
     boolean retain_right = false;
     switch (joinType) {
       case NATURAL_INNER_JOIN: {
-
-      }
-      case INNER_JOIN_ON: {
-        break;
+        for (QueryColumn c1: metaInfos.get(0).getColumns()) {
+          for (QueryColumn c2: metaInfos.get(1).getColumns()) {
+            if (c1.getName().equalsIgnoreCase(c2.getName())) {
+              ConditionItem conditionItem = new ConditionItem(new ComparerItem(c1.getColumn()),
+                      new ComparerItem(c2.getColumn()), "=");
+              whereItem = new MultipleConditionItem(whereItem, new MultipleConditionItem(conditionItem), "AND");
+            }
+          }
+        }
       }
       case LEFT_OUTER_JOIN_ON: {
         retain_left = true;
@@ -139,6 +149,8 @@ public class QueryResult {
 
     sortArray(res, orderByItem.getOrder(), sort_indices);
 
+    this.queryRes = columnToIndices(this.selectContentItem.getSelectContent());
+    generateQueryRecord(res);
 
   }
 
@@ -163,7 +175,14 @@ public class QueryResult {
     });
   }
 
-
+  private int findIndex(String tableName, String columnName) {
+    int i = 0;
+    for (QueryColumn c: this.columns) {
+      if (c.compareTo(tableName, columnName)) return i;
+      i++;
+    }
+    return -1;
+  }
 //  // WHERE 子句
 //  public static boolean judge(Row row, MultipleConditionItem whereItem) {
 //    // TODO
@@ -171,17 +190,102 @@ public class QueryResult {
 //    return whereItem.getTreeValue(row).getValue();
 //  }
 
-  private ArrayList<Integer> columnToIndices(ArrayList<SelectItem> columns) {
-    ArrayList<Integer> res = new ArrayList<>();
-    for (SelectItem c: columns) {
+  private String getFullColumnName (String tableName, String columnName) {
+    if (tableName == null) {
+      return columnName.toLowerCase();
+    } else {
+      return tableName.toLowerCase() + "." + columnName.toLowerCase();
+    }
+  }
 
+  private ArrayList<QueryColumnPlusData> columnToIndices(ArrayList<SelectItem> columns) {
+    ArrayList<QueryColumnPlusData> res = new ArrayList<>();
+    for (SelectItem c: columns) {
+      int type = c.getType();
+      switch (type) {
+        case 0: {
+          res.add(new QueryColumnPlusData(c.getConstNum1())); break;
+        }
+        case 1: {
+          String tableName = c.getTableName();
+          String columnName = c.getColumnName();
+          if (columnName.equals("*")) {
+            if (tableName == null) {
+              int i = 0;
+              for (QueryColumn qc: this.columns) {
+                res.add(new QueryColumnPlusData(qc.getFullColumnName(), i));
+                i++;
+              }
+            } else {
+              if (this.tableNum == 1) {
+                if (!tableName.equalsIgnoreCase(fromItem.getTableNameA())) {
+                  throw new WrongTableNameException();
+                }
+                int i = 0;
+                for (QueryColumn qc: this.columns) {
+                  res.add(new QueryColumnPlusData(qc.getFullColumnName(), i));
+                  i++;
+                }
+              } else {
+                if (tableName.equalsIgnoreCase(fromItem.getTableNameA())) {
+                  int t1_column_count = metaInfos.get(0).getColumnNum();
+                  for (int i = 0; i < t1_column_count; i++) {
+                    res.add(new QueryColumnPlusData(this.columns.get(i).getFullColumnName(), i));
+                  }
+                } else if (tableName.equalsIgnoreCase(fromItem.getTableNameB())) {
+                  int t1_column_count = metaInfos.get(0).getColumnNum();
+                  int total_count = this.columns.size();
+                  for (int i = t1_column_count; i < total_count; i++) {
+                    res.add(new QueryColumnPlusData(this.columns.get(i).getFullColumnName(), i));
+                  }
+                } else {
+                  throw new WrongTableNameException();
+                }
+              }
+            }
+          } else {
+            int idx = findIndex(tableName, columnName);
+            res.add(new QueryColumnPlusData(getFullColumnName(tableName, columnName), idx));
+          }
+          break;
+        }
+        case 2: {
+          String tableName = c.getTableName();
+          String columnName = c.getColumnName();
+          int idx = findIndex(tableName, columnName);
+          res.add(new QueryColumnPlusData(c.getConstNum1(), getFullColumnName(tableName, columnName),
+                  c.getOp(), idx));
+          break;
+        }
+        case 3: {
+          String tableName = c.getTableName();
+          String columnName = c.getColumnName();
+          int idx = findIndex(tableName, columnName);
+          res.add(new QueryColumnPlusData(getFullColumnName(tableName, columnName), c.getConstNum2(),
+                  c.getOp(), idx));
+          break;
+        }
+        case 4: {
+          res.add(new QueryColumnPlusData(c.getConstNum1(), c.getConstNum2(), c.getOp()));
+          break;
+        }
+        default: {
+          String tableName = c.getTableName();
+          String columnName = c.getColumnName();
+          int idx = findIndex(tableName, columnName);
+          res.add(new QueryColumnPlusData(getFullColumnName(tableName, columnName), c.getAggregateFun(), idx));
+          break;
+        }
+      }
     }
     return res;
   }
 
   // SELECT 子句
-  public Row generateQueryRecord(Row row) {
-    // TODO
-    return null;
+  public void generateQueryRecord(ArrayList<Row> rows) {
+    for (QueryColumnPlusData qc: this.queryRes) {
+      qc.generateTitle();
+      qc.generateData(rows);
+    }
   }
 }
