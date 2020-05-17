@@ -186,11 +186,11 @@ public class Client {
   private static void disconnect(long sessionId) {
     long startTime = System.currentTimeMillis();
     // 请求创建
-    DisconnetReq req = new DisconnetReq();
+    DisconnectReq req = new DisconnectReq();
     req.setSessionId(sessionId);
     try {
       // 请求发送 & 响应获取
-      DisconnetResp resp = client.disconnect(req);
+      DisconnectResp resp = client.disconnect(req);
       // 响应处理
       Status status = resp.getStatus();
       if (status.code == Global.SUCCESS_CODE) {

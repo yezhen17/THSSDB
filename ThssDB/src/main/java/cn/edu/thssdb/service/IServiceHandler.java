@@ -63,14 +63,14 @@ public class IServiceHandler implements IService.Iface {
 
   /**
    * [method] 接口 - 关闭连接
-   * @param req {DisconnetReq} 请求
-   * @return {DisconnetResp} 响应
+   * @param req {DisconnectReq} 请求
+   * @return {DisconnectResp} 响应
    */
   @Override
-  public DisconnetResp disconnect(DisconnetReq req) throws TException {
+  public DisconnectResp disconnect(DisconnectReq req) throws TException {
     // 请求解析 & 响应创建
     long sessionId = req.getSessionId();
-    DisconnetResp resp = new DisconnetResp();
+    DisconnectResp resp = new DisconnectResp();
     // 操作执行
     if (userManager.logout(sessionId)) {
       // 成功
@@ -97,6 +97,7 @@ public class IServiceHandler implements IService.Iface {
     String statement = req.getStatement();
     ExecuteStatementResp resp = new ExecuteStatementResp();
     // 操作执行 TODO 调用接口
+
     Manager manager = Manager.getInstance();
     resp.setIsAbort(false);
     resp.setHasResult(false);

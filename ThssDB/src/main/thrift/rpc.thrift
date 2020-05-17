@@ -24,11 +24,11 @@ struct ConnectResp{
   3: required i64 sessionId
 }
 
-struct DisconnetReq{
+struct DisconnectReq{
   1: required i64 sessionId
 }
 
-struct DisconnetResp{
+struct DisconnectResp{
   1: required Status status
   2: required string information
 }
@@ -50,6 +50,6 @@ struct ExecuteStatementResp{
 service IService {
   GetTimeResp getTime(1: GetTimeReq req);
   ConnectResp connect(1: ConnectReq req);
-  DisconnetResp disconnect(1: DisconnetReq req);
+  DisconnectResp disconnect(1: DisconnectReq req);
   ExecuteStatementResp executeStatement(1: ExecuteStatementReq req);
 }
