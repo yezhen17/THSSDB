@@ -1,4 +1,7 @@
 package cn.edu.thssdb.operation;
+import cn.edu.thssdb.exception.DuplicateKeyException;
+import cn.edu.thssdb.exception.TableNotExistException;
+import cn.edu.thssdb.exception.WrongInsertException;
 import cn.edu.thssdb.parser.item.LiteralValueItem;
 import cn.edu.thssdb.schema.*;
 
@@ -11,6 +14,13 @@ public class InsertOperation extends BaseOperation {
   private ArrayList<ArrayList<LiteralValueItem>> values;
 
   private Table table;
+
+  final static String wrongColumnNum = "Exception: wrong insert format (columns unmatched)!";//列数不匹配
+  final static String wrongColumnType = "Exception: wrong insert format (type unmatched)!";//类型不匹配
+  final static String wrongValueNum = "Exception: wrong insert format (number of columns and values unmatched)!";//列数与值数不匹配
+  final static String duplicateValueType = "Exception: wrong insert format (duplicate name of columns)!";//类型不匹配
+  final static String wrongColumnName = "Exception: wrong insert format (wrong column name)!";//属性名不在列定义中
+
 
   /**
    * [method] 构造方法
@@ -32,14 +42,12 @@ public class InsertOperation extends BaseOperation {
    * [method] 执行操作
    */
   public void exec() {
-      // TODO 调用 cn.edu.thssdb.schema.Table.insert
     Manager manager = Manager.getInstance();
     Database database = manager.getDatabaseByName(manager.getCurrentDatabaseName());
 
     table = database.get(tableName);
     if(table==null){
-      //todo 没有对应的表
-      return;
+      throw new TableNotExistException();
     }
 
     ArrayList<Column> columns = table.columns;
@@ -50,8 +58,8 @@ public class InsertOperation extends BaseOperation {
     if(columnNames==null){
       for(ArrayList<LiteralValueItem> value:values){
         if(value.size()!=columns.size()){
-          // todo:列数不匹配
-          return;
+
+          throw new WrongInsertException(wrongColumnNum);
         }
 
         ArrayList<Entry> entries = new ArrayList<>();
@@ -63,7 +71,7 @@ public class InsertOperation extends BaseOperation {
                 try {
                   int tmp = Integer.parseInt(value.get(i).getString());
                   if(columns.get(i).getName().equals(primaryKey)&&table.index.contains(new Entry(tmp))){
-                    //todo 主键重复
+                    throw new DuplicateKeyException();
                   }
                   entries.add(new Entry(tmp));
                 } catch (NumberFormatException e){
@@ -71,8 +79,7 @@ public class InsertOperation extends BaseOperation {
                 }
               }
               else {
-                //todo 类型不匹配
-                return;
+                throw new WrongInsertException(wrongColumnType);
               }
               break;
             case LONG:
@@ -80,7 +87,7 @@ public class InsertOperation extends BaseOperation {
                 try {
                   long tmp = Long.parseLong(value.get(i).getString());
                   if(columns.get(i).getName().equals(primaryKey)&&table.index.contains(new Entry(tmp))){
-                    //todo 主键重复
+                    throw new DuplicateKeyException();
                   }
                   entries.add(new Entry(tmp));
                 } catch (NumberFormatException e){
@@ -88,8 +95,7 @@ public class InsertOperation extends BaseOperation {
                 }
               }
               else {
-                //todo 类型不匹配
-                return;
+                throw new WrongInsertException(wrongColumnType);
               }
               break;
             case DOUBLE:
@@ -97,7 +103,7 @@ public class InsertOperation extends BaseOperation {
                 try {
                   double tmp = Double.parseDouble(value.get(i).getString());
                   if(columns.get(i).getName().equals(primaryKey)&&table.index.contains(new Entry(tmp))){
-                    //todo 主键重复
+                    throw new DuplicateKeyException();
                   }
                   entries.add(new Entry(tmp));
                 } catch (NumberFormatException e){
@@ -105,8 +111,7 @@ public class InsertOperation extends BaseOperation {
                 }
               }
               else {
-                //todo 类型不匹配
-                return;
+                throw new WrongInsertException(wrongColumnType);
               }
               break;
             case FLOAT:
@@ -114,7 +119,7 @@ public class InsertOperation extends BaseOperation {
                 try {
                   float tmp = Float.parseFloat(value.get(i).getString());
                   if(columns.get(i).getName().equals(primaryKey)&&table.index.contains(new Entry(tmp))){
-                    //todo 主键重复
+                    throw new DuplicateKeyException();
                   }
                   entries.add(new Entry(tmp));
                 } catch (NumberFormatException e){
@@ -122,20 +127,18 @@ public class InsertOperation extends BaseOperation {
                 }
               }
               else {
-                //todo 类型不匹配
-                return;
+                throw new WrongInsertException(wrongColumnType);
               }
               break;
             case STRING:
               if(value.get(i).getType()==LiteralValueItem.Type.STRING){
                 if(columns.get(i).getName().equals(primaryKey)&&table.index.contains(new Entry(value.get(i).getString()))){
-                  //todo 主键重复
+                  throw new DuplicateKeyException();
                 }
                 entries.add(new Entry(value.get(i).getString()));
               }
               else {
-                //todo 类型不匹配
-                return;
+                throw new WrongInsertException(wrongColumnType);
               }
               break;
           }
@@ -147,20 +150,18 @@ public class InsertOperation extends BaseOperation {
     }
     else {
       if(columnNames.size()>columns.size()){
-        //todo 列数不匹配
-        return;
+        throw new WrongInsertException(wrongColumnNum);
       }
       for(ArrayList<LiteralValueItem> items:values){
         if(items.size()!=columnNames.size()){
-          //todo 列数与值数不匹配
-          return;
+          throw new WrongInsertException(wrongValueNum);
         }
       }
 
       for(int i=0;i<columnNames.size();i++){
         for(int j=0;j<i;j++){
           if(columnNames.get(i).equals(columnNames.get(j))){
-            //todo 列名重复
+            throw new WrongInsertException(duplicateValueType);
           }
         }
         boolean hasMatched = false;
@@ -171,7 +172,7 @@ public class InsertOperation extends BaseOperation {
           }
         }
         if(hasMatched==false){
-          //todo 列名不在表定义中
+          throw new WrongInsertException(wrongColumnName);
         }
       }
 
@@ -187,7 +188,7 @@ public class InsertOperation extends BaseOperation {
                     try {
                       int tmp = Integer.parseInt(value.get(i).getString());
                       if(columns.get(i).getName().equals(primaryKey)&&table.index.contains(new Entry(tmp))){
-                        //todo 主键重复
+                        throw new DuplicateKeyException();
                       }
                       entries.add(new Entry(tmp));
                     } catch (NumberFormatException e){
@@ -195,8 +196,7 @@ public class InsertOperation extends BaseOperation {
                     }
                   }
                   else {
-                    //todo 类型不匹配
-                    return;
+                    throw new WrongInsertException(wrongColumnType);
                   }
                   break;
                 case LONG:
@@ -204,7 +204,7 @@ public class InsertOperation extends BaseOperation {
                     try {
                       long tmp = Long.parseLong(value.get(j).getString());
                       if(columns.get(i).getName().equals(primaryKey)&&table.index.contains(new Entry(tmp))){
-                        //todo 主键重复
+                        throw new DuplicateKeyException();
                       }
                       entries.add(new Entry(tmp));
                     } catch (NumberFormatException e){
@@ -212,8 +212,7 @@ public class InsertOperation extends BaseOperation {
                     }
                   }
                   else {
-                    //todo 类型不匹配
-                    return;
+                    throw new WrongInsertException(wrongColumnType);
                   }
                   break;
                 case DOUBLE:
@@ -221,7 +220,7 @@ public class InsertOperation extends BaseOperation {
                     try {
                       double tmp = Double.parseDouble(value.get(j).getString());
                       if(columns.get(i).getName().equals(primaryKey)&&table.index.contains(new Entry(tmp))){
-                        //todo 主键重复
+                        throw new DuplicateKeyException();
                       }
                       entries.add(new Entry(tmp));
                     } catch (NumberFormatException e){
@@ -229,8 +228,7 @@ public class InsertOperation extends BaseOperation {
                     }
                   }
                   else {
-                    //todo 类型不匹配
-                    return;
+                    throw new WrongInsertException(wrongColumnType);
                   }
                   break;
                 case FLOAT:
@@ -238,7 +236,7 @@ public class InsertOperation extends BaseOperation {
                     try {
                       float tmp = Float.parseFloat(value.get(j).getString());
                       if(columns.get(i).getName().equals(primaryKey)&&table.index.contains(new Entry(tmp))){
-                        //todo 主键重复
+                        throw new DuplicateKeyException();
                       }
                       entries.add(new Entry(tmp));
                     } catch (NumberFormatException e){
@@ -246,20 +244,18 @@ public class InsertOperation extends BaseOperation {
                     }
                   }
                   else {
-                    //todo 类型不匹配
-                    return;
+                    throw new WrongInsertException(wrongColumnType);
                   }
                   break;
                 case STRING:
                   if(value.get(j).getType()==LiteralValueItem.Type.STRING){
                     if(columns.get(i).getName().equals(primaryKey)&&table.index.contains(new Entry(new Entry(value.get(j).getString())))){
-                      //todo 主键重复
+                      throw new DuplicateKeyException();
                     }
                     entries.add(new Entry(value.get(j).getString()));
                   }
                   else {
-                    //todo 类型不匹配
-                    return;
+                    throw new WrongInsertException(wrongColumnType);
                   }
                   break;
               }
@@ -272,8 +268,7 @@ public class InsertOperation extends BaseOperation {
             continue;
           } else {
             if(columns.get(i).isNotNull()){
-              //todo 该列不能为null
-              return;
+              throw new WrongInsertException("Exception: wrong insert format ( column"+columns.get(i).getName()+"is not null )");
             } else {
               entries.add(new Entry(null));
             }

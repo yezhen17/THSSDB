@@ -1,5 +1,6 @@
 package cn.edu.thssdb.operation;
 
+import cn.edu.thssdb.exception.TableNotExistException;
 import cn.edu.thssdb.parser.item.MultipleConditionItem;
 import cn.edu.thssdb.query.QueryColumn;
 import cn.edu.thssdb.schema.*;
@@ -37,13 +38,12 @@ public class DeleteOperation extends BaseOperation {
      * [method] 执行操作
      */
     public void exec() {
-        // 判断 调用哪个重载
       Manager manager = Manager.getInstance();
       Database database = manager.getDatabaseByName(manager.getCurrentDatabaseName());
 
       Table table = database.get(tableName);
       if(table==null){
-        //todo 没有对应的表
+        throw new TableNotExistException();
       } else {
         if(whereItem == null){
           table.delete();

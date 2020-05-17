@@ -1,5 +1,7 @@
 package cn.edu.thssdb.operation;
 
+import cn.edu.thssdb.exception.TableNotExistException;
+import cn.edu.thssdb.exception.WrongUpdateException;
 import cn.edu.thssdb.parser.item.LiteralValueItem;
 import cn.edu.thssdb.parser.item.MultipleConditionItem;
 import cn.edu.thssdb.query.QueryColumn;
@@ -16,6 +18,10 @@ public class UpdateOperation extends BaseOperation {
   private MultipleConditionItem whereItem = null;
 
   private Table table = null;
+
+  final static String wrongColumnName = "Exception: wrong update operation ( no such column )!";
+  final static String wrongColumnType = "Exception: wrong update operation ( type unmatched )!";
+  final static String columnNotNull = "Exception: wrong update operation ( this column cannot be null )!";//列数与值数不匹配
 
   /**
    * [method] 构造方法
@@ -38,14 +44,12 @@ public class UpdateOperation extends BaseOperation {
      * [method] 执行操作
      */
   public void exec() {
-      // TODO 调用 cn.edu.thssdb.schema.Table.update
     Manager manager = Manager.getInstance();
     Database database = manager.getDatabaseByName(manager.getCurrentDatabaseName());
 
     table = database.get(tableName);
     if(table==null){
-      //todo 没有对应的表
-      return;
+      throw new TableNotExistException();
     }
 
     ArrayList<Column> columns = table.columns;
@@ -57,8 +61,7 @@ public class UpdateOperation extends BaseOperation {
       }
     }
     if(columnToUpdate == null){
-      //todo 没有该列
-      return;
+      throw new WrongUpdateException(wrongColumnName);
     }
 
     LiteralValueItem.Type itemType = literalValueItem.getType();
@@ -72,8 +75,7 @@ public class UpdateOperation extends BaseOperation {
       } else if(columnType==ColumnType.LONG){
         valueToUpdate = Long.valueOf(itemString);
       } else {
-        //todo 类型不匹配
-        return;
+        throw new WrongUpdateException(wrongColumnType);
       }
     } else if(itemType==LiteralValueItem.Type.FLOAT_OR_DOUBLE){
       if(columnType==ColumnType.DOUBLE){
@@ -81,15 +83,13 @@ public class UpdateOperation extends BaseOperation {
       } else if(columnType==ColumnType.FLOAT){
         valueToUpdate = Float.valueOf(itemString);
       } else {
-        //todo 类型不匹配
-        return;
+        throw new WrongUpdateException(wrongColumnType);
       }
     } else {
       if(columnType==ColumnType.STRING){
         valueToUpdate = itemString;
       } else {
-        //todo 类型不匹配
-        return;
+        throw new WrongUpdateException(wrongColumnType);
       }
     }
 
