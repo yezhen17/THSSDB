@@ -152,7 +152,45 @@ public class QueryResult {
     this.queryRes = columnToIndices(this.selectContentItem.getSelectContent());
     generateQueryRecord(res);
 
+    // 转换为行的列表
+    ArrayList<ArrayList<String>> res_table = new ArrayList<>();
+
+    ArrayList<String> titles = new ArrayList<>();
+    res_table.add(titles);
+    for (int i = 0; i < res.size(); i++) {
+      res_table.add(new ArrayList<>());
+    }
+    for (QueryColumnPlusData qc: this.queryRes) {
+      titles.add(qc.getTitle());
+      ArrayList<String> data = qc.getData();
+      for (int i = 0; i < res.size(); i++) {
+        res_table.get(i + 1).add(data.get(i));
+      }
+    }
+
+    // 去重
+    if (this.selectContentItem.isDistinct()) {
+      ArrayList<ArrayList<String>> tmp_table = new ArrayList<>();
+      for (ArrayList<String> row: res_table) {
+        boolean flag = true;
+        for (ArrayList<String> other: tmp_table) {
+          if (other.equals(row)) {
+            flag = false;
+            break;
+          }
+        }
+        if (flag) tmp_table.add(row);
+      }
+      res_table = tmp_table;
+    }
   }
+
+//  private boolean compareStrings(ArrayList<String> a1, ArrayList<String> a2) {
+//    boolean res = true;
+//    for (int i = 0; i < a1.size(); i++) {
+//      if(a1.equals(a))
+//    }
+//  }
 
   // 对结果排序，indices指的是排序属性的下标
   public static void sortArray(ArrayList<Row> rows, int order, ArrayList<Integer> indices) {

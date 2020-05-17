@@ -216,4 +216,11 @@ public class QueryColumnPlusData {
     }
   }
 
+  public String getTitle() {
+    return title;
+  }
+
+  public ArrayList<String> getData() {
+    return data;
+  }
 }
