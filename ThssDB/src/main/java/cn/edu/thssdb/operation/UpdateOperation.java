@@ -85,12 +85,17 @@ public class UpdateOperation extends BaseOperation {
       } else {
         throw new WrongUpdateException(wrongColumnType);
       }
-    } else {
+    } else if(columnType==ColumnType.STRING){
       if(columnType==ColumnType.STRING){
         valueToUpdate = itemString;
       } else {
         throw new WrongUpdateException(wrongColumnType);
       }
+    } else {
+      if(columnToUpdate.isNotNull()){
+        throw new WrongUpdateException(columnNotNull);
+      }
+      valueToUpdate = null;
     }
 
     Iterator<Row> rowIterator = table.iterator();

@@ -15,11 +15,12 @@ public class InsertOperation extends BaseOperation {
 
   private Table table;
 
-  final static String wrongColumnNum = "Exception: wrong insert format (columns unmatched)!";//列数不匹配
-  final static String wrongColumnType = "Exception: wrong insert format (type unmatched)!";//类型不匹配
-  final static String wrongValueNum = "Exception: wrong insert format (number of columns and values unmatched)!";//列数与值数不匹配
-  final static String duplicateValueType = "Exception: wrong insert format (duplicate name of columns)!";//类型不匹配
-  final static String wrongColumnName = "Exception: wrong insert format (wrong column name)!";//属性名不在列定义中
+  final static String wrongColumnNum = "Exception: wrong insert operation (columns unmatched)!";//列数不匹配
+  final static String wrongColumnType = "Exception: wrong insert operation (type unmatched)!";//类型不匹配
+  final static String wrongValueNum = "Exception: wrong insert operation (number of columns and values unmatched)!";//列数与值数不匹配
+  final static String duplicateValueType = "Exception: wrong insert operation (duplicate name of columns)!";//类型不匹配
+  final static String wrongColumnName = "Exception: wrong insert operation (wrong column name)!";//属性名不在列定义中
+
 
 
   /**
@@ -77,6 +78,11 @@ public class InsertOperation extends BaseOperation {
                 } catch (NumberFormatException e){
                   throw e;
                 }
+              } else if(value.get(i).getType()==LiteralValueItem.Type.NULL){
+                if(columns.get(i).isNotNull()){
+                  throw new WrongInsertException("Exception: wrong insert operation ( "+columns.get(i).getName()+" cannot be null)");
+                }
+                entries.add((new Entry(null)));
               }
               else {
                 throw new WrongInsertException(wrongColumnType);
@@ -93,6 +99,11 @@ public class InsertOperation extends BaseOperation {
                 } catch (NumberFormatException e){
                   throw e;
                 }
+              } else if(value.get(i).getType()==LiteralValueItem.Type.NULL){
+                if(columns.get(i).isNotNull()){
+                  throw new WrongInsertException("Exception: wrong insert operation ( "+columns.get(i).getName()+" cannot be null)");
+                }
+                entries.add((new Entry(null)));
               }
               else {
                 throw new WrongInsertException(wrongColumnType);
@@ -109,6 +120,11 @@ public class InsertOperation extends BaseOperation {
                 } catch (NumberFormatException e){
                   throw e;
                 }
+              } else if(value.get(i).getType()==LiteralValueItem.Type.NULL){
+                if(columns.get(i).isNotNull()){
+                  throw new WrongInsertException("Exception: wrong insert operation ( "+columns.get(i).getName()+" cannot be null)");
+                }
+                entries.add((new Entry(null)));
               }
               else {
                 throw new WrongInsertException(wrongColumnType);
@@ -125,6 +141,11 @@ public class InsertOperation extends BaseOperation {
                 } catch (NumberFormatException e){
                   throw e;
                 }
+              } else if(value.get(i).getType()==LiteralValueItem.Type.NULL){
+                if(columns.get(i).isNotNull()){
+                  throw new WrongInsertException("Exception: wrong insert operation ( "+columns.get(i).getName()+" cannot be null)");
+                }
+                entries.add((new Entry(null)));
               }
               else {
                 throw new WrongInsertException(wrongColumnType);
@@ -136,6 +157,11 @@ public class InsertOperation extends BaseOperation {
                   throw new DuplicateKeyException();
                 }
                 entries.add(new Entry(value.get(i).getString()));
+              } else if(value.get(i).getType()==LiteralValueItem.Type.NULL){
+                if(columns.get(i).isNotNull()){
+                  throw new WrongInsertException("Exception: wrong insert operation ( "+columns.get(i).getName()+" cannot be null)");
+                }
+                entries.add((new Entry(null)));
               }
               else {
                 throw new WrongInsertException(wrongColumnType);
@@ -194,6 +220,11 @@ public class InsertOperation extends BaseOperation {
                     } catch (NumberFormatException e){
                       throw e;
                     }
+                  } else if(value.get(i).getType()==LiteralValueItem.Type.NULL){
+                    if(columns.get(i).isNotNull()){
+                      throw new WrongInsertException("Exception: wrong insert operation ( "+columns.get(i).getName()+" cannot be null)");
+                    }
+                    entries.add((new Entry(null)));
                   }
                   else {
                     throw new WrongInsertException(wrongColumnType);
@@ -210,6 +241,11 @@ public class InsertOperation extends BaseOperation {
                     } catch (NumberFormatException e){
                       throw e;
                     }
+                  } else if(value.get(i).getType()==LiteralValueItem.Type.NULL){
+                    if(columns.get(i).isNotNull()){
+                      throw new WrongInsertException("Exception: wrong insert operation ( "+columns.get(i).getName()+" cannot be null)");
+                    }
+                    entries.add((new Entry(null)));
                   }
                   else {
                     throw new WrongInsertException(wrongColumnType);
@@ -226,6 +262,11 @@ public class InsertOperation extends BaseOperation {
                     } catch (NumberFormatException e){
                       throw e;
                     }
+                  } else if(value.get(i).getType()==LiteralValueItem.Type.NULL){
+                    if(columns.get(i).isNotNull()){
+                      throw new WrongInsertException("Exception: wrong insert operation ( "+columns.get(i).getName()+" cannot be null)");
+                    }
+                    entries.add((new Entry(null)));
                   }
                   else {
                     throw new WrongInsertException(wrongColumnType);
@@ -242,6 +283,11 @@ public class InsertOperation extends BaseOperation {
                     } catch (NumberFormatException e){
                       throw e;
                     }
+                  } else if(value.get(i).getType()==LiteralValueItem.Type.NULL){
+                    if(columns.get(i).isNotNull()){
+                      throw new WrongInsertException("Exception: wrong insert operation ( "+columns.get(i).getName()+" cannot be null)");
+                    }
+                    entries.add((new Entry(null)));
                   }
                   else {
                     throw new WrongInsertException(wrongColumnType);
@@ -253,6 +299,11 @@ public class InsertOperation extends BaseOperation {
                       throw new DuplicateKeyException();
                     }
                     entries.add(new Entry(value.get(j).getString()));
+                  } else if(value.get(i).getType()==LiteralValueItem.Type.NULL){
+                    if(columns.get(i).isNotNull()){
+                      throw new WrongInsertException("Exception: wrong insert operation ( "+columns.get(i).getName()+" cannot be null)");
+                    }
+                    entries.add((new Entry(null)));
                   }
                   else {
                     throw new WrongInsertException(wrongColumnType);
@@ -268,7 +319,7 @@ public class InsertOperation extends BaseOperation {
             continue;
           } else {
             if(columns.get(i).isNotNull()){
-              throw new WrongInsertException("Exception: wrong insert format ( column"+columns.get(i).getName()+"is not null )");
+              throw new WrongInsertException("Exception: wrong insert operation ( column"+columns.get(i).getName()+"is not null )");
             } else {
               entries.add(new Entry(null));
             }

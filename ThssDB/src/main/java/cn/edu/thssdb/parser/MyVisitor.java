@@ -79,13 +79,20 @@ public class MyVisitor extends SQLBaseVisitor{
       }
     }
     ArrayList<Column> columns = new ArrayList<>();
-    int primaryKeyIndex = 0;
+    int primaryKeyIndex = -1;
+
     for(int i=0;i<columnDefItems.size();i++){
       ColumnDefItem c = columnDefItems.get(i);
+
+      if(c.isPrimaryKey()){
+        primaryKeyIndex = i;
+        c.setNotNull(true);
+      }
+
       if(primaryKey.equals(c.getColumnName())){
-        //todo 报错:主键不匹配，不唯一等
         primaryKeyIndex = i;
         c.setPrimaryKey(true);
+        c.setNotNull(true);
       }
 
       Column column = new Column(c.getColumnName(),c.getTypeItem().getColumnType(),c.isPrimaryKey(),c.isNotNull(),c.getTypeItem().getStrLen());
