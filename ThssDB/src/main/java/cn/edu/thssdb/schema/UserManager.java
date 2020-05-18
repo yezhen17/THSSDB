@@ -17,6 +17,7 @@ public class UserManager {
     HashMap<Long, User> onlineUsers;                // 在线用户数据
     private static ReentrantReadWriteLock lock;     // 可重入读写锁
     private static Random random = new Random();    // 随机数发生器
+    private Meta meta; // 用户元数据
 
 
     /**
@@ -26,22 +27,40 @@ public class UserManager {
         users = new ArrayList<>();
         onlineUsers = new HashMap<>();
         lock = new ReentrantReadWriteLock();
-        loadUserData();
+        try {
+            meta = new Meta(Global.DATA_ROOT_FOLDER, "user.data", true);
+            loadUserData();
+        } catch (Exception e) {
+            throw new RuntimeException();
+        }
     }
 
     /**
      * [method] 存储用户数据
      */
-    public void saveUserData() {
+    public void saveUserData() throws CustomIOException {
         // TODO 决定何时存储
         // TODO 存储外部数据至 users
+        ArrayList<String> meta_data = new ArrayList<>();
+        for (User user : users) {
+            meta_data.add(user.toString(','));
+        }
+        this.meta.writeToFile(meta_data);
     }
 
     /**
      * [method] 加载用户数据
      */
-    public void loadUserData() {
+    public void loadUserData() throws MetaFileNotFoundException, CustomIOException {
         // TODO 加载外部数据至 users
+        ArrayList<String []> meta_data = this.meta.readFromFile();
+        try {
+            for (String [] row: meta_data) {
+                users.add(new User(row[0], row[1], User.stringToPermission(row[2]), row[3]));
+            }
+        } catch (Exception e) {
+            throw new WrongMetaFormatException();
+        }
     }
 
     /**

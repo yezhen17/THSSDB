@@ -9,14 +9,11 @@ public class LogicTreeTest {
 
   }
 
-  /*
+
   @Test
   public void testTree(){
-    Node<Boolean> a = new Node("and", new Node(true), new Node(false));
-    Node<Boolean> b = new Node("or", a, new Node(true));
-    LogicTree t = new LogicTree(b);
-    System.out.println(t.getTreeValue());
+    // System.out.println(Double.valueOf(String.valueOf(null)));
   }
-  */
+
 }
 

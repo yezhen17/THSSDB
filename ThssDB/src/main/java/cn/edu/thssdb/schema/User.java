@@ -7,10 +7,11 @@ public class User {
     /**
      * [enum] 权限
      */
-    enum Permission {
+    public enum Permission {
         NONE,       // 无
         ADMIN,      // 管理员
         USER,       // 用户
+
     }
 
     public String username;            // 用户名
@@ -30,5 +31,21 @@ public class User {
         this.password = password;
         this.permission = permission;
         this.database = database;
+    }
+
+    public static Permission stringToPermission (String s) {
+        if (s.equals("ADMIN")) return Permission.ADMIN;
+        else if (s.equals("USER")) return Permission.USER;
+        else return Permission.NONE;
+    }
+
+    public static String permissionToString (Permission p) {
+        if (p == Permission.ADMIN) return "ADMIN";
+        else if (p == Permission.USER) return "USER";
+        else return "NONE";
+    }
+
+    public String toString(char delimiter) {
+        return username + delimiter + password + delimiter + permissionToString(permission) + delimiter + database;
     }
 }
