@@ -49,7 +49,7 @@ public class DeleteOperation extends BaseOperation {
           table.delete();
         } else {
           Iterator<Row> rowIterator = table.iterator();
-          ArrayList<Column> columns = table.columns;
+          ArrayList<Column> columns = table.getColumns();
           ArrayList<QueryColumn> queryColumns = new ArrayList<>();
           for(Column column:columns){
             queryColumns.add(new QueryColumn(column,tableName));

@@ -51,7 +51,7 @@ public class InsertOperation extends BaseOperation {
       throw new TableNotExistException();
     }
 
-    ArrayList<Column> columns = table.columns;
+    ArrayList<Column> columns = table.getColumns();
     int primaryKeyIndex = table.primaryIndex;
     String primaryKey = columns.get(primaryKeyIndex).getName();
 
@@ -192,7 +192,7 @@ public class InsertOperation extends BaseOperation {
         }
         boolean hasMatched = false;
         for(int j=0;j<columns.size();j++){
-          if(columnNames.get(i).equals(table.columns.get(j).getName())){
+          if(columnNames.get(i).equals(table.getColumns().get(j).getName())){
             hasMatched = true;
             break;
           }

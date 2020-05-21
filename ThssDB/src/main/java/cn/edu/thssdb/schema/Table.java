@@ -20,11 +20,9 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class Table implements Iterable<Row> {
   private ReentrantReadWriteLock lock;    // 可重入读写锁
   private String databaseName;            // 数据库名称
-  public String tableName;                // 表名称
+  private String tableName;                // 表名称
 
-
-
-  public ArrayList<Column> columns;       // 列定义表
+  private ArrayList<Column> columns;       // 列定义表
   public BPlusTree<Entry, Row> index;     // B+树索引
   public int primaryIndex;               // 主键索引
   private PersistentStorage<Row> persistentStorageData; // 数据持久化
@@ -355,5 +353,13 @@ public class Table implements Iterable<Row> {
   public static boolean checkColumns(Column[] columns, int primaryIndex) {
     // TODO 可整合至他处
     return true;
+  }
+
+  public String getTableName() {
+    return tableName;
+  }
+
+  public ArrayList<Column> getColumns() {
+    return columns;
   }
 }

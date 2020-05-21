@@ -19,6 +19,7 @@ class MetaInfo {
     return 0;
   }
 
+  // 产生带表名的列列表
   public ArrayList<QueryColumn> getColumns() {
     ArrayList<QueryColumn> a = new ArrayList<>();
     for (Column c: columns) {

@@ -127,7 +127,7 @@ public class Database {
     // TODO 查询模块
     try {
       lock.readLock().lock();
-      QueryResult queryResult = new QueryResult(queryTables);
+      /// QueryResult queryResult = new QueryResult(queryTables);
       return null;
     } finally {
       lock.readLock().unlock();

@@ -46,8 +46,8 @@ public class SelectItem {
 
   public SelectItem(Double constNum1, ColumnFullNameItem columnFullNameItem, String op){
     this.type = 2;
-    this.tableName = tableName;
-    this.columnName = columnName;
+    this.tableName = columnFullNameItem.getTableName();
+    this.columnName = columnFullNameItem.getColumnName();
     this.constNum1 = constNum1;
     this.op = op;
   }

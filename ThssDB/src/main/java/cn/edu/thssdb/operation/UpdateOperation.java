@@ -52,7 +52,7 @@ public class UpdateOperation extends BaseOperation {
       throw new TableNotExistException();
     }
 
-    ArrayList<Column> columns = table.columns;
+    ArrayList<Column> columns = table.getColumns();
     Column columnToUpdate = null;
     for(Column column:columns){
       if(column.getName().equals(columnName)){
@@ -122,8 +122,8 @@ public class UpdateOperation extends BaseOperation {
 
   private Row getNewRow(Row oldRow, Comparable valueToUpdate) {
     ArrayList<Entry> entries = new ArrayList<>();
-    for (int index = 0; index < table.columns.size(); index++) {
-      if (table.columns.get(index).getName().equals(columnName)) {
+    for (int index = 0; index < table.getColumns().size(); index++) {
+      if (table.getColumns().get(index).getName().equals(columnName)) {
         entries.add(new Entry(valueToUpdate));
       } else {
         entries.add(new Entry(oldRow.getEntries().get(index)));

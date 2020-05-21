@@ -3,11 +3,11 @@ package cn.edu.thssdb.query;
 import cn.edu.thssdb.schema.Entry;
 import cn.edu.thssdb.schema.Row;
 import cn.edu.thssdb.schema.Table;
-import com.sun.org.apache.xpath.internal.operations.String;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 
+// 根据使用的表，生成一个Row迭代器
 public class QueryTable implements Iterator<Row> {
   private int tableNum;
   private ArrayList<Table> tables;
@@ -17,8 +17,7 @@ public class QueryTable implements Iterator<Row> {
   int n2;
   Row cache;
 
-  QueryTable(ArrayList<Table> tables) {
-    // TODO
+  public QueryTable(ArrayList<Table> tables) {
     this.tables = tables;
     this.tableNum = tables.size();
     if (this.tableNum == 1) {
@@ -36,7 +35,6 @@ public class QueryTable implements Iterator<Row> {
 
   @Override
   public boolean hasNext() {
-    // TODO
     if (tableNum == 1) {
       return t1.hasNext();
     } else {
@@ -46,7 +44,6 @@ public class QueryTable implements Iterator<Row> {
 
   @Override
   public Row next() {
-    // TODO
     if (tableNum == 1) {
       return t1.next();
     } else {
@@ -61,12 +58,9 @@ public class QueryTable implements Iterator<Row> {
     }
   }
 
-  // 笛卡尔积 循环
 
-  // FROM 子句
+  // 将两个表的Row合并为一个
   public static Row combineRow(Row r1, Row r2) {
-    // TODO ON 条件
-    // FROM ON 连接 Join
     ArrayList<Entry> a = r1.getEntries();
     a.addAll(r2.getEntries());
     return new Row(a);

@@ -4,12 +4,12 @@ import cn.edu.thssdb.exception.WrongTableNameException;
 import cn.edu.thssdb.parser.item.*;
 import cn.edu.thssdb.schema.Entry;
 import cn.edu.thssdb.schema.Row;
+import cn.edu.thssdb.schema.Table;
 
-import java.lang.reflect.Array;
 import java.util.*;
 
-import javafx.scene.control.Cell;
 
+// 用于处理查询结果，接口仍有问题，后期解决
 public class QueryResult {
 
   private SelectContentItem selectContentItem;
@@ -19,27 +19,44 @@ public class QueryResult {
 
   private int tableNum;
 
-  private List<MetaInfo> metaInfos;
+  private ArrayList<MetaInfo> metaInfos;
+
+  private QueryTable queryTable;
 
   private ArrayList<QueryColumnPlusData> queryRes;
 
+  private ArrayList<ArrayList<String>> finalTable;
+
   private ArrayList<QueryColumn> columns;
-  private List<Integer> index;
-  private List<Cell> attrs;
+//  private List<Integer> index;
+//  private List<Cell> attrs;
 
-  public QueryResult(QueryTable queryTables) {
-    // TODO
-    this.index = new ArrayList<>();
-    this.attrs = new ArrayList<>();
+  public QueryResult(SelectContentItem selectContentItem, FromItem fromItem,
+                     MultipleConditionItem whereItem, OrderByItem orderByItem, ArrayList<Table> tables) {
+//    this.index = new ArrayList<>();
+//    this.attrs = new ArrayList<>();
 
-    this.tableNum = metaInfos.size();
-    ArrayList<Row> res = new ArrayList<>();
+    this.selectContentItem = selectContentItem;
+    this.fromItem = fromItem;
+    this.whereItem = whereItem;
+    this.orderByItem = orderByItem;
 
+    queryTable = new QueryTable(tables);
+    for (Table table: tables) {
+      this.metaInfos.add(new MetaInfo(table.getTableName(), table.getColumns()));
+    }
+    this.tableNum = this.metaInfos.size();
+
+    // 合并后的列信息
     this.columns = new ArrayList<>();
     for (MetaInfo metaInfo: metaInfos) {
       this.columns.addAll(metaInfo.getColumns());
     }
+  }
+  public ArrayList<ArrayList<String>> process() {
+    ArrayList<Row> res = new ArrayList<>();
 
+    // JOIN ON 条件与表达式树合并
     FromItem.JoinType joinType = fromItem.getJoinType();
     for (OnItem c: fromItem.getOnItems()) {
       whereItem = new MultipleConditionItem(whereItem, new MultipleConditionItem(
@@ -49,6 +66,7 @@ public class QueryResult {
     boolean retain_left = false;
     boolean retain_right = false;
     switch (joinType) {
+      // 自然连接还需要增强条件
       case NATURAL_INNER_JOIN: {
         for (QueryColumn c1: metaInfos.get(0).getColumns()) {
           for (QueryColumn c2: metaInfos.get(1).getColumns()) {
@@ -80,8 +98,9 @@ public class QueryResult {
 
     whereItem.setColumn(this.columns);
 
-    if (queryTables.getTableNum() == 1) {
-      for (QueryTable it = queryTables; it.hasNext(); ) {
+    // 接下来筛选符合条件的Row
+    if (queryTable.getTableNum() == 1) {
+      for (QueryTable it = queryTable; it.hasNext(); ) {
         Row r = it.next();
         if (whereItem.getTreeValue(r).getValue()) {
           res.add(r);
@@ -90,18 +109,19 @@ public class QueryResult {
     } else {
       int column_count1 = metaInfos.get(0).getColumnNum();
       int column_count2 = metaInfos.get(1).getColumnNum();
-      int n1 = queryTables.n1;
-      int n2 = queryTables.n2;
+      int n1 = queryTable.n1;
+      int n2 = queryTable.n2;
       boolean [] t1_count = new boolean[n1];
       boolean [] t2_count = new boolean[n2];
       int i = 0;
-      for (QueryTable it = queryTables; it.hasNext(); ) {
+      for (QueryTable it = queryTable; it.hasNext(); ) {
         Row r = it.next();
         if (whereItem.getTreeValue(r).getValue()) {
           res.add(r);
           t1_count[i / n2] = true;
           t2_count[i % n2] = true;
         } else {
+          // LEFT OUTER JOIN
           if (retain_left) {
             if ((i % n2) == (n2 - 1) && !t1_count[i / n2]) {
               ArrayList<Entry> entries = new ArrayList<Entry>();
@@ -115,13 +135,14 @@ public class QueryResult {
               res.add(new Row(entries));
             }
           }
+          // RIGHT OUTER JOIN
           if (retain_right) {
             if ((i / n2) == (n1 - 1) && !t2_count[i % n2]) {
-              ArrayList<Entry> entries = new ArrayList<Entry>();
+              ArrayList<Entry> entries = new ArrayList<>();
               ArrayList<Entry> r_entries = r.getEntries();
 
               for (int k = 0; k < column_count1; k++) {
-                entries.add(new Entry(null));
+                entries.add(new Entry(null)); // 以null填充
               }
               for (int k = column_count1; k < column_count1 + column_count2; k++) {
                 entries.add(new Entry(r_entries.get(k)));
@@ -134,7 +155,7 @@ public class QueryResult {
       }
     }
 
-
+    // 排序
     ArrayList<Integer> sort_indices = new ArrayList<>();
     for (ColumnFullNameItem c: orderByItem.getColumnList()) {
       int i = 0;
@@ -146,32 +167,31 @@ public class QueryResult {
         i++;
       }
     }
-
     sortArray(res, orderByItem.getOrder(), sort_indices);
 
-    this.queryRes = columnToIndices(this.selectContentItem.getSelectContent());
+    // select选择子项
+    this.queryRes = columnToData(this.selectContentItem.getSelectContent());
     generateQueryRecord(res);
 
     // 转换为行的列表
-    ArrayList<ArrayList<String>> res_table = new ArrayList<>();
-
+    finalTable = new ArrayList<>();
     ArrayList<String> titles = new ArrayList<>();
-    res_table.add(titles);
+    finalTable.add(titles);
     for (int i = 0; i < res.size(); i++) {
-      res_table.add(new ArrayList<>());
+      finalTable.add(new ArrayList<>());
     }
     for (QueryColumnPlusData qc: this.queryRes) {
       titles.add(qc.getTitle());
       ArrayList<String> data = qc.getData();
       for (int i = 0; i < res.size(); i++) {
-        res_table.get(i + 1).add(data.get(i));
+        finalTable.get(i + 1).add(data.get(i));
       }
     }
 
     // 去重
     if (this.selectContentItem.isDistinct()) {
       ArrayList<ArrayList<String>> tmp_table = new ArrayList<>();
-      for (ArrayList<String> row: res_table) {
+      for (ArrayList<String> row: finalTable) {
         boolean flag = true;
         for (ArrayList<String> other: tmp_table) {
           if (other.equals(row)) {
@@ -181,19 +201,13 @@ public class QueryResult {
         }
         if (flag) tmp_table.add(row);
       }
-      res_table = tmp_table;
+      finalTable = tmp_table;
     }
+    return finalTable;
   }
 
-//  private boolean compareStrings(ArrayList<String> a1, ArrayList<String> a2) {
-//    boolean res = true;
-//    for (int i = 0; i < a1.size(); i++) {
-//      if(a1.equals(a))
-//    }
-//  }
-
   // 对结果排序，indices指的是排序属性的下标
-  public static void sortArray(ArrayList<Row> rows, int order, ArrayList<Integer> indices) {
+  private static void sortArray(ArrayList<Row> rows, int order, ArrayList<Integer> indices) {
     if (order == 0) {
       return;
     }
@@ -213,6 +227,7 @@ public class QueryResult {
     });
   }
 
+  // 根据表名和列名得到该列索引
   private int findIndex(String tableName, String columnName) {
     int i = 0;
     for (QueryColumn c: this.columns) {
@@ -221,12 +236,6 @@ public class QueryResult {
     }
     return -1;
   }
-//  // WHERE 子句
-//  public static boolean judge(Row row, MultipleConditionItem whereItem) {
-//    // TODO
-//    // whereItem.setColumn(xxx);
-//    return whereItem.getTreeValue(row).getValue();
-//  }
 
   private String getFullColumnName (String tableName, String columnName) {
     if (tableName == null) {
@@ -236,7 +245,8 @@ public class QueryResult {
     }
   }
 
-  private ArrayList<QueryColumnPlusData> columnToIndices(ArrayList<SelectItem> columns) {
+  // 将形如 T.C, C, T.*, *, 1, 1+A, A+1, ... 的列信息转化为QueryColumnPlusData类型，以供后续处理
+  private ArrayList<QueryColumnPlusData> columnToData(ArrayList<SelectItem> columns) {
     ArrayList<QueryColumnPlusData> res = new ArrayList<>();
     for (SelectItem c: columns) {
       int type = c.getType();

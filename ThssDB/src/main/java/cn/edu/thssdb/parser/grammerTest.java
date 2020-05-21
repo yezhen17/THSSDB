@@ -16,19 +16,11 @@ public class grammerTest {
             "use db;" +
             "drop table mytable; "+
             "drop table if exists mytable;" +
-            "select a, b from t1, t2 where t1.a = t2.b or a = 2 and 3 <> 5;" +
-                    "update mydb set b = 'dafdfad';");
-    /*
-    +
-            "create table mydb (a int, b string(124) not null, primary key (a));" +
-            "insert into mydb (b, a) values (\"2342\", 1), (\"78964\", 2);" +
-            "update mydb set b = \"1234\" where a == 1;" +
-            "delete from mydb where a <> 1;" +
-            "show databases;" +
-            "show database db;" +
-            "drop database mydb;" +
-            "select t1.a,b from t1 join t2 on t1.a==t2.b natural join t3 where t3.x>0;"
-     */
+            "select count(*) from t1, t2 where t1.a = t2.b or a = 2 and 3 <> 5;" +
+            "update mydb set b = 'dafdfad';" +
+            "select a + 1, 1 / b, c from t1 join t2 on t1.a = t2.a and t1.b = t2.b " +
+                    "where t1.a = t2.b or a = 2 and 3 <> 5 order by t1.a desc;");
+
     SQLLexer lexer = new SQLLexer(input);
     lexer.removeErrorListeners();
     lexer.addErrorListener(MyErrorListener.INSTANCE);

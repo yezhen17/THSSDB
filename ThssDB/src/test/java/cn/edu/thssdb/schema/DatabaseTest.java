@@ -101,7 +101,7 @@ public class DatabaseTest {
     fw2.close();
     tables.put("t1", new Table("db1", "t1"));
     database.recover();
-    assertEquals(tables.get("t1").columns.get(0).toString(' '), "c1 INT true true 100");
-    assertEquals(tables.get("t1").columns.get(1).toString(' '), "c2 STRING false true 100");
+    assertEquals(tables.get("t1").getColumns().get(0).toString(' '), "c1 INT true true 100");
+    assertEquals(tables.get("t1").getColumns().get(1).toString(' '), "c2 STRING false true 100");
   }
 }

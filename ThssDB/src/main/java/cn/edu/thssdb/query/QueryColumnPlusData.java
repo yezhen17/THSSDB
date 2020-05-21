@@ -1,12 +1,12 @@
 package cn.edu.thssdb.query;
 
-import cn.edu.thssdb.parser.item.SelectItem;
 import cn.edu.thssdb.schema.Entry;
 import cn.edu.thssdb.schema.Row;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
+
+// 这个类别存储一个列对应的所有数据
 public class QueryColumnPlusData {
   private String columnName;
   private int idx;
@@ -20,6 +20,7 @@ public class QueryColumnPlusData {
   private String title;
   private ArrayList<String> data;
 
+  // 不同初始化方式对应不同类型
   public QueryColumnPlusData(double num1) {
     init();
     this.num1 = num1;
@@ -71,15 +72,7 @@ public class QueryColumnPlusData {
     data = new ArrayList<>();
   }
 
-  private void setColumnName() {
-//    String s;
-//    if (tableName == null) {
-//      s = columnName.toLowerCase();
-//    } else {
-//      s = tableName.toLowerCase() + "." + columnName.toLowerCase();
-//    }
-  }
-
+  // 不同聚集函数求值
   private Comparable aggregate(ArrayList<Entry> entries) {
     double res = 0;
     switch (aggr) {
@@ -129,6 +122,7 @@ public class QueryColumnPlusData {
     }
   }
 
+  // 不同运算求值
   private Double calculate(Double a, Double b) {
     switch (op) {
       case "+": {
@@ -146,6 +140,7 @@ public class QueryColumnPlusData {
     }
   }
 
+  // 生成列标题
   public void generateTitle() {
     switch (type) {
       case 0: {
@@ -169,6 +164,7 @@ public class QueryColumnPlusData {
     }
   }
 
+  // 产生该列对应的数据
   public void generateData(ArrayList<Row> rows) {
     switch (type) {
       case 0: {

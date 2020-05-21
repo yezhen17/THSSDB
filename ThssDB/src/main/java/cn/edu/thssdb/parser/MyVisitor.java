@@ -188,6 +188,7 @@ public class MyVisitor extends SQLBaseVisitor{
 
   @Override
   public Object visitSelect_stmt(SQLParser.Select_stmtContext ctx) {
+    // WHOLE SELECT STATEMENT
     SelectContentItem select_content_item = null;
     FromItem from_item = null;
     MultipleConditionItem where_item = null;
@@ -205,17 +206,17 @@ public class MyVisitor extends SQLBaseVisitor{
         where_item = (MultipleConditionItem) visit(ctx.getChild(5));
         if (ctx.getChildCount() > 6) {
           has_order = true;
-          idx_first_order_column = 9;
+          idx_first_order_column = 8;
         }
       } else  {
-        idx_first_order_column = 7;
+        idx_first_order_column = 6;
         has_order = true;
       }
       // select_content = (String) visit(ctx.getChild(4));
     }
     if (has_order) {
       order = 1;
-      int i =idx_first_order_column;
+      int i = idx_first_order_column;
       while (true) {
         order_by_columns.add((ColumnFullNameItem) visit(ctx.getChild(i)));
         if (i + 1 >= ctx.getChildCount()) {
@@ -242,6 +243,7 @@ public class MyVisitor extends SQLBaseVisitor{
 
   @Override
   public SelectContentItem visitSelect_content(SQLParser.Select_contentContext ctx) {
+    // SELECT ...
     ArrayList<SelectItem> select_content = new ArrayList<>();
     boolean is_distinct = false;
     if (ctx.getChild(0).getText().equalsIgnoreCase("DISTINCT")) {
@@ -263,8 +265,8 @@ public class MyVisitor extends SQLBaseVisitor{
 
   @Override
   public FromItem visitJoin_content(SQLParser.Join_contentContext ctx) {
+    // FROM ...
     FromItem join_content;
-
     ArrayList<String> child_text = new ArrayList<>();
     if (ctx.getChildCount() == 1) {
       return new FromItem(ctx.getChild(0).getText(), null, FromItem.JoinType.NONE, new ArrayList<>());
@@ -307,6 +309,7 @@ public class MyVisitor extends SQLBaseVisitor{
 
   @Override
   public ColumnFullNameItem visitColumn_full_name(SQLParser.Column_full_nameContext ctx) {
+    // T.C or C
     if (ctx.getChildCount() > 1) {
       return new ColumnFullNameItem(ctx.getChild(0).getText(), ctx.getChild(2).getText());
     } else {
@@ -316,12 +319,13 @@ public class MyVisitor extends SQLBaseVisitor{
 
   @Override
   public ArrayList<OnItem> visitOn_content(SQLParser.On_contentContext ctx) {
-    int num = ctx.getChildCount() / 3;
+    // T1.C1 = T2.C2 (and T3.C3 = T4.C4)...
+    int num = ctx.getChildCount() / 4 + 1;
     ArrayList<OnItem> res = new ArrayList<>();
     for (int i = 0; i < num; i++) {
       res.add(new OnItem(
-              (ColumnFullNameItem) visit(ctx.getChild(3 * i)),
-              (ColumnFullNameItem) visit(ctx.getChild(3 * i + 2))
+              (ColumnFullNameItem) visit(ctx.getChild(4 * i)),
+              (ColumnFullNameItem) visit(ctx.getChild(4 * i + 2))
       ));
     }
     return res;
@@ -329,11 +333,13 @@ public class MyVisitor extends SQLBaseVisitor{
 
   @Override
   public Double visitNumeric_value(SQLParser.Numeric_valueContext ctx) {
+    // NUMBER, USE DOUBLE FOR COMPATIBILITY
     return Double.valueOf(ctx.getChild(0).getText());
   }
 
   @Override
   public ColumnFullNameItem visitResult_column(SQLParser.Result_columnContext ctx) {
+    // * or T.* or T.C or C
     if (ctx.getChild(0).getText().equals("*")) {
       return new ColumnFullNameItem(null, "*");
     } else if (ctx.getChildCount() > 1) {
@@ -345,6 +351,7 @@ public class MyVisitor extends SQLBaseVisitor{
 
   @Override
   public MultipleConditionItem visitMultiple_condition(SQLParser.Multiple_conditionContext ctx) {
+    // EXPR or (EXPR) or (EXPR AND/OR EXPR)
     if (ctx.getChildCount() == 1) {
       return new MultipleConditionItem((ConditionItem) visit(ctx.getChild(0)));
     } else {
@@ -370,6 +377,7 @@ public class MyVisitor extends SQLBaseVisitor{
 
   @Override
   public Object visitCondition(SQLParser.ConditionContext ctx) {
+    // X <>/... Y or X IS NULL
     if (ctx.getChild(1) instanceof SQLParser.ComparatorContext) {
       return new ConditionItem((ComparerItem) visit(ctx.getChild(0)),
               (ComparerItem) visit(ctx.getChild(2)),
@@ -382,6 +390,7 @@ public class MyVisitor extends SQLBaseVisitor{
 
   @Override
   public SelectItem visitSelect_item(SQLParser.Select_itemContext ctx) {
+    // 0 or A or 0 +/... A or A +/... 0 or 0 +/... 0
     int child_count = ctx.getChildCount();
     if (child_count == 1) {
       if (ctx.getChild(0) instanceof SQLParser.Result_columnContext) {
@@ -411,6 +420,7 @@ public class MyVisitor extends SQLBaseVisitor{
 
   @Override
   public Object visitSelect_item_2(SQLParser.Select_item_2Context ctx) {
+    // SUM/...(*) or SUM/...(A)
     if (ctx.getChild(2).getText().equalsIgnoreCase("*")) {
       return new SelectItem(new ColumnFullNameItem(null, "*"),
               ctx.getChild(0).getText().toUpperCase());
@@ -459,6 +469,7 @@ public class MyVisitor extends SQLBaseVisitor{
 
   @Override
   public Object visitLiteral_value(SQLParser.Literal_valueContext ctx) {
+    // FLOAT/INT/STRING/NULL
     String str = ctx.getChild(0).getText();
     if(str.equalsIgnoreCase("NULL")){
       return new LiteralValueItem(LiteralValueItem.Type.NULL,"null");

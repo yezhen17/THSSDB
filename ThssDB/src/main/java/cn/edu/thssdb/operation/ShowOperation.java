@@ -28,7 +28,7 @@ public class ShowOperation extends BaseOperation {
       throw new TableNotExistException();
     }
     List<List<String>> showTable = new ArrayList<>();
-    ArrayList<Column> columns = table.columns;
+    ArrayList<Column> columns = table.getColumns();
     ArrayList<String> columnNames = new ArrayList<>();
     for(int i=0;i<columns.size();i++){
       showTable.add(new ArrayList<String>());
