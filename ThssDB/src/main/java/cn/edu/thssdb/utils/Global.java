@@ -31,7 +31,8 @@ public class Global {
   public static final String FAILURE_CONNECT_1 = "[Failure] Connect failed: user doesn't exist!";
   public static final String FAILURE_CONNECT_2 = "[Failure] Connect failed: wrong password!";
   public static final String FAILURE_DISCONNECT = "[Failure] Disconnect failed: user is not online!";
-  public static final String FAILURE_EXECUTE = "[Failure] Execute failed.";
+  public static final String FAILURE_EXECUTE = "[Failure] Execute failed!";
+  public static final String FAILURE_FORBIDDEN = "[Failure] Forbidden!";
 
 
   public static final String S_URL_INTERNAL = "jdbc:default:connection";

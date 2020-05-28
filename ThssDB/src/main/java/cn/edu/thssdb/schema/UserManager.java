@@ -14,7 +14,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  ***************/
 public class UserManager {
     ArrayList<User> users;                          // 用户数据
-    HashMap<Long, User> onlineUsers;                // 在线用户数据
+    HashMap<Long, UserService> onlineUsers;         // 在线用户数据
     private static ReentrantReadWriteLock lock;     // 可重入读写锁
     private static Random random = new Random();    // 随机数发生器
     private Meta meta; // 用户元数据
@@ -72,14 +72,26 @@ public class UserManager {
         try {
             lock.readLock().lock();
             for (User u : users) {
-                if (u.username.equals(username)) {
-                    return u;
-                }
+                if (u.username.equals(username)) { return u;  }
             }
+            return null;
         } finally {
             lock.readLock().unlock();
         }
-        return null;
+    }
+
+    /**
+     * [method] 用户服务
+     * @param sessionId {long} Session ID
+     * @return {UserService} 用户服务，无则返回 null
+     */
+    public UserService getUserService(long sessionId) {
+        try {
+            lock.readLock().lock();
+            return onlineUsers.getOrDefault(sessionId, null);
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
     /**
@@ -91,7 +103,7 @@ public class UserManager {
         try {
             lock.readLock().lock();
             if (onlineUsers.containsKey(sessionId))
-                return onlineUsers.get(sessionId).permission;
+                return onlineUsers.get(sessionId).user.permission;
             else
                 return User.Permission.NONE;
         } finally {
@@ -138,7 +150,7 @@ public class UserManager {
             long sessionId = getRandomSessionId();
             try {
                 lock.writeLock().lock();
-                onlineUsers.put(sessionId, user);
+                onlineUsers.put(sessionId, new UserService(user));
             } finally {
                 lock.writeLock().unlock();
             }
@@ -157,7 +169,7 @@ public class UserManager {
         long sessionId = getRandomSessionId();
         try {
             lock.writeLock().lock();
-            onlineUsers.put(sessionId, user);
+            onlineUsers.put(sessionId, new UserService(user));
         } finally {
             lock.writeLock().unlock();
         }

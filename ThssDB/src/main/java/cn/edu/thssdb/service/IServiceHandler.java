@@ -5,11 +5,15 @@ import cn.edu.thssdb.exception.WrongPasswordException;
 import cn.edu.thssdb.rpc.thrift.*;
 import cn.edu.thssdb.schema.Manager;
 import cn.edu.thssdb.schema.UserManager;
+import cn.edu.thssdb.schema.UserService;
 import cn.edu.thssdb.utils.Global;
 import org.apache.thrift.TException;
 
 import java.util.Date;
 
+/***************
+ * [class] 服务处理类
+ ***************/
 public class IServiceHandler implements IService.Iface {
   Manager dataManager = Manager.getInstance();
   UserManager userManager = UserManager.getInstance();
@@ -96,13 +100,16 @@ public class IServiceHandler implements IService.Iface {
     long sessionId = req.getSessionId();
     String statement = req.getStatement();
     ExecuteStatementResp resp = new ExecuteStatementResp();
-    // 操作执行 TODO 调用接口
-
-    Manager manager = Manager.getInstance();
-    resp.setIsAbort(false);
-    resp.setHasResult(false);
-    resp.setStatus(new Status(Global.FAILURE_CODE));
-    resp.setInformation(Global.FAILURE_EXECUTE);
+    // 操作执行
+    UserService userService = userManager.getUserService(sessionId);
+    if (userService != null) {
+      return userService.handle(statement);
+    } else {
+      resp.setStatus(new Status(Global.FAILURE_CODE));
+      resp.setInformation(Global.FAILURE_FORBIDDEN);
+      resp.setIsAbort(true);
+      resp.setHasResult(false);
+    }
     // 响应回复
     return resp;
   }
