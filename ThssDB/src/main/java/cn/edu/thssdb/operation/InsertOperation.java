@@ -173,11 +173,11 @@ public class InsertOperation extends BaseOperation {
               }
               break;
           }
-
-          Row newRow = new Row(entries);
-          table.insert(newRow);
-          rowsHasInsert.add(newRow);
         }
+        Row newRow = new Row(entries);
+        table.insert(newRow);
+        rowsHasInsert.add(newRow);
+
       }
     }
     else {
