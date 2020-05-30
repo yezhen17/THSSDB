@@ -27,12 +27,13 @@ public class SelectOperation extends BaseOperation {
     this.orderByItem = orderByItem;
   }
 
+
   /**
    * [method] 执行操作
    */
   public void exec() {
-    Manager manager = Manager.getInstance();
-    Database database = manager.getDatabaseByName(manager.getCurrentDatabaseName());
+//    Manager manager = Manager.getInstance();
+//    Database database = manager.getDatabaseByName(manager.getCurrentDatabaseName());
 
     ArrayList<Table> tables = new ArrayList<>();
     Table table1 = database.get(fromItem.getTableNameA());

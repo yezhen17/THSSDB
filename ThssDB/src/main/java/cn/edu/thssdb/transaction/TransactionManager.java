@@ -15,6 +15,8 @@ public class TransactionManager {
   LinkedList<BaseOperation> operations;
   HashMap<String, Integer> savepoints;
 
+  // TODO 锁，应该需要记录每个operation用了什么锁
+
   public TransactionManager(Logger logger) {
 //    this.loggerBuffer = loggerBuffer;
     this.logger = logger;
@@ -22,7 +24,8 @@ public class TransactionManager {
     savepoints = new HashMap<>();
   }
 
-  public TransactionStatus commonTransaction(BaseOperation operation) {
+  // 增删改操作
+  public TransactionStatus writeTransaction(BaseOperation operation) {
     try {
       // TODO 加锁
       operation.exec();
@@ -31,7 +34,24 @@ public class TransactionManager {
     } catch (Exception e) {
       return new TransactionStatus(false, e.getMessage());
     } finally {
-      // TODO 去锁
+      // TODO 似乎不用去锁
+    }
+
+
+    return new TransactionStatus(true, "Success");
+  }
+
+  // 增删改操作
+  public TransactionStatus readTransaction(BaseOperation operation) {
+    try {
+      // TODO 加读锁
+      operation.exec();
+      // operations.add(operation);
+
+    } catch (Exception e) {
+      return new TransactionStatus(false, e.getMessage());
+    } finally {
+      // TODO 去读锁
     }
 
 

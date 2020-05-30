@@ -11,9 +11,9 @@ import javax.xml.crypto.Data;
 import java.util.LinkedList;
 
 public class BaseOperation {
-  private String username = "";
-  private String databaseName = "";
-  private Database database;
+  protected String username = "";
+  protected String databaseName = "";
+  protected Database database;
 
 
   public BaseOperation() {
