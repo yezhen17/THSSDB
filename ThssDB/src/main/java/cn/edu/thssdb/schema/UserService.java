@@ -55,27 +55,36 @@ public class UserService {
         try {
             ArrayList<BaseOperation> operations = MyParser.getOperations(statement);
             for (BaseOperation operation: operations) {
+                // 先设置operation操作的当前数据库
+                operation.setCurrentUser(user.username, user.database);
+
                 if (operation.isTransactionType()) {
                     // TODO 放到事务里
-                    System.out.println("yes");
+                    System.out.println("transaction type");
+                    operation.exec(); // 暂时先不用事务，方便测试
                 } else {
                     operation.exec();
                     // TODO 加log
                 }
             }
+            resp.setStatus(new Status(Global.SUCCESS_CODE));
+            resp.setInformation(Global.SUCCESS_EXECUTE);
+            resp.setIsAbort(true);
+            resp.setHasResult(false);
+            return resp;
         } catch (Exception e) {
             resp.setStatus(new Status(Global.FAILURE_CODE));
             resp.setInformation(e.getMessage());
+            resp.setIsAbort(true);
+            resp.setHasResult(false);
+            return resp;
         }
 
 
 
         // TODO 可根据类变量判断是否为完整事务，返回何值
 
-        resp.setStatus(new Status(Global.SUCCESS_CODE));
-        resp.setInformation(Global.SUCCESS_EXECUTE);
-        resp.setIsAbort(true);
-        resp.setHasResult(false);
-        return resp;
+
+
     }
 }
