@@ -84,16 +84,5 @@ public class UserService {
 
 
         // TODO 可根据类变量判断是否为完整事务，返回何值
-
-<<<<<<< HEAD
-        resp.setStatus(new Status(Global.SUCCESS_CODE));
-        resp.setInformation(statement);
-        resp.setIsAbort(true);
-        resp.setHasResult(false);
-        return resp;
-=======
-
-
->>>>>>> 8d76ad42b801ed74c572ed561aed8516e5b95c0d
     }
 }
