@@ -12,6 +12,10 @@ public class GrammarTest {
   public static void main(String[] args) {
     
     CharStream input = CharStreams.fromString("INSERT INTO tableName VALUES (1, 2, null)");
+    // use db;CREATE TABLE tableName(a1 int primary key, primary key(a1));iNSERT INTO tableName(a1) VALUES (1);delete from tableName where a1 = 1;
+    // CREATE TABLE tableName(a1 int primary key, primary key(a1));
+    // INSERT INTO tableName(a1) VALUES (1);
+    // delete from tableName where a1 = 1;
 //            "create database mydb;"
 //            "CREATE TABLE tableName(attrName1 int primary key, attrName2 long, attrName3 string(10) NOT NULL,attrName4 float NOT NULL primary key, attrName5 double primary key NOT NULL, PRIMARY KEY(attrName1));"
 //            "create user username identified by '123' "

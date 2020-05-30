@@ -193,7 +193,11 @@ public class UserManager {
         // 注销成功 删除在线用户数据
         try {
             lock.writeLock().lock();
+            onlineUsers.get(sessionId).disconnect();
             onlineUsers.remove(sessionId);
+
+        } catch (Exception e) {
+            return false;
         } finally {
             lock.writeLock().unlock();
         }

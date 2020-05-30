@@ -8,7 +8,7 @@ public enum ComparisonType {
     else if(s.equals(">")) return GT;
     else if(s.equals("<=")) return NGT;
     else if(s.equals(">=")) return NLT;
-    else if(s.equals("==")) return EQ;
+    else if(s.equals("=")) return EQ;
     else if(s.equals("<>")) return NEQ;
     else return NEQ;
   }

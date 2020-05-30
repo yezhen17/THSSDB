@@ -28,21 +28,30 @@ public class BaseTree<V> {
     return this.root;
   }
 
-  private V calculateTriple(Node cur, Row row) {
+  protected V calculateTriple(Node cur, Row row) {
     Node n1 = cur.getLeft();
     Node n2 = cur.getRight();
-    V v1, v2;
-    if (!n1.isLeaf()) {
-      v1 = calculateTriple(n1, row);
+    if (n1 == null) {
+      return (V) cur.getValue();
     } else {
-      v1 = (V) n1.getValue();
+      return merge(calculateTriple(n1, row), calculateTriple(n2, row), cur.getOp(), row);
     }
-    if (!n2.isLeaf()) {
-      v2 = calculateTriple(n2, row);
-    } else {
-      v2 = (V) n2.getValue();
-    }
-    return merge(v1, v2, cur.getOp(), row);
+
+//    cur.getValue();
+//    Node n1 = cur.getLeft();
+//    Node n2 = cur.getRight();
+//    V v1, v2;
+//    if (!n1.isLeaf()) {
+//      v1 = calculateTriple(n1, row);
+//    } else {
+//      v1 = (V) n1.getValue();
+//    }
+//    if (!n2.isLeaf()) {
+//      v2 = calculateTriple(n2, row);
+//    } else {
+//      v2 = (V) n2.getValue();
+//    }
+//    return merge(v1, v2, cur.getOp(), row);
   }
 
   protected V merge(V v1, V v2, String op, Row row) {

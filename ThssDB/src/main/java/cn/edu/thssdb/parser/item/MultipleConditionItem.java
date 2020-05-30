@@ -43,19 +43,38 @@ public class MultipleConditionItem extends BaseTree<ConditionItem> {
     }
   }
 
+  @Override
+  protected ConditionItem calculateTriple(Node cur, Row row) {
+    Node n1 = cur.getLeft();
+    Node n2 = cur.getRight();
+    if (n1 == null) {
+      ConditionItem tmp = (ConditionItem) cur.getValue();
+      return new ConditionItem(tmp.evaluate(row));
+    } else {
+      return merge(calculateTriple(n1, row), calculateTriple(n2, row), cur.getOp(), row);
+    }
+  }
+
   private void convertConditionToIndex(Node<ConditionItem> cur) {
+    cur.getValue().convertConditionToIndex(columns);
     Node<ConditionItem> n1 = cur.getLeft();
     Node<ConditionItem> n2 = cur.getRight();
-    if (!n1.isLeaf()) {
+    if (n1 != null) {
       convertConditionToIndex(n1);
-    } else {
-      n1.getValue().convertConditionToIndex(columns);
     }
-    if (!n2.isLeaf()) {
+    if (n2 != null) {
       convertConditionToIndex(n2);
-    } else {
-      n2.getValue().convertConditionToIndex(columns);
     }
+//    else if (!n1.isLeaf()) {
+//      convertConditionToIndex(n1);
+//    } else {
+//      n1.getValue().convertConditionToIndex(columns);
+//    }
+//    if (!n2.isLeaf()) {
+//      convertConditionToIndex(n2);
+//    } else {
+//      n2.getValue().convertConditionToIndex(columns);
+//    }
   }
 }
 

@@ -1,5 +1,6 @@
 package cn.edu.thssdb.operation;
 
+import cn.edu.thssdb.exception.CustomIOException;
 import cn.edu.thssdb.schema.Manager;
 
 public class DropDatabaseOperation extends BaseOperation {
@@ -15,7 +16,7 @@ public class DropDatabaseOperation extends BaseOperation {
     /**
      * [method] 执行操作
      */
-    public void exec() {
+    public void exec() throws CustomIOException {
       Manager manager = Manager.getInstance();
       manager.deleteDatabase(name);
     }

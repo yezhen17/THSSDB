@@ -1,4 +1,6 @@
 package cn.edu.thssdb.schema;
+import cn.edu.thssdb.exception.CustomIOException;
+import cn.edu.thssdb.exception.DataFileNotFoundException;
 import cn.edu.thssdb.log.Logger;
 import cn.edu.thssdb.operation.BaseOperation;
 import cn.edu.thssdb.parser.MyParser;
@@ -47,6 +49,10 @@ public class UserService {
          */
     }
 
+    public void disconnect() throws DataFileNotFoundException, CustomIOException {
+        Manager.getInstance().getDatabaseByName(user.database).persist();
+    }
+
 
     /**
      * [method] 服务处理方法 —— 主方法
@@ -75,7 +81,12 @@ public class UserService {
             return resp;
         } catch (Exception e) {
             resp.setStatus(new Status(Global.FAILURE_CODE));
-            resp.setInformation(e.getMessage());
+            if (e.getMessage() == null) {
+                resp.setInformation("...");
+            } else {
+                resp.setInformation(e.getMessage());
+            }
+
             resp.setIsAbort(true);
             resp.setHasResult(false);
             return resp;

@@ -65,6 +65,17 @@ public class Manager {
   }
 
   /**
+   * [method] 写元数据
+   */
+  public void writeMeta() throws CustomIOException {
+    ArrayList<String> db_list = new ArrayList<>();
+    for (String name: databasesList) {
+      db_list.add(name);
+    }
+    this.meta.writeToFile(db_list);
+  }
+
+  /**
    * [method] 创建数据库
    * @param name {String} 数据库名称
    * @exception DuplicateDatabaseException 重复数据库
@@ -81,6 +92,7 @@ public class Manager {
       lock.writeLock().lock();
       databases.put(name, new Database(name));
       databasesList.add(name);
+      writeMeta();
     } finally {
       lock.writeLock().unlock();
     }
@@ -91,7 +103,7 @@ public class Manager {
    * @param name {String} 数据库名称
    * @exception DatabaseNotExistException 数据库不存在
    */
-  public void deleteDatabase(String name) {
+  public void deleteDatabase(String name) throws CustomIOException {
     try {
       lock.readLock().lock();
       if (!databases.containsKey(name))
@@ -103,6 +115,7 @@ public class Manager {
       lock.writeLock().lock();
       databases.get(name).wipeData();
       databases.remove(name);
+      writeMeta();
     } finally {
       lock.writeLock().unlock();
     }
