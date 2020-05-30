@@ -25,7 +25,25 @@ sql_stmt :
     | show_table_stmt
     | show_meta_stmt
     | quit_stmt
-    | update_stmt ;
+    | update_stmt
+    | begin_transaction_stmt
+    | commit_stmt
+    | rollback_stmt
+    | savepoint_stmt
+    ;
+
+savepoint_stmt:
+    K_SAVEPOINT;
+
+rollback_stmt:
+    K_ROLLBACK;
+
+commit_stmt: 
+    K_COMMIT;
+
+begin_transaction_stmt:
+    K_BEGIN K_TRANSACTION;
+    
 
 create_db_stmt :
     K_CREATE K_DATABASE database_name ;
@@ -231,8 +249,10 @@ K_AND : A N D;
 K_AS : A S;
 K_ASC : A S C;
 K_AVG : A V G;
+K_BEGIN : B E G I N;
 K_BY : B Y;
 K_COLUMN : C O L U M N;
+K_COMMIT : C O M M I T;
 K_COUNT : C O U N T;
 K_CREATE : C R E A T E;
 K_DATABASE : D A T A B A S E;
@@ -267,12 +287,15 @@ K_PRIMARY : P R I M A R Y;
 K_QUIT : Q U I T;
 K_REVOKE : R E V O K E;
 K_RIGHT : R I G H T;
+K_ROLLBACK : R O L L B A C K;
+K_SAVEPOINT : S A V E P O I N T;
 K_SELECT : S E L E C T;
 K_SET : S E T;
 K_SHOW : S H O W;
 K_SUM : S U M;
 K_TABLE : T A B L E;
 K_TO : T O;
+K_TRANSACTION : T R A N S A C T I O N;
 K_UPDATE : U P D A T E;
 K_USE : U S E;
 K_USER : U S E R;

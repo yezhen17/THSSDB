@@ -561,5 +561,25 @@ public class MyVisitor extends SQLBaseVisitor{
     }
     return literalValueItems;
   }
+
+  @Override
+  public Object visitBegin_transaction_stmt(SQLParser.Begin_transaction_stmtContext ctx) {
+    return new BeginTransactionOperation();
+  }
+
+  @Override
+  public Object visitCommit_stmt(SQLParser.Commit_stmtContext ctx) {
+    return new CommitOperation();
+  }
+
+  @Override
+  public Object visitSavepoint_stmt(SQLParser.Savepoint_stmtContext ctx) {
+    return new SavePointOperation();
+  }
+
+  @Override
+  public Object visitRollback_stmt(SQLParser.Rollback_stmtContext ctx) {
+    return new RollbackOperation();
+  }
 }
 

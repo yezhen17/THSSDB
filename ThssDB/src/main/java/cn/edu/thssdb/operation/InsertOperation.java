@@ -12,6 +12,8 @@ public class InsertOperation extends BaseOperation {
   private String tableName;
   private ArrayList<String> columnNames=null;
   private ArrayList<ArrayList<LiteralValueItem>> values;
+  private ArrayList<Row> rowsHasInsert;
+
 
   private Table table;
 
@@ -30,12 +32,14 @@ public class InsertOperation extends BaseOperation {
   public InsertOperation(String tableName, ArrayList<ArrayList<LiteralValueItem>> values) {
     this.tableName = tableName;
     this.values = values;
+    rowsHasInsert = new ArrayList<>();
   }
 
   public InsertOperation(String tableName, ArrayList<String> columnNames, ArrayList<ArrayList<LiteralValueItem>> values) {
     this.tableName = tableName;
     this.columnNames = columnNames;
     this.values = values;
+    rowsHasInsert = new ArrayList<>();
   }
 
 
@@ -171,6 +175,7 @@ public class InsertOperation extends BaseOperation {
 
           Row newRow = new Row(entries);
           table.insert(newRow);
+          rowsHasInsert.add(newRow);
         }
       }
     }
@@ -328,9 +333,19 @@ public class InsertOperation extends BaseOperation {
 
         Row newRow = new Row(entries);
         table.insert(newRow);
+        rowsHasInsert.add(newRow);
       }
 
     }
 
+  }
+
+  /**
+   * [method] 撤销操作
+   */
+  public void undo(){
+    for(Row row: rowsHasInsert){
+      table.delete(row);
+    }
   }
 }

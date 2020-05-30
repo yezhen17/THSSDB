@@ -7,6 +7,7 @@ import cn.edu.thssdb.parser.item.MultipleConditionItem;
 import cn.edu.thssdb.query.QueryColumn;
 import cn.edu.thssdb.schema.*;
 import cn.edu.thssdb.type.ColumnType;
+import javafx.util.Pair;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -16,6 +17,7 @@ public class UpdateOperation extends BaseOperation {
   private String columnName;
   private LiteralValueItem literalValueItem;
   private MultipleConditionItem whereItem = null;
+  private ArrayList<Pair<Row,Row>> rowsHasUpdate;
 
   private Table table = null;
 
@@ -31,6 +33,7 @@ public class UpdateOperation extends BaseOperation {
     this.tableName = tableName;
     this.columnName = columnNmae;
     this.literalValueItem = literalValueItem;
+    rowsHasUpdate = new ArrayList<>();
   }
 
   public UpdateOperation(String tableName, String columnName, LiteralValueItem literalValueItem, MultipleConditionItem multipleConditionItem) {
@@ -38,6 +41,7 @@ public class UpdateOperation extends BaseOperation {
     this.columnName = columnName;
     this.literalValueItem = literalValueItem;
     this.whereItem = multipleConditionItem;
+    rowsHasUpdate = new ArrayList<>();
   }
 
   /**
@@ -113,12 +117,25 @@ public class UpdateOperation extends BaseOperation {
       while (rowIterator.hasNext()){
         Row oldRow = rowIterator.next();
         if(whereItem.getTreeValue(oldRow).getValue()){
-          table.update(oldRow,getNewRow(oldRow,valueToUpdate));
+          Row newRow = getNewRow(oldRow,valueToUpdate);
+          table.update(oldRow,newRow);
+          rowsHasUpdate.add(new Pair<>(oldRow,newRow));
         }
       }
     }
 
   }
+
+  /**
+   * [method] 撤销操作
+   */
+  public void undo(){
+    for(int i=rowsHasUpdate.size()-1;i>=0;i--){
+      table.update(rowsHasUpdate.get(i).getValue(),rowsHasUpdate.get(i).getKey());
+    }
+  }
+
+
 
   private Row getNewRow(Row oldRow, Comparable valueToUpdate) {
     ArrayList<Entry> entries = new ArrayList<>();
