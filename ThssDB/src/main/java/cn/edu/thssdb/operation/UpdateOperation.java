@@ -1,6 +1,7 @@
 package cn.edu.thssdb.operation;
 
 import cn.edu.thssdb.exception.DatabaseNotExistException;
+import cn.edu.thssdb.exception.DuplicateKeyException;
 import cn.edu.thssdb.exception.TableNotExistException;
 import cn.edu.thssdb.exception.WrongUpdateException;
 import cn.edu.thssdb.parser.item.LiteralValueItem;
@@ -26,6 +27,7 @@ public class UpdateOperation extends BaseOperation {
   final static String wrongColumnName = "Exception: wrong update operation ( no such column )!";
   final static String wrongColumnType = "Exception: wrong update operation ( type unmatched )!";
   final static String columnNotNull = "Exception: wrong update operation ( this column cannot be null )!";//列数与值数不匹配
+  final static String duplicateKey = "Exception: wrong update operation ( update causes duplicate key )!";
 
   /**
    * [method] 构造方法
@@ -110,7 +112,14 @@ public class UpdateOperation extends BaseOperation {
     if(whereItem == null){
       while (rowIterator.hasNext()){
         Row oldRow = rowIterator.next();
-        table.update(oldRow,getNewRow(oldRow,valueToUpdate));
+        Row newRow = getNewRow(oldRow,valueToUpdate);
+        try {
+          table.update(oldRow,newRow);
+        } catch (DuplicateKeyException e){
+          throw new WrongUpdateException(duplicateKey);
+        }
+
+        rowsHasUpdate.add(new Pair<>(oldRow,newRow));
       }
     } else {
       ArrayList<QueryColumn> queryColumns = new ArrayList<>();
@@ -122,7 +131,13 @@ public class UpdateOperation extends BaseOperation {
         Row oldRow = rowIterator.next();
         if(whereItem.getTreeValue(oldRow).getValue()){
           Row newRow = getNewRow(oldRow,valueToUpdate);
-          table.update(oldRow,newRow);
+          try{
+            table.update(oldRow,newRow);
+          }
+          catch (DuplicateKeyException e){
+            throw new WrongUpdateException(duplicateKey);
+          }
+
           rowsHasUpdate.add(new Pair<>(oldRow,newRow));
         }
       }
@@ -147,7 +162,7 @@ public class UpdateOperation extends BaseOperation {
       if (table.getColumns().get(index).getName().equals(columnName)) {
         entries.add(new Entry(valueToUpdate));
       } else {
-        entries.add(new Entry(oldRow.getEntries().get(index)));
+        entries.add(new Entry(oldRow.getEntries().get(index).value));
       }
     }
     Row newRow = new Row(entries);

@@ -241,7 +241,13 @@ public class Table implements Iterable<Row> {
    */
   public void update(Row oldRow, Row newRow) {
     if(oldRow.getEntries().get(primaryIndex).compareTo(newRow.getEntries().get(primaryIndex))==0) {
-      index.update(newRow.getEntries().get(primaryIndex), newRow);
+      try {
+        index.update(newRow.getEntries().get(primaryIndex), newRow);
+      }
+      catch (DuplicateKeyException e){
+        throw e;
+      }
+
     }
     else {
       delete(oldRow);

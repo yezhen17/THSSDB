@@ -41,7 +41,12 @@ public class ShowOperation extends BaseOperation {
     while (rowIterator.hasNext()){
       Row row = rowIterator.next();
       for(int i=0;i<row.getEntries().size();i++){
-        showTable.get(i).add(row.getEntries().get(i).value.toString());
+        if(row.getEntries().get(i).value==null){
+          showTable.get(i).add("null");
+        }
+        else {
+          showTable.get(i).add(row.getEntries().get(i).value.toString());
+        }
       }
     }
     //todo return showTable and columnNames
