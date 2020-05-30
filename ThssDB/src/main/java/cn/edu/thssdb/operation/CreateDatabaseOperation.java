@@ -6,6 +6,7 @@ import cn.edu.thssdb.schema.Manager.*;
 public class CreateDatabaseOperation extends BaseOperation {
     private String name;      // 数据库名称
 
+
     /**
      * [method] 构造方法
      */

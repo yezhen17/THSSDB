@@ -41,12 +41,13 @@ public class Database {
    * @return {boolean} 表是否存在
    */
   public boolean contains(String name) {
-    try {
-      lock.readLock().lock();
-      return tables.containsKey(name);
-    } finally {
-      lock.readLock().unlock();
-    }
+    return tables.containsKey(name);
+//    try {
+//      lock.readLock().lock();
+//      return tables.containsKey(name);
+//    } finally {
+//      lock.readLock().unlock();
+//    }
   }
 
   /**
@@ -58,21 +59,28 @@ public class Database {
    * @exception DuplicateTableException 重复表
    */
   public void create(String name, Column[] columns, int primaryIndex) {
+    if (tables.containsKey(name))
+      throw new DuplicateTableException();
     try {
-      lock.readLock().lock();
-      if (tables.containsKey(name))
-        throw new DuplicateTableException();
-    } finally {
-      lock.readLock().unlock();
-    }
-    try {
-      lock.writeLock().lock();
       tables.put(name, new Table(this.name, name, columns, primaryIndex));
-    } catch (IOException e) {
+    } catch (IOException e)  {
       e.printStackTrace();
-    } finally {
-      lock.writeLock().unlock();
     }
+//    try {
+//      lock.readLock().lock();
+//      if (tables.containsKey(name))
+//        throw new DuplicateTableException();
+//    } finally {
+//      lock.readLock().unlock();
+//    }
+//    try {
+//      lock.writeLock().lock();
+//      tables.put(name, new Table(this.name, name, columns, primaryIndex));
+//    } catch (IOException e) {
+//      e.printStackTrace();
+//    } finally {
+//      lock.writeLock().unlock();
+//    }
   }
 
   /**
@@ -81,19 +89,22 @@ public class Database {
    * @return {String} 查询结果,没有返回null
    */
   public Table get(String name) {
-    try {
-      lock.readLock().lock();
-      if (!tables.containsKey(name))
-        return null;
-    } finally {
-      lock.readLock().unlock();
-    }
-    try {
-      lock.writeLock().lock();
-      return tables.get(name);
-    } finally {
-      lock.writeLock().unlock();
-    }
+    if (!tables.containsKey(name))
+      return null;
+    return tables.get(name);
+//    try {
+//      lock.readLock().lock();
+//      if (!tables.containsKey(name))
+//        return null;
+//    } finally {
+//      lock.readLock().unlock();
+//    }
+//    try {
+//      lock.writeLock().lock();
+//      return tables.get(name);
+//    } finally {
+//      lock.writeLock().unlock();
+//    }
   }
 
   /**
@@ -102,19 +113,22 @@ public class Database {
    * @exception TableNotExistException 表不存在
    */
   public void drop(String name) {
-    try {
-      lock.readLock().lock();
-      if (!tables.containsKey(name))
-        throw new TableNotExistException();
-    } finally {
-      lock.readLock().unlock();
-    }
-    try {
-      lock.writeLock().lock();
-      tables.remove(name);
-    } finally {
-      lock.writeLock().unlock();
-    }
+    if (!tables.containsKey(name))
+      throw new TableNotExistException();
+    tables.remove(name);
+//    try {
+//      lock.readLock().lock();
+//      if (!tables.containsKey(name))
+//        throw new TableNotExistException();
+//    } finally {
+//      lock.readLock().unlock();
+//    }
+//    try {
+//      lock.writeLock().lock();
+//      tables.remove(name);
+//    } finally {
+//      lock.writeLock().unlock();
+//    }
   }
 
   /**
@@ -138,43 +152,54 @@ public class Database {
    * [method] 恢复数据库
    * [note] 从持久化数据中恢复数据库
    */
-  public void recover() throws WrongMetaFormatException, MetaFileNotFoundException, CustomIOException, ClassNotFoundException {
-    try {
-      lock.writeLock().lock();
-      ArrayList<String[]> table_list = this.meta.readFromFile();
-      // 目前 一行一个table名
-      for (String [] table_info: table_list) {
-        tables.put(table_info[0], new Table(this.name, table_info[0]));
-      }
-    } finally {
-      lock.writeLock().unlock();
+  public synchronized void recover() throws WrongMetaFormatException, MetaFileNotFoundException, CustomIOException, ClassNotFoundException {
+    ArrayList<String[]> table_list = this.meta.readFromFile();
+    // 目前 一行一个table名
+    for (String [] table_info: table_list) {
+      tables.put(table_info[0], new Table(this.name, table_info[0]));
     }
+//    try {
+//      lock.writeLock().lock();
+//      ArrayList<String[]> table_list = this.meta.readFromFile();
+//      // 目前 一行一个table名
+//      for (String [] table_info: table_list) {
+//        tables.put(table_info[0], new Table(this.name, table_info[0]));
+//      }
+//    } finally {
+//      lock.writeLock().unlock();
+//    }
   }
 
   /**
    * [method] 存储数据库（持久化）
    * [note] 将数据库持久化存储
    */
-  public void persist() throws DataFileNotFoundException, CustomIOException {
-    try {
-      lock.readLock().lock();
-      ArrayList<String> keys = new ArrayList<>();
-      for(String key: tables.keySet())
-      {
-        tables.get(key).persist();
-        keys.add(key);
-      }
-      this.meta.writeToFile(keys); // 目前 一行一个table名
-    } finally {
-      lock.readLock().unlock();
+  public synchronized void persist() throws DataFileNotFoundException, CustomIOException {
+    ArrayList<String> keys = new ArrayList<>();
+    for(String key: tables.keySet())
+    {
+      tables.get(key).persist();
+      keys.add(key);
     }
+    this.meta.writeToFile(keys); // 目前 一行一个table名
+//    try {
+//      lock.readLock().lock();
+//      ArrayList<String> keys = new ArrayList<>();
+//      for(String key: tables.keySet())
+//      {
+//        tables.get(key).persist();
+//        keys.add(key);
+//      }
+//      this.meta.writeToFile(keys); // 目前 一行一个table名
+//    } finally {
+//      lock.readLock().unlock();
+//    }
   }
 
   /**
    * [method] 退出数据库
    */
   public void quit() throws DataFileNotFoundException, CustomIOException {
-    // TODO
     this.persist();
   }
 

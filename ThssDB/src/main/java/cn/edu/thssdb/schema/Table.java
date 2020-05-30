@@ -150,7 +150,7 @@ public class Table implements Iterable<Row> {
    * [note] 将表持久化
    * @exception
    */
-  public void persist() throws DataFileNotFoundException, CustomIOException {
+  public synchronized void persist() throws DataFileNotFoundException, CustomIOException {
     serialize();
     persistMeta();
   }
@@ -160,15 +160,18 @@ public class Table implements Iterable<Row> {
    * [note] 从持久化数据中恢复表
    * @exception IllegalArgumentException
    */
-  private void recover(ArrayList<Row> rows) {
-    try {
-      lock.writeLock().lock();
-      for(Row row:rows){
-        index.put(row.getEntries().get(primaryIndex), row);
-      }
-    } finally {
-      lock.writeLock().unlock();
+  private synchronized void recover(ArrayList<Row> rows) {
+    for(Row row:rows){
+      index.put(row.getEntries().get(primaryIndex), row);
     }
+//    try {
+//      lock.writeLock().lock();
+//      for(Row row:rows){
+//        index.put(row.getEntries().get(primaryIndex), row);
+//      }
+//    } finally {
+//      lock.writeLock().unlock();
+//    }
   }
 
   /**
@@ -177,12 +180,13 @@ public class Table implements Iterable<Row> {
    * @exception IllegalArgumentException
    */
   public void insert(Row row) {
-    try {
-      lock.writeLock().lock();
-      index.put(row.getEntries().get(primaryIndex), row);
-    } finally {
-      lock.writeLock().unlock();
-    }
+    index.put(row.getEntries().get(primaryIndex), row);
+//    try {
+//      lock.writeLock().lock();
+//      index.put(row.getEntries().get(primaryIndex), row);
+//    } finally {
+//      lock.writeLock().unlock();
+//    }
   }
 
   /**
@@ -190,12 +194,13 @@ public class Table implements Iterable<Row> {
    * @exception IllegalArgumentException
    */
   public void delete(Row row) {
-    try {
-      lock.writeLock().lock();
-      index.remove(row.getEntries().get(primaryIndex));
-    } finally {
-      lock.writeLock().unlock();
-    }
+    index.remove(row.getEntries().get(primaryIndex));
+//    try {
+//      lock.writeLock().lock();
+//      index.remove(row.getEntries().get(primaryIndex));
+//    } finally {
+//      lock.writeLock().unlock();
+//    }
   }
 
 
@@ -205,25 +210,28 @@ public class Table implements Iterable<Row> {
    * @exception IllegalArgumentException
    */
   public void delete(Entry entry) {
-    try {
-      lock.writeLock().lock();
-      index.remove(entry);
-    } finally {
-      lock.writeLock().unlock();
-    }
+    index.remove(entry);
+//    try {
+//      lock.writeLock().lock();
+//      index.remove(entry);
+//    } finally {
+//      lock.writeLock().unlock();
+//    }
   }
 
   /**
    * [method] 删除所有行
    */
   public void delete() {
-    try {
-      lock.writeLock().lock();
-      index.clear();
-      index = new BPlusTree<>();
-    } finally {
-      lock.writeLock().unlock();
-    }
+    index.clear();
+    index = new BPlusTree<>();
+//    try {
+//      lock.writeLock().lock();
+//      index.clear();
+//      index = new BPlusTree<>();
+//    } finally {
+//      lock.writeLock().unlock();
+//    }
   }
 
   /**
@@ -232,18 +240,25 @@ public class Table implements Iterable<Row> {
    * @exception IllegalArgumentException
    */
   public void update(Row oldRow, Row newRow) {
-    try {
-      lock.writeLock().lock();
-      if(oldRow.getEntries().get(primaryIndex).compareTo(newRow.getEntries().get(primaryIndex))==0) {
-        index.update(newRow.getEntries().get(primaryIndex), newRow);
-      }
-      else{
-        delete(oldRow);
-        insert(newRow);
-      }
-    } finally {
-      lock.writeLock().unlock();
+    if(oldRow.getEntries().get(primaryIndex).compareTo(newRow.getEntries().get(primaryIndex))==0) {
+      index.update(newRow.getEntries().get(primaryIndex), newRow);
     }
+    else {
+      delete(oldRow);
+      insert(newRow);
+    }
+//    try {
+//      lock.writeLock().lock();
+//      if(oldRow.getEntries().get(primaryIndex).compareTo(newRow.getEntries().get(primaryIndex))==0) {
+//        index.update(newRow.getEntries().get(primaryIndex), newRow);
+//      }
+//      else {
+//        delete(oldRow);
+//        insert(newRow);
+//      }
+//    } finally {
+//      lock.writeLock().unlock();
+//    }
   }
 
   /**
@@ -293,12 +308,13 @@ public class Table implements Iterable<Row> {
    */
   private void serialize() throws DataFileNotFoundException, CustomIOException {
     // TODO
-    try {
-      lock.readLock().lock();
-      persistentStorageData.serialize(iterator());
-    } finally {
-      lock.readLock().unlock();
-    }
+    persistentStorageData.serialize(iterator());
+//    try {
+//      lock.readLock().lock();
+//      persistentStorageData.serialize(iterator());
+//    } finally {
+//      lock.readLock().unlock();
+//    }
   }
 
   /**
@@ -345,14 +361,6 @@ public class Table implements Iterable<Row> {
   @Override
   public Iterator<Row> iterator() {
     return new TableIterator(this);
-  }
-
-  /**
-   * [method] 检查列定义
-   */
-  public static boolean checkColumns(Column[] columns, int primaryIndex) {
-    // TODO 可整合至他处
-    return true;
   }
 
   public String getTableName() {

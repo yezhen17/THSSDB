@@ -195,7 +195,6 @@ public class UserManager {
             lock.writeLock().lock();
             onlineUsers.get(sessionId).disconnect();
             onlineUsers.remove(sessionId);
-
         } catch (Exception e) {
             return false;
         } finally {

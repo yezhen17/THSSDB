@@ -8,9 +8,9 @@ import cn.edu.thssdb.type.ColumnType;
 public class Column implements Comparable<Column> {
   protected String name;        // 名字
   protected ColumnType type;    // 类型
-  private boolean primary;    // 是否为主键
-  private boolean notNull;    // 是否可以为空
-  private int maxLength;      // 最大长度（For String）
+  private boolean primary;      // 是否为主键
+  private boolean notNull;      // 是否可以为空
+  private int maxLength;        // 最大长度（For String）
 
   /**
    * [method] 构造方法

@@ -56,12 +56,13 @@ public class Manager {
    * @return {boolean} 数据库是否存在
    */
   public boolean contains(String name) {
-    try {
-      lock.readLock().lock();
-      return databases.containsKey(name);
-    } finally {
-      lock.readLock().unlock();
-    }
+    return databases.containsKey(name);
+//    try {
+//      lock.readLock().lock();
+//      return databases.containsKey(name);
+//    } finally {
+//      lock.readLock().unlock();
+//    }
   }
 
   /**
@@ -81,21 +82,26 @@ public class Manager {
    * @exception DuplicateDatabaseException 重复数据库
    */
   public void createDatabaseIfNotExists(String name) throws CustomIOException {
-    try {
-      lock.readLock().lock();
-      if (databases.containsKey(name))
-        throw new DuplicateDatabaseException();
-    } finally {
-      lock.readLock().unlock();
-    }
-    try {
-      lock.writeLock().lock();
-      databases.put(name, new Database(name));
-      databasesList.add(name);
-      writeMeta();
-    } finally {
-      lock.writeLock().unlock();
-    }
+    if (databases.containsKey(name))
+      throw new DuplicateDatabaseException();
+    databases.put(name, new Database(name));
+    databasesList.add(name);
+    writeMeta();
+//    try {
+//      lock.readLock().lock();
+//      if (databases.containsKey(name))
+//        throw new DuplicateDatabaseException();
+//    } finally {
+//      lock.readLock().unlock();
+//    }
+//    try {
+//      lock.writeLock().lock();
+//      databases.put(name, new Database(name));
+//      databasesList.add(name);
+//      writeMeta();
+//    } finally {
+//      lock.writeLock().unlock();
+//    }
   }
 
   /**
@@ -104,21 +110,26 @@ public class Manager {
    * @exception DatabaseNotExistException 数据库不存在
    */
   public void deleteDatabase(String name) throws CustomIOException {
-    try {
-      lock.readLock().lock();
-      if (!databases.containsKey(name))
-        throw new DatabaseNotExistException();
-    } finally {
-      lock.readLock().unlock();
-    }
-    try {
-      lock.writeLock().lock();
-      databases.get(name).wipeData();
-      databases.remove(name);
-      writeMeta();
-    } finally {
-      lock.writeLock().unlock();
-    }
+    if (!databases.containsKey(name))
+      throw new DatabaseNotExistException();
+    databases.get(name).wipeData();
+    databases.remove(name);
+    writeMeta();
+//    try {
+//      lock.readLock().lock();
+//      if (!databases.containsKey(name))
+//        throw new DatabaseNotExistException();
+//    } finally {
+//      lock.readLock().unlock();
+//    }
+//    try {
+//      lock.writeLock().lock();
+//      databases.get(name).wipeData();
+//      databases.remove(name);
+//      writeMeta();
+//    } finally {
+//      lock.writeLock().unlock();
+//    }
   }
 
 
@@ -127,21 +138,29 @@ public class Manager {
    * @param name {String} 数据库名称
    */
   public void switchDatabase(String name) throws DataFileNotFoundException, CustomIOException, MetaFileNotFoundException, ClassNotFoundException {
-
-    try {
-      lock.writeLock().lock();
-      if (current_database != null) {
-        databases.get(current_database).quit();
-      }
-      if (databasesList.contains(name)) {
-        databases.get(name).recover();
-        current_database = name;
-      } else {
-        throw new DatabaseNotExistException();
-      }
-    } finally {
-    lock.writeLock().unlock();
+    if (current_database != null) {
+      databases.get(current_database).quit();
     }
+    if (databasesList.contains(name)) {
+      databases.get(name).recover();
+      current_database = name;
+    } else {
+      throw new DatabaseNotExistException();
+    }
+//    try {
+//      lock.writeLock().lock();
+//      if (current_database != null) {
+//        databases.get(current_database).quit();
+//      }
+//      if (databasesList.contains(name)) {
+//        databases.get(name).recover();
+//        current_database = name;
+//      } else {
+//        throw new DatabaseNotExistException();
+//      }
+//    } finally {
+//    lock.writeLock().unlock();
+//    }
   }
 
   /**
@@ -149,12 +168,13 @@ public class Manager {
    * return {String} 当前数据库名称，没有则返回null
    */
   public String getCurrentDatabaseName() {
-    try {
-      lock.readLock().lock();
-      return current_database;
-    } finally {
-      lock.readLock().unlock();
-    }
+    return current_database;
+//    try {
+//      lock.readLock().lock();
+//      return current_database;
+//    } finally {
+//      lock.readLock().unlock();
+//    }
   }
 
   /**
@@ -162,34 +182,42 @@ public class Manager {
    * return {Database} 数据库，没有则返回null
    */
   public Database getDatabaseByName(String name) {
-    try {
-      lock.readLock().lock();
-      if(databases.containsKey(name)){
-        return databases.get(name);
-      } else {
-        return null;
-      }
-    } finally {
-      lock.readLock().unlock();
-    }
+    if(!databases.containsKey(name))
+      return null;
+    return databases.get(name);
+//    try {
+//      lock.readLock().lock();
+//      if(databases.containsKey(name)){
+//        return databases.get(name);
+//      } else {
+//        return null;
+//      }
+//    } finally {
+//      lock.readLock().unlock();
+//    }
   }
 
   /**
    * [method] 展示所有数据库名称
    * return {String} 返回一定格式的数据名称信息
-   * @return
+   * @return {String}
    */
   public String showAllDatabases() {
-    try {
-      lock.readLock().lock();
-      StringBuffer info = new StringBuffer();
-      for (String name: databasesList) {
-        info.append(name + '\n');
-      }
-      return info.toString();
-    } finally {
-      lock.readLock().unlock();
+    StringBuffer info = new StringBuffer();
+    for (String name: databasesList) {
+      info.append(name + '\n');
     }
+    return info.toString();
+//    try {
+//      lock.readLock().lock();
+//      StringBuffer info = new StringBuffer();
+//      for (String name: databasesList) {
+//        info.append(name + '\n');
+//      }
+//      return info.toString();
+//    } finally {
+//      lock.readLock().unlock();
+//    }
   }
 
   /**
