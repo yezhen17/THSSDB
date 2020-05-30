@@ -1,7 +1,7 @@
 package cn.edu.thssdb.type;
 
 public enum ComparisonType {
-  LT, GT, NGT, NLT, EQ, NEQ;
+  LT, GT, NGT, NLT, EQ, NEQ, ISNULL;
 
   public static ComparisonType string2ComparisonType(String s) {
     if(s.equals("<")) return LT;
@@ -10,6 +10,6 @@ public enum ComparisonType {
     else if(s.equals(">=")) return NLT;
     else if(s.equals("=")) return EQ;
     else if(s.equals("<>")) return NEQ;
-    else return NEQ;
+    else return ISNULL;
   }
 }

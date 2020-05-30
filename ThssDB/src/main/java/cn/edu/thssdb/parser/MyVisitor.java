@@ -361,6 +361,7 @@ public class MyVisitor extends SQLBaseVisitor{
       if (ctx.getChild(0).getText().equalsIgnoreCase("(")) {
         return (MultipleConditionItem) visit(ctx.getChild(1));
       } else {
+        System.out.println(visit(ctx.getChild(0)));
         return new MultipleConditionItem((MultipleConditionItem) visit(ctx.getChild(0)),
                 (MultipleConditionItem) visit(ctx.getChild(2)),
                 ctx.getChild(1).getText());
@@ -386,7 +387,7 @@ public class MyVisitor extends SQLBaseVisitor{
               (ComparerItem) visit(ctx.getChild(2)),
               ctx.getChild(1).getText());
     } else {
-      return new ConditionItem(new ComparerItem((ColumnFullNameItem) ctx.getChild(0)),
+      return new ConditionItem(new ComparerItem((ColumnFullNameItem) visit(ctx.getChild(0))),
               new ComparerItem(), "IS_NULL");
     }
   }

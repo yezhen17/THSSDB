@@ -141,7 +141,7 @@ public class QueryResult {
           // LEFT OUTER JOIN
           if (retain_left) {
             if ((i % n2) == (n2 - 1) && !t1_count[i / n2]) {
-              ArrayList<Entry> entries = new ArrayList<Entry>();
+              ArrayList<Entry> entries = new ArrayList<>();
               ArrayList<Entry> r_entries = r.getEntries();
               for (int k = 0; k < column_count1; k++) {
                 entries.add(new Entry(r_entries.get(k)));

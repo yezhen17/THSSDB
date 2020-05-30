@@ -104,7 +104,7 @@ public class ConditionItem {
       case NLT: res = cmp_res >= 0; break; // >=
       case EQ: res = cmp_res == 0; break; // ==
       case NEQ: res = cmp_res != 0; break; // >=
-      default: res = true; break;
+      default: res = row.getEntries().get(idx1) == null; break;
     }
     return res;
   }
@@ -123,6 +123,7 @@ public class ConditionItem {
         }
         i++;
       }
+      if (c2.getIsNull()) return;
       if (c2.getIsC()) {
         type = 0;
         i = 0;
@@ -177,6 +178,7 @@ public class ConditionItem {
         type = 3;
         // 两个都是值，无法判断类型，默认字符串比较
         e1 = new Entry(c1.getL().getString());
+        if (c2.getIsNull()) return;
         e2 = new Entry(c2.getL().getString());
       }
 

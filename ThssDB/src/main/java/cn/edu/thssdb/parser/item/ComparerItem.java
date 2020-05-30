@@ -4,9 +4,10 @@ public class ComparerItem {
   private ColumnFullNameItem c = null;
   private LiteralValueItem l = null;
   private boolean isC;
+  private boolean isNull;
 
   public ComparerItem() {
-
+    this.isNull = true;
   }
 
   public ComparerItem(ColumnFullNameItem c) {
@@ -22,6 +23,8 @@ public class ComparerItem {
   public boolean getIsC() {
     return this.isC;
   }
+
+  public boolean getIsNull() { return this.isNull; }
 
   public LiteralValueItem getL() {
     return l;
