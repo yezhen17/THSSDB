@@ -1,5 +1,6 @@
 package cn.edu.thssdb.operation;
 
+import cn.edu.thssdb.exception.DatabaseNotExistException;
 import cn.edu.thssdb.exception.TableNotExistException;
 import cn.edu.thssdb.parser.item.MultipleConditionItem;
 import cn.edu.thssdb.query.QueryColumn;
@@ -13,8 +14,6 @@ import java.util.LinkedList;
 public class DeleteOperation extends BaseOperation {
   private String tableName;
   private MultipleConditionItem whereItem = null; // null则删除所有
-  private Row row;            // 待删除行行描述
-  private Entry entry;        // 待删除行主键描述
   private ArrayList<Row> rowsHasDelete;
   private Table table;
 
@@ -32,20 +31,13 @@ public class DeleteOperation extends BaseOperation {
     rowsHasDelete = new ArrayList<>();
   }
 
-  public DeleteOperation(Row row) {
-    this.row = row;
-  }
-
-  public DeleteOperation(Entry entry) {
-    this.entry = entry;
-  }
-
   /**
    * [method] 执行操作
    */
   public void exec() {
-    Manager manager = Manager.getInstance();
-    Database database = manager.getDatabaseByName(manager.getCurrentDatabaseName());
+    if (database==null){
+      throw new DatabaseNotExistException();
+    }
 
     table = database.get(tableName);
     if (table == null) {

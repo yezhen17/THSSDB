@@ -1,4 +1,5 @@
 package cn.edu.thssdb.operation;
+import cn.edu.thssdb.exception.DatabaseNotExistException;
 import cn.edu.thssdb.exception.DuplicateKeyException;
 import cn.edu.thssdb.exception.TableNotExistException;
 import cn.edu.thssdb.exception.WrongInsertException;
@@ -48,8 +49,10 @@ public class InsertOperation extends BaseOperation {
    * [method] 执行操作
    */
   public void exec() {
-    Manager manager = Manager.getInstance();
-    Database database = manager.getDatabaseByName(manager.getCurrentDatabaseName());
+
+    if (database==null){
+      throw new DatabaseNotExistException();
+    }
 
     table = database.get(tableName);
     if(table==null){
@@ -62,14 +65,16 @@ public class InsertOperation extends BaseOperation {
 
 
     if(columnNames==null){
-      for(ArrayList<LiteralValueItem> value:values){
-        if(value.size()!=columns.size()){
 
+      for(ArrayList<LiteralValueItem> value:values){
+
+        if(value.size()!=columns.size()){
           throw new WrongInsertException(wrongColumnNum);
         }
 
         ArrayList<Entry> entries = new ArrayList<>();
 
+        // 类型检查
         for (int i=0;i<columns.size();i++){
           switch (columns.get(i).getType()){
             case INT:
@@ -83,7 +88,8 @@ public class InsertOperation extends BaseOperation {
                 } catch (NumberFormatException e){
                   throw e;
                 }
-              } else if(value.get(i).getType()==LiteralValueItem.Type.NULL){
+              }
+              else if(value.get(i).getType()==LiteralValueItem.Type.NULL){
                 if(columns.get(i).isNotNull()){
                   throw new WrongInsertException("Exception: wrong insert operation ( "+columns.get(i).getName()+" cannot be null)");
                 }
@@ -104,7 +110,8 @@ public class InsertOperation extends BaseOperation {
                 } catch (NumberFormatException e){
                   throw e;
                 }
-              } else if(value.get(i).getType()==LiteralValueItem.Type.NULL){
+              }
+              else if(value.get(i).getType()==LiteralValueItem.Type.NULL){
                 if(columns.get(i).isNotNull()){
                   throw new WrongInsertException("Exception: wrong insert operation ( "+columns.get(i).getName()+" cannot be null)");
                 }
@@ -125,7 +132,8 @@ public class InsertOperation extends BaseOperation {
                 } catch (NumberFormatException e){
                   throw e;
                 }
-              } else if(value.get(i).getType()==LiteralValueItem.Type.NULL){
+              }
+              else if(value.get(i).getType()==LiteralValueItem.Type.NULL){
                 if(columns.get(i).isNotNull()){
                   throw new WrongInsertException("Exception: wrong insert operation ( "+columns.get(i).getName()+" cannot be null)");
                 }
@@ -146,7 +154,8 @@ public class InsertOperation extends BaseOperation {
                 } catch (NumberFormatException e){
                   throw e;
                 }
-              } else if(value.get(i).getType()==LiteralValueItem.Type.NULL){
+              }
+              else if(value.get(i).getType()==LiteralValueItem.Type.NULL){
                 if(columns.get(i).isNotNull()){
                   throw new WrongInsertException("Exception: wrong insert operation ( "+columns.get(i).getName()+" cannot be null)");
                 }
@@ -162,7 +171,8 @@ public class InsertOperation extends BaseOperation {
                   throw new DuplicateKeyException();
                 }
                 entries.add(new Entry(value.get(i).getString()));
-              } else if(value.get(i).getType()==LiteralValueItem.Type.NULL){
+              }
+              else if(value.get(i).getType()==LiteralValueItem.Type.NULL){
                 if(columns.get(i).isNotNull()){
                   throw new WrongInsertException("Exception: wrong insert operation ( "+columns.get(i).getName()+" cannot be null)");
                 }
@@ -174,6 +184,7 @@ public class InsertOperation extends BaseOperation {
               break;
           }
         }
+
         Row newRow = new Row(entries);
         table.insert(newRow);
         rowsHasInsert.add(newRow);
@@ -190,6 +201,7 @@ public class InsertOperation extends BaseOperation {
         }
       }
 
+      // 列名重复或不存在
       for(int i=0;i<columnNames.size();i++){
         for(int j=0;j<i;j++){
           if(columnNames.get(i).equals(columnNames.get(j))){
@@ -209,7 +221,9 @@ public class InsertOperation extends BaseOperation {
       }
 
       for(ArrayList<LiteralValueItem> value:values){
+
         ArrayList<Entry> entries = new ArrayList<>();
+
         for(int i=0;i<columns.size();i++){
           boolean hasMatched = false;
           for(int j=0;j<columnNames.size();j++){
@@ -218,7 +232,7 @@ public class InsertOperation extends BaseOperation {
                 case INT:
                   if(value.get(j).getType()==LiteralValueItem.Type.INT_OR_LONG){
                     try {
-                      int tmp = Integer.parseInt(value.get(i).getString());
+                      int tmp = Integer.parseInt(value.get(j).getString());
                       if(columns.get(i).getName().equals(primaryKey)&&table.index.contains(new Entry(tmp))){
                         throw new DuplicateKeyException();
                       }
@@ -226,7 +240,7 @@ public class InsertOperation extends BaseOperation {
                     } catch (NumberFormatException e){
                       throw e;
                     }
-                  } else if(value.get(i).getType()==LiteralValueItem.Type.NULL){
+                  } else if(value.get(j).getType()==LiteralValueItem.Type.NULL){
                     if(columns.get(i).isNotNull()){
                       throw new WrongInsertException("Exception: wrong insert operation ( "+columns.get(i).getName()+" cannot be null)");
                     }
@@ -247,7 +261,7 @@ public class InsertOperation extends BaseOperation {
                     } catch (NumberFormatException e){
                       throw e;
                     }
-                  } else if(value.get(i).getType()==LiteralValueItem.Type.NULL){
+                  } else if(value.get(j).getType()==LiteralValueItem.Type.NULL){
                     if(columns.get(i).isNotNull()){
                       throw new WrongInsertException("Exception: wrong insert operation ( "+columns.get(i).getName()+" cannot be null)");
                     }
@@ -268,7 +282,7 @@ public class InsertOperation extends BaseOperation {
                     } catch (NumberFormatException e){
                       throw e;
                     }
-                  } else if(value.get(i).getType()==LiteralValueItem.Type.NULL){
+                  } else if(value.get(j).getType()==LiteralValueItem.Type.NULL){
                     if(columns.get(i).isNotNull()){
                       throw new WrongInsertException("Exception: wrong insert operation ( "+columns.get(i).getName()+" cannot be null)");
                     }
@@ -289,7 +303,7 @@ public class InsertOperation extends BaseOperation {
                     } catch (NumberFormatException e){
                       throw e;
                     }
-                  } else if(value.get(i).getType()==LiteralValueItem.Type.NULL){
+                  } else if(value.get(j).getType()==LiteralValueItem.Type.NULL){
                     if(columns.get(i).isNotNull()){
                       throw new WrongInsertException("Exception: wrong insert operation ( "+columns.get(i).getName()+" cannot be null)");
                     }
@@ -301,11 +315,11 @@ public class InsertOperation extends BaseOperation {
                   break;
                 case STRING:
                   if(value.get(j).getType()==LiteralValueItem.Type.STRING){
-                    if(columns.get(i).getName().equals(primaryKey)&&table.index.contains(new Entry(new Entry(value.get(j).getString())))){
+                    if(columns.get(i).getName().equals(primaryKey)&&table.index.contains(new Entry(value.get(j).getString()))){
                       throw new DuplicateKeyException();
                     }
                     entries.add(new Entry(value.get(j).getString()));
-                  } else if(value.get(i).getType()==LiteralValueItem.Type.NULL){
+                  } else if(value.get(j).getType()==LiteralValueItem.Type.NULL){
                     if(columns.get(i).isNotNull()){
                       throw new WrongInsertException("Exception: wrong insert operation ( "+columns.get(i).getName()+" cannot be null)");
                     }
@@ -317,15 +331,16 @@ public class InsertOperation extends BaseOperation {
                   break;
               }
               hasMatched = true;
-              value.remove(value.get(j));
               break;
             }
           }
+
+          // 将没匹配到的列的值置为null
           if(hasMatched){
             continue;
           } else {
             if(columns.get(i).isNotNull()){
-              throw new WrongInsertException("Exception: wrong insert operation ( column"+columns.get(i).getName()+"is not null )");
+              throw new WrongInsertException("Exception: wrong insert operation ( column "+columns.get(i).getName()+" cannot be null )");
             } else {
               entries.add(new Entry(null));
             }

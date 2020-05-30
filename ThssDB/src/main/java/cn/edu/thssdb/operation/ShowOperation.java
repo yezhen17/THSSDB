@@ -1,5 +1,6 @@
 package cn.edu.thssdb.operation;
 
+import cn.edu.thssdb.exception.DatabaseNotExistException;
 import cn.edu.thssdb.exception.TableNotExistException;
 import cn.edu.thssdb.schema.*;
 
@@ -20,8 +21,10 @@ public class ShowOperation extends BaseOperation {
    * [method] 执行操作
    */
   public void exec() {
-    Manager manager = Manager.getInstance();
-    Database database = manager.getDatabaseByName(manager.getCurrentDatabaseName());
+
+    if (database==null){
+      throw new DatabaseNotExistException();
+    }
 
     Table table = database.get(name);
     if(table==null){
