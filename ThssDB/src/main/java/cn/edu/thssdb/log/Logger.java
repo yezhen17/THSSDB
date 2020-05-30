@@ -5,8 +5,11 @@ import cn.edu.thssdb.exception.MetaFileNotFoundException;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.List;
 
 public class Logger {
+
+  // 加锁
 
   private String folder_name;
   private String file_name;
@@ -65,7 +68,7 @@ public class Logger {
     }
   }
 
-  public void writeLines(ArrayList<String> lines) throws CustomIOException {
+  public void writeLines(List<String> lines) throws CustomIOException {
     try {
       BufferedWriter writer = new BufferedWriter(new FileWriter(full_path, true));
       for (String line : lines) {

@@ -11,6 +11,7 @@ import javafx.util.Pair;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedList;
 
 public class UpdateOperation extends BaseOperation {
   private String tableName;
@@ -150,5 +151,18 @@ public class UpdateOperation extends BaseOperation {
     return newRow;
   }
 
+  /**
+   * [method] 获取记录
+   */
+  public LinkedList<String> getLog(){
+    LinkedList<String> deleteLog = new LinkedList<>();
+    LinkedList<String> insertLog = new LinkedList<>();
+    for(Pair<Row, Row> pair: rowsHasUpdate){
+      deleteLog.add("DELETE" + pair.getValue().toString());
+      insertLog.add("INSERT" + pair.getKey().toString());
+    }
+    deleteLog.addAll(insertLog);
+    return deleteLog;
+  }
 
 }

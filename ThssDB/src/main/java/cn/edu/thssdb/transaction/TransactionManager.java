@@ -1,6 +1,7 @@
 package cn.edu.thssdb.transaction;
 
 import cn.edu.thssdb.exception.CustomIOException;
+import cn.edu.thssdb.log.Logger;
 import cn.edu.thssdb.log.LoggerBuffer;
 import cn.edu.thssdb.operation.BaseOperation;
 
@@ -9,12 +10,14 @@ import java.util.HashMap;
 import java.util.LinkedList;
 
 public class TransactionManager {
-  LoggerBuffer loggerBuffer;
+//  LoggerBuffer loggerBuffer;
+  Logger logger;
   LinkedList<BaseOperation> operations;
   HashMap<String, Integer> savepoints;
 
-  public TransactionManager(LoggerBuffer loggerBuffer) {
-    this.loggerBuffer = loggerBuffer;
+  public TransactionManager(Logger logger) {
+//    this.loggerBuffer = loggerBuffer;
+    this.logger = logger;
     operations = new LinkedList<>();
     savepoints = new HashMap<>();
   }
@@ -23,7 +26,7 @@ public class TransactionManager {
     try {
       // TODO 加锁
       operation.exec();
-      // 写日志
+      operations.add(operation);
 
     } catch (Exception e) {
       return new TransactionStatus(false, e.getMessage());
@@ -31,13 +34,28 @@ public class TransactionManager {
       // TODO 去锁
     }
 
-    operations.add(operation);
+
     return new TransactionStatus(true, "Success");
   }
 
-  public void commitTransaction() throws CustomIOException {
+  public TransactionStatus commitTransaction() throws CustomIOException {
     // TODO 去锁
-    loggerBuffer.emptyBuffer();
+
+
+    LinkedList<String> log = new LinkedList<>();
+    // 写入外存的Log
+    while (!operations.isEmpty()) {
+      BaseOperation op = operations.pop();
+      log.addAll(op.getLog());
+    }
+    log.add("COMMIT");
+    logger.writeLines(log);
+    return new TransactionStatus(true, "Success");
+  }
+
+  public TransactionStatus savepoint(String name) {
+    savepoints.put(name, operations.size());
+    return new TransactionStatus(true, "Success");
   }
 
   public TransactionStatus rollback(String name) {
@@ -50,7 +68,9 @@ public class TransactionManager {
       index = tmp.intValue();
     }
     try {
-      // TODO 加锁
+      // TODO 这里似乎不需要加锁，因为已经锁住了
+
+
       for (int i = operations.size(); i > index; i--) {
         BaseOperation op = operations.pop();
         op.undo();
@@ -58,7 +78,7 @@ public class TransactionManager {
     } catch (Exception e) {
       return new TransactionStatus(false, e.getMessage());
     } finally {
-      // TODO 去锁
+      // TODO 去锁，把rollback的语句涉及的锁一个个去了
     }
     return new TransactionStatus(true, "Success");
   }

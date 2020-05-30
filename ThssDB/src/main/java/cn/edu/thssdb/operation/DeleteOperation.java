@@ -8,6 +8,7 @@ import cn.edu.thssdb.schema.*;
 import javax.management.Query;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedList;
 
 public class DeleteOperation extends BaseOperation {
   private String tableName;
@@ -84,6 +85,17 @@ public class DeleteOperation extends BaseOperation {
     for(Row row:rowsHasDelete){
       table.insert(row);
     }
+  }
+
+  /**
+   * [method] 获取记录
+   */
+  public LinkedList<String> getLog(){
+    LinkedList<String> log = new LinkedList<>();
+    for(Row row:rowsHasDelete){
+      log.add("DELETE" + row.toString());
+    }
+    return log;
   }
 
 }
