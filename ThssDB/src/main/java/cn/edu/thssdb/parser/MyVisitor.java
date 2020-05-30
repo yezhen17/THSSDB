@@ -89,11 +89,14 @@ public class MyVisitor extends SQLBaseVisitor{
         c.setNotNull(true);
       }
 
-      if(primaryKey.equals(c.getColumnName())){
-        primaryKeyIndex = i;
-        c.setPrimaryKey(true);
-        c.setNotNull(true);
+      if(primaryKey!=null){
+        if(primaryKey.equals(c.getColumnName())){
+          primaryKeyIndex = i;
+          c.setPrimaryKey(true);
+          c.setNotNull(true);
+        }
       }
+
 
       Column column = new Column(c.getColumnName(),c.getTypeItem().getColumnType(),c.isPrimaryKey(),c.isNotNull(),c.getTypeItem().getStrLen());
 

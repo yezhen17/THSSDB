@@ -1,5 +1,6 @@
 package cn.edu.thssdb.operation;
 
+import cn.edu.thssdb.exception.DatabaseNotExistException;
 import cn.edu.thssdb.exception.TableNotExistException;
 import cn.edu.thssdb.exception.WrongUpdateException;
 import cn.edu.thssdb.parser.item.LiteralValueItem;
@@ -49,8 +50,10 @@ public class UpdateOperation extends BaseOperation {
      * [method] 执行操作
      */
   public void exec() {
-    Manager manager = Manager.getInstance();
-    Database database = manager.getDatabaseByName(manager.getCurrentDatabaseName());
+
+    if (database==null){
+      throw new DatabaseNotExistException();
+    }
 
     table = database.get(tableName);
     if(table==null){

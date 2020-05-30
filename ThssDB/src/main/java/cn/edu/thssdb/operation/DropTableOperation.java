@@ -1,5 +1,6 @@
 package cn.edu.thssdb.operation;
 
+import cn.edu.thssdb.exception.DatabaseNotExistException;
 import cn.edu.thssdb.schema.Database;
 import cn.edu.thssdb.schema.Manager;
 
@@ -17,8 +18,11 @@ public class DropTableOperation extends BaseOperation {
      * [method] 执行操作
      */
     public void exec() {
-      Manager manager = Manager.getInstance();
-      Database database = manager.getDatabaseByName(manager.getCurrentDatabaseName());
+
+      if (database==null){
+        throw new DatabaseNotExistException();
+      }
+
       database.drop(name);
     }
 }
