@@ -52,11 +52,6 @@ public class UserService {
      * [method] 服务处理方法 —— 主方法
      */
     public synchronized ExecuteStatementResp handle(String statement) {
-<<<<<<< HEAD
-        // TODO 可根据类变量判断是否为完整事务，返回何值
-        // TODO
-=======
->>>>>>> 58fc847a2d184a045f006853996f7398bd0df0dd
         ExecuteStatementResp resp = new ExecuteStatementResp();
         try {
             ArrayList<BaseOperation> operations = MyParser.getOperations(statement);
