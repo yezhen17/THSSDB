@@ -52,6 +52,6 @@ public class SelectOperation extends BaseOperation {
     }
     QueryResult queryResult = new QueryResult(selectContentItem, fromItem, whereItem, orderByItem, tables);
 
-    // todo return queryResult.process()
+    queryResult.process();
   }
 }

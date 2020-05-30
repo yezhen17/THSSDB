@@ -41,6 +41,8 @@ public class QueryResult {
     this.whereItem = whereItem;
     this.orderByItem = orderByItem;
 
+    this.metaInfos = new ArrayList<>();
+
     queryTable = new QueryTable(tables);
     for (Table table: tables) {
       this.metaInfos.add(new MetaInfo(table.getTableName(), table.getColumns()));
@@ -58,10 +60,17 @@ public class QueryResult {
 
     // JOIN ON 条件与表达式树合并
     FromItem.JoinType joinType = fromItem.getJoinType();
+
     for (OnItem c: fromItem.getOnItems()) {
-      whereItem = new MultipleConditionItem(whereItem, new MultipleConditionItem(
-              new ConditionItem(new ComparerItem(c.getColumnA()), new ComparerItem(c.getColumnB()),
-                      "=")), "AND");
+      if (whereItem != null) {
+        whereItem = new MultipleConditionItem(whereItem, new MultipleConditionItem(
+                new ConditionItem(new ComparerItem(c.getColumnA()), new ComparerItem(c.getColumnB()),
+                        "=")), "AND");
+      } else {
+        whereItem = new MultipleConditionItem(
+                new ConditionItem(new ComparerItem(c.getColumnA()), new ComparerItem(c.getColumnB()), "="));
+      }
+
     }
     boolean retain_left = false;
     boolean retain_right = false;
@@ -73,7 +82,12 @@ public class QueryResult {
             if (c1.getName().equalsIgnoreCase(c2.getName())) {
               ConditionItem conditionItem = new ConditionItem(new ComparerItem(c1.getColumn()),
                       new ComparerItem(c2.getColumn()), "=");
-              whereItem = new MultipleConditionItem(whereItem, new MultipleConditionItem(conditionItem), "AND");
+              if (whereItem != null) {
+                whereItem = new MultipleConditionItem(whereItem, new MultipleConditionItem(conditionItem), "AND");
+              } else {
+                whereItem = new MultipleConditionItem(conditionItem);
+              }
+
             }
           }
         }
@@ -96,13 +110,16 @@ public class QueryResult {
       }
     }
 
-    whereItem.setColumn(this.columns);
+    if (whereItem != null) {
+      whereItem.setColumn(this.columns);
+    }
+
 
     // 接下来筛选符合条件的Row
     if (queryTable.getTableNum() == 1) {
       for (QueryTable it = queryTable; it.hasNext(); ) {
         Row r = it.next();
-        if (whereItem.getTreeValue(r).getValue()) {
+        if (whereItem == null || whereItem.getTreeValue(r).getValue()) {
           res.add(r);
         }
       }
@@ -116,7 +133,7 @@ public class QueryResult {
       int i = 0;
       for (QueryTable it = queryTable; it.hasNext(); ) {
         Row r = it.next();
-        if (whereItem.getTreeValue(r).getValue()) {
+        if (whereItem == null || whereItem.getTreeValue(r).getValue()) {
           res.add(r);
           t1_count[i / n2] = true;
           t2_count[i % n2] = true;
@@ -155,11 +172,15 @@ public class QueryResult {
       }
     }
 
+    if (res.size() == 0) {
+      return new ArrayList<>();
+    }
+
     // 排序
     ArrayList<Integer> sort_indices = new ArrayList<>();
     for (ColumnFullNameItem c: orderByItem.getColumnList()) {
       int i = 0;
-      for (QueryColumn column : columns) {
+      for (QueryColumn column: columns) {
         if (column.compareTo(c)) {
           sort_indices.add(i); // TODO 没有找到报错
           break;
@@ -175,16 +196,18 @@ public class QueryResult {
 
     // 转换为行的列表
     finalTable = new ArrayList<>();
-    ArrayList<String> titles = new ArrayList<>();
-    finalTable.add(titles);
-    for (int i = 0; i < res.size(); i++) {
+//    ArrayList<String> titles = new ArrayList<>();
+//    finalTable.add(titles);
+
+    int final_size = this.queryRes.get(0).getDataSize();
+    for (int i = 0; i <= final_size; i++) {
       finalTable.add(new ArrayList<>());
     }
     for (QueryColumnPlusData qc: this.queryRes) {
-      titles.add(qc.getTitle());
+      finalTable.get(0).add(qc.getTitle());
       ArrayList<String> data = qc.getData();
-      for (int i = 0; i < res.size(); i++) {
-        finalTable.get(i + 1).add(data.get(i));
+      for (int j = 0; j < data.size(); j++) {
+        finalTable.get(j + 1).add(data.get(j));
       }
     }
 

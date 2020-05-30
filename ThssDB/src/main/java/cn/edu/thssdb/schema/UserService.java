@@ -84,6 +84,7 @@ public class UserService {
             resp.setHasResult(false);
             return resp;
         } catch (Exception e) {
+            e.printStackTrace();
             resp.setStatus(new Status(Global.FAILURE_CODE));
             if (e.getMessage() == null) {
                 resp.setInformation("...");

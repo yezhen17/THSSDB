@@ -153,7 +153,7 @@ public class QueryColumnPlusData {
         title = num1 + " " + op + " " + columnName; break;
       }
       case 3: {
-        title = columnName + " " + op + " " + num1; break;
+        title = columnName + " " + op + " " + num2; break;
       }
       case 4: {
         title = num1 + " " + op + " " + num2; break;
@@ -190,7 +190,7 @@ public class QueryColumnPlusData {
       case 3: {
         for (Row row : rows) {
           String val = row.getEntries().get(idx).toString();
-          data.add(String.valueOf(calculate(Double.valueOf(val), num1)));
+          data.add(String.valueOf(calculate(Double.valueOf(val), num2)));
         }
         break;
       }
@@ -219,4 +219,6 @@ public class QueryColumnPlusData {
   public ArrayList<String> getData() {
     return data;
   }
+
+  public int getDataSize() { return data.size(); }
 }
