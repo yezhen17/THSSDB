@@ -20,4 +20,8 @@ public class BaseOperation {
   public void exec() throws CustomIOException, ClassNotFoundException, MetaFileNotFoundException, DataFileNotFoundException {
 
   }
+
+  public void undo() {
+
+  }
 }

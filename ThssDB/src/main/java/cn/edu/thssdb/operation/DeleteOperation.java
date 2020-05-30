@@ -85,4 +85,5 @@ public class DeleteOperation extends BaseOperation {
       table.insert(row);
     }
   }
+
 }
