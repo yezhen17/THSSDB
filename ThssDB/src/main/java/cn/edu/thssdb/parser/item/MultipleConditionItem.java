@@ -56,14 +56,14 @@ public class MultipleConditionItem extends BaseTree<ConditionItem> {
   }
 
   private void convertConditionToIndex(Node<ConditionItem> cur) {
-    cur.getValue().convertConditionToIndex(columns);
+
     Node<ConditionItem> n1 = cur.getLeft();
     Node<ConditionItem> n2 = cur.getRight();
     if (n1 != null) {
       convertConditionToIndex(n1);
-    }
-    if (n2 != null) {
       convertConditionToIndex(n2);
+    } else {
+      cur.getValue().convertConditionToIndex(columns);
     }
 //    else if (!n1.isLeaf()) {
 //      convertConditionToIndex(n1);
