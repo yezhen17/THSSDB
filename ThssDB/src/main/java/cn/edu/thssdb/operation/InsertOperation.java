@@ -6,6 +6,7 @@ import cn.edu.thssdb.parser.item.LiteralValueItem;
 import cn.edu.thssdb.schema.*;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 public class InsertOperation extends BaseOperation {
 
@@ -347,5 +348,16 @@ public class InsertOperation extends BaseOperation {
     for(Row row: rowsHasInsert){
       table.delete(row);
     }
+  }
+
+  /**
+   * [method] 获取记录
+   */
+  public LinkedList<String> getLog(){
+    LinkedList<String> log = new LinkedList<>();
+    for(Row row: rowsHasInsert){
+      log.add("INSERT" + row.toString());
+    }
+    return log;
   }
 }
