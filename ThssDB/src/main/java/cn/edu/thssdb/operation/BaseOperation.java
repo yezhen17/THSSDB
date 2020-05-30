@@ -3,22 +3,34 @@ package cn.edu.thssdb.operation;
 import cn.edu.thssdb.exception.CustomIOException;
 import cn.edu.thssdb.exception.DataFileNotFoundException;
 import cn.edu.thssdb.exception.MetaFileNotFoundException;
+import cn.edu.thssdb.schema.Database;
+import cn.edu.thssdb.schema.Manager;
 import cn.edu.thssdb.schema.Row;
 
+import javax.xml.crypto.Data;
 import java.util.LinkedList;
 
 public class BaseOperation {
   private String username = "";
   private String databaseName = "";
+  private Database database;
 
 
   public BaseOperation() {
 
   }
 
-  private String getUserOperationDatabase() {
-    return "";
-  } // 获取当前用户正在操作的数据库
+  // 在执行语句前都会调用这个
+  public void setCurrentUser(String username, String databaseName) {
+    this.username = username;
+    this.databaseName = databaseName;
+    this.database = Manager.getInstance().getDatabaseByName(databaseName);
+  }
+
+//
+//  private String getUserOperationDatabase() {
+//    return "";
+//  } // 获取当前用户正在操作的数据库
 
   public void exec() throws CustomIOException, ClassNotFoundException, MetaFileNotFoundException, DataFileNotFoundException {
 
