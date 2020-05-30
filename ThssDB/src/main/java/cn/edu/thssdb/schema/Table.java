@@ -4,6 +4,7 @@ import cn.edu.thssdb.exception.*;
 import cn.edu.thssdb.index.BPlusTree;
 import cn.edu.thssdb.type.ColumnType;
 import cn.edu.thssdb.utils.Global;
+import com.sun.org.apache.bcel.internal.generic.DUP;
 import javafx.util.Pair;
 import org.omg.PortableInterceptor.INACTIVE;
 
@@ -180,7 +181,12 @@ public class Table implements Iterable<Row> {
    * @exception IllegalArgumentException
    */
   public void insert(Row row) {
-    index.put(row.getEntries().get(primaryIndex), row);
+    try {
+      index.put(row.getEntries().get(primaryIndex), row);
+    } catch (DuplicateKeyException e){
+      throw e;
+    }
+
 //    try {
 //      lock.writeLock().lock();
 //      index.put(row.getEntries().get(primaryIndex), row);
@@ -241,17 +247,17 @@ public class Table implements Iterable<Row> {
    */
   public void update(Row oldRow, Row newRow) {
     if(oldRow.getEntries().get(primaryIndex).compareTo(newRow.getEntries().get(primaryIndex))==0) {
-      try {
         index.update(newRow.getEntries().get(primaryIndex), newRow);
+    }
+    else {
+      try {
+        insert(newRow);
       }
       catch (DuplicateKeyException e){
         throw e;
       }
 
-    }
-    else {
       delete(oldRow);
-      insert(newRow);
     }
 //    try {
 //      lock.writeLock().lock();

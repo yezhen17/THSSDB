@@ -7,6 +7,7 @@ import cn.edu.thssdb.parser.item.LiteralValueItem;
 import cn.edu.thssdb.schema.*;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedList;
 
 public class InsertOperation extends BaseOperation {
@@ -15,7 +16,7 @@ public class InsertOperation extends BaseOperation {
   private ArrayList<String> columnNames=null;
   private ArrayList<ArrayList<LiteralValueItem>> values;
   private ArrayList<Row> rowsHasInsert;
-
+  private ArrayList<Row> rowsToInsert;
 
   private Table table;
 
@@ -24,6 +25,7 @@ public class InsertOperation extends BaseOperation {
   final static String wrongValueNum = "Exception: wrong insert operation (number of columns and values unmatched)!";//列数与值数不匹配
   final static String duplicateValueType = "Exception: wrong insert operation (duplicate name of columns)!";//类型不匹配
   final static String wrongColumnName = "Exception: wrong insert operation (wrong column name)!";//属性名不在列定义中
+  final static String duplicateKey = "Exception: wrong insert operation (insertion causes duplicate key)!";//主键重复
 
 
 
@@ -35,6 +37,7 @@ public class InsertOperation extends BaseOperation {
     this.tableName = tableName;
     this.values = values;
     rowsHasInsert = new ArrayList<>();
+    rowsToInsert = new ArrayList<>();
   }
 
   public InsertOperation(String tableName, ArrayList<String> columnNames, ArrayList<ArrayList<LiteralValueItem>> values) {
@@ -42,6 +45,7 @@ public class InsertOperation extends BaseOperation {
     this.columnNames = columnNames;
     this.values = values;
     rowsHasInsert = new ArrayList<>();
+    rowsToInsert = new ArrayList<>();
   }
 
 
@@ -185,11 +189,21 @@ public class InsertOperation extends BaseOperation {
           }
         }
 
+
         Row newRow = new Row(entries);
-        table.insert(newRow);
-        rowsHasInsert.add(newRow);
+
+
+         // 主键检查
+        if(table.index.contains(newRow.getEntries().get(table.primaryIndex))){
+          throw new WrongInsertException(duplicateKey);
+        }
+        else {
+          rowsToInsert.add(newRow);
+        }
 
       }
+
+
     }
     else {
       if(columnNames.size()>columns.size()){
@@ -348,11 +362,18 @@ public class InsertOperation extends BaseOperation {
         }
 
         Row newRow = new Row(entries);
-        table.insert(newRow);
-        rowsHasInsert.add(newRow);
+        // 主键检查
+        if(table.index.contains(newRow.getEntries().get(table.primaryIndex))){
+          throw new WrongInsertException(duplicateKey);
+        }
+        else {
+          rowsToInsert.add(newRow);
+        }
+
       }
 
     }
+    insert();
 
   }
 
@@ -374,5 +395,27 @@ public class InsertOperation extends BaseOperation {
       log.add("INSERT" + row.toString());
     }
     return log;
+  }
+
+
+  /**
+   * [method] 确认无异常后插入
+   */
+  private void insert(){
+    ArrayList<Entry> entries = new ArrayList<>();
+    for(Row row:rowsToInsert){
+      entries.add(row.getEntries().get(table.primaryIndex));
+    }
+    HashSet<Entry> set = new HashSet<>(entries);
+    if(set.size()!=entries.size()){
+      throw new WrongInsertException(duplicateKey);
+    }
+
+    for(Row row:rowsToInsert){
+      table.insert(row);
+      rowsHasInsert.add(row);
+    }
+    rowsToInsert.clear();
+
   }
 }

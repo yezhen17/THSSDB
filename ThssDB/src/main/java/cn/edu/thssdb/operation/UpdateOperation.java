@@ -1,9 +1,6 @@
 package cn.edu.thssdb.operation;
 
-import cn.edu.thssdb.exception.DatabaseNotExistException;
-import cn.edu.thssdb.exception.DuplicateKeyException;
-import cn.edu.thssdb.exception.TableNotExistException;
-import cn.edu.thssdb.exception.WrongUpdateException;
+import cn.edu.thssdb.exception.*;
 import cn.edu.thssdb.parser.item.LiteralValueItem;
 import cn.edu.thssdb.parser.item.MultipleConditionItem;
 import cn.edu.thssdb.query.QueryColumn;
@@ -12,6 +9,7 @@ import cn.edu.thssdb.type.ColumnType;
 import javafx.util.Pair;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -21,6 +19,7 @@ public class UpdateOperation extends BaseOperation {
   private LiteralValueItem literalValueItem;
   private MultipleConditionItem whereItem = null;
   private ArrayList<Pair<Row,Row>> rowsHasUpdate;
+
 
   private Table table = null;
 
@@ -64,9 +63,14 @@ public class UpdateOperation extends BaseOperation {
 
     ArrayList<Column> columns = table.getColumns();
     Column columnToUpdate = null;
-    for(Column column:columns){
-      if(column.getName().equals(columnName)){
-        columnToUpdate = column;
+
+    int primaryKeyIndex = -1;
+    for(int i=0;i<columns.size();i++){
+      if(columns.get(i).getName().equals(columnName)){
+        columnToUpdate = columns.get(i);
+        if(columnToUpdate.isPrimary()){
+          primaryKeyIndex = i;
+        }
         break;
       }
     }
@@ -113,15 +117,20 @@ public class UpdateOperation extends BaseOperation {
       while (rowIterator.hasNext()){
         Row oldRow = rowIterator.next();
         Row newRow = getNewRow(oldRow,valueToUpdate);
-        try {
-          table.update(oldRow,newRow);
-        } catch (DuplicateKeyException e){
+
+        if(primaryKeyIndex!=-1 && table.index.contains(newRow.getEntries().get(primaryKeyIndex))){
+          undo();
           throw new WrongUpdateException(duplicateKey);
         }
+        else {
+          table.update(oldRow,newRow);
+          rowsHasUpdate.add(new Pair<>(oldRow,newRow));
+        }
 
-        rowsHasUpdate.add(new Pair<>(oldRow,newRow));
       }
-    } else {
+
+    }
+    else {
       ArrayList<QueryColumn> queryColumns = new ArrayList<>();
       for(Column column:columns){
         queryColumns.add(new QueryColumn(column,tableName));
@@ -131,17 +140,19 @@ public class UpdateOperation extends BaseOperation {
         Row oldRow = rowIterator.next();
         if(whereItem.getTreeValue(oldRow).getValue()){
           Row newRow = getNewRow(oldRow,valueToUpdate);
-          try{
-            table.update(oldRow,newRow);
-          }
-          catch (DuplicateKeyException e){
+
+          if(primaryKeyIndex!=-1 && table.index.contains(newRow.getEntries().get(primaryKeyIndex))){
+            undo();
             throw new WrongUpdateException(duplicateKey);
           }
-
-          rowsHasUpdate.add(new Pair<>(oldRow,newRow));
+          else {
+            table.update(oldRow,newRow);
+            rowsHasUpdate.add(new Pair<>(oldRow,newRow));
+          }
         }
       }
     }
+//    update();
 
   }
 
@@ -182,5 +193,7 @@ public class UpdateOperation extends BaseOperation {
     deleteLog.addAll(insertLog);
     return deleteLog;
   }
+
+
 
 }
