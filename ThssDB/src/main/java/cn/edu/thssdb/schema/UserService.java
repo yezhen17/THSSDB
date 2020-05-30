@@ -3,6 +3,7 @@ import cn.edu.thssdb.exception.CustomIOException;
 import cn.edu.thssdb.exception.DataFileNotFoundException;
 import cn.edu.thssdb.log.Logger;
 import cn.edu.thssdb.operation.BaseOperation;
+import cn.edu.thssdb.operation.UseOperation;
 import cn.edu.thssdb.parser.MyParser;
 import cn.edu.thssdb.rpc.thrift.*;
 import cn.edu.thssdb.transaction.TransactionManager;
@@ -65,6 +66,9 @@ public class UserService {
                 // 先设置operation操作的当前数据库
                 operation.setCurrentUser(user.username, user.database);
 
+                if (operation instanceof UseOperation) {
+                    user.database = ((UseOperation) operation).getName();
+                }
                 if (operation.isTransactionType()) {
                     // TODO 放到事务里
                     System.out.println("transaction type");

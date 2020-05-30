@@ -23,4 +23,8 @@ public class UseOperation extends BaseOperation {
       manager.switchDatabase(name);
       System.out.println("use database"+name);
     }
+
+  public String getName() {
+    return name;
+  }
 }
