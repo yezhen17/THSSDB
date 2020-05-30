@@ -42,6 +42,8 @@ public class ShowOperation extends BaseOperation {
       }
     }
     //todo return showTable and columnNames
+    System.out.println(showTable);
+    System.out.println(columnNames);
 
 
   }

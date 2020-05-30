@@ -21,5 +21,6 @@ public class UseOperation extends BaseOperation {
     public void exec() throws ClassNotFoundException, MetaFileNotFoundException, CustomIOException, DataFileNotFoundException {
       Manager manager = Manager.getInstance();
       manager.switchDatabase(name);
+      System.out.println("use database"+name);
     }
 }

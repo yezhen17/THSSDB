@@ -45,6 +45,7 @@ public class CreateTableOperation extends BaseOperation {
 
       Manager manager = Manager.getInstance();
       Database database = manager.getDatabaseByName(manager.getCurrentDatabaseName());
+      System.out.println(manager);
       database.create(name,columns,primaryIndex);
     }
 }

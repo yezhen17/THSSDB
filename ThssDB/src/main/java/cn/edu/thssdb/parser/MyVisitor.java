@@ -33,7 +33,7 @@ public class MyVisitor extends SQLBaseVisitor{
     //+2是为了跳过；
     for (int i = 0; i < n; i += 2) {
       res.add(visit(ctx.getChild(i)));
-      System.out.println(ctx.getChild(i + 1).getText());
+//      System.out.println(ctx.getChild(i + 1).getText());
     }
     //res的内容是自己定义的statement类的列表
     return res;
@@ -440,8 +440,9 @@ public class MyVisitor extends SQLBaseVisitor{
   public Object visitCreate_user_stmt(SQLParser.Create_user_stmtContext ctx) {
     String user = (String) visit(ctx.getChild(2));
     String psd = (String) visit(ctx.getChild(5));
+    psd = psd.substring(1,psd.length()-1);
     //todo
-    return null;
+    return new CreateUserOperation(user,psd);
   }
 
   @Override
@@ -527,7 +528,9 @@ public class MyVisitor extends SQLBaseVisitor{
     int n = ctx.getChildCount();
     ArrayList<String> columnNames = new ArrayList<>();
     ArrayList<ArrayList<LiteralValueItem>> values = new ArrayList<>();
-    String text = (String) visit(ctx.getChild(3));
+//    String text = (String) visit(ctx.getChild(3));
+    String text = ctx.getChild(3).getText();
+
     if(text.equalsIgnoreCase("VALUES")){
       for(int i=4;i<n;i+=2){
         values.add((ArrayList<LiteralValueItem>) visit(ctx.getChild(i)));
