@@ -11,6 +11,7 @@ import java.util.concurrent.locks.ReentrantLock;
  ***************/
 public class UserService {
     public User user;                                          // 用户数据
+    
     // TODO
     /*
     private Thread serviceThread;                               // 服务线程
@@ -38,9 +39,10 @@ public class UserService {
      */
     public synchronized ExecuteStatementResp handle(String statement) {
         // TODO 可根据类变量判断是否为完整事务，返回何值
+        // TODO
         ExecuteStatementResp resp = new ExecuteStatementResp();
         resp.setStatus(new Status(Global.SUCCESS_CODE));
-        resp.setInformation(Global.SUCCESS_EXECUTE);
+        resp.setInformation(statement);
         resp.setIsAbort(true);
         resp.setHasResult(false);
         return resp;
