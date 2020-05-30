@@ -3,11 +3,14 @@ package cn.edu.thssdb.utils;
 public class Global {
   public static int fanout = 129;
 
-  public static int SUCCESS_CODE = 0;
-  public static int FAILURE_CODE = -1;
 
   public static String DEFAULT_SERVER_HOST = "127.0.0.1";
   public static int DEFAULT_SERVER_PORT = 6667;
+
+  public enum ISOLATION_LEVEL {
+    READ_UNCOMMITTED, READ_COMMITTED, REPEATABLE_READ, SERIALIZATION
+  }
+  public static ISOLATION_LEVEL DATABASE_ISOLATION_LEVEL = ISOLATION_LEVEL.READ_COMMITTED;
 
   public static final String ROOT_USERNAME = "THU";
   public static final String ROOT_PASSWORD = "THU";
@@ -21,6 +24,9 @@ public class Global {
   public static final String DISCONNECT = "disconnect;";
   public static final String EXECUTE = "execute;";
   public static final String QUIT = "quit;";
+
+  public static int SUCCESS_CODE = 0;
+  public static int FAILURE_CODE = -1;
 
   public static final String ERROR_INVALID_STATEMENT = "[Error] Invalid statement!";
   public static final String ERROR_HAVE_CONNECTED = "[Error] You are connected, please disconnect first.";

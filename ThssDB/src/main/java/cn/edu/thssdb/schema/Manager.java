@@ -185,16 +185,16 @@ public class Manager {
     if(!databases.containsKey(name))
       return null;
     return databases.get(name);
-//    try {
-//      lock.readLock().lock();
-//      if(databases.containsKey(name)){
-//        return databases.get(name);
-//      } else {
-//        return null;
-//      }
-//    } finally {
-//      lock.readLock().unlock();
-//    }
+  }
+
+  /**
+   * [method] 通过名称获取表
+   * return {Table} 表，没有则返回null
+   */
+  public Table getTableByName(String databaseName, String tableName) {
+    if(!databases.containsKey(databaseName))
+      return null;
+    return databases.get(databaseName).get(tableName);
   }
 
   /**
