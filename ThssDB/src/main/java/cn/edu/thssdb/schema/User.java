@@ -23,7 +23,7 @@ public class User {
         this.username = username;
         this.password = password;
         this.permission = permission;
-        this.database = "";
+        this.database = null;
     }
 
     public User(String username, String password, Permission permission, String database) {

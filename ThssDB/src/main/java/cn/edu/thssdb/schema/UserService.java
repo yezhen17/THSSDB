@@ -73,9 +73,11 @@ public class UserService {
                         }
 
                     }
-                    TransactionStatus status = transactionManager.exec(new CheckpointOperation());
-                    if (!status.getStatus()) {
-                        throw new RuntimeException(status.getMessage());
+                    if (user.database != null) {
+                        TransactionStatus status = transactionManager.exec(new CheckpointOperation());
+                        if (!status.getStatus()) {
+                            throw new RuntimeException(status.getMessage());
+                        }
                     }
                     operation.exec();
                     String databaseName = ((UseOperation) operation).getName();
