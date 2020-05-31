@@ -15,7 +15,7 @@ public class Logger {
   private String file_name;
   private String full_path;
 
-  public Logger(String folder_name, String file_name) throws CustomIOException {
+  public Logger(String folder_name, String file_name) {
     this.folder_name = folder_name;
     this.file_name = file_name;
     this.full_path = folder_name + "\\" + file_name;
@@ -34,7 +34,7 @@ public class Logger {
     }
   }
 
-  public ArrayList<String> readLog() throws CustomIOException {
+  public ArrayList<String> readLog() {
     ArrayList<String> lines = new ArrayList<>();
     String str;
     try {
@@ -49,7 +49,7 @@ public class Logger {
     return lines;
   }
 
-  public void eraseFile() throws CustomIOException {
+  public void eraseFile() {
     try {
       FileWriter writer = new FileWriter(full_path, false);
       writer.close();
@@ -58,7 +58,7 @@ public class Logger {
     }
   }
 
-  private void appendToFile(String content) throws CustomIOException {
+  private void appendToFile(String content) {
     try {
       FileWriter writer = new FileWriter(full_path, true);
       writer.write(content);
@@ -68,7 +68,7 @@ public class Logger {
     }
   }
 
-  public void writeLines(List<String> lines) throws CustomIOException {
+  public void writeLines(List<String> lines) {
     try {
       BufferedWriter writer = new BufferedWriter(new FileWriter(full_path, true));
       for (String line : lines) {

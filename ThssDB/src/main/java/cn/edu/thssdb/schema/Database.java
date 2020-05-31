@@ -177,7 +177,7 @@ public class Database {
 
   }
 
-  public synchronized void logRecover() {
+  public void logRecover() {
     try {
       ArrayList<String> logs = this.logger.readLog();
       for (String log: logs) {
