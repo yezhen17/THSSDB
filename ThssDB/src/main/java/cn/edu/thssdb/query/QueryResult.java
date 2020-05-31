@@ -1,5 +1,6 @@
 package cn.edu.thssdb.query;
 
+import cn.edu.thssdb.exception.UnknownColumnException;
 import cn.edu.thssdb.exception.WrongTableNameException;
 import cn.edu.thssdb.parser.item.*;
 import cn.edu.thssdb.schema.Entry;
@@ -257,7 +258,7 @@ public class QueryResult {
       if (c.compareTo(tableName, columnName)) return i;
       i++;
     }
-    return -1;
+    throw new UnknownColumnException();
   }
 
   private String getFullColumnName (String tableName, String columnName) {
