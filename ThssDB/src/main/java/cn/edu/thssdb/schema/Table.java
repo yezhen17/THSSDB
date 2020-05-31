@@ -22,6 +22,7 @@ public class Table implements Iterable<Row> {
   public ReentrantReadWriteLock lock;    // 可重入读写锁
   private String databaseName;            // 数据库名称
   private String tableName;                // 表名称
+  private String folder;
 
   private ArrayList<Column> columns;       // 列定义表
   public BPlusTree<Entry, Row> index;     // B+树索引
@@ -69,7 +70,7 @@ public class Table implements Iterable<Row> {
   private void initData(String databaseName, String tableName, boolean just_created) throws CustomIOException {
     this.databaseName = databaseName;
     this.tableName = tableName;
-    String folder = Global.DATA_ROOT_FOLDER + "\\" + databaseName + "\\" + tableName;
+    folder = Global.DATA_ROOT_FOLDER + "\\" + databaseName + "\\" + tableName;
     String meta_name = tableName + ".meta";
     String data_name = tableName + ".data";
     this.persistentStorageData = new PersistentStorage<>(folder, data_name, just_created);
@@ -381,6 +382,7 @@ public class Table implements Iterable<Row> {
     this.index.clear();
     this.tableMeta.deleteFile();
     this.persistentStorageData.deleteFile();
+    new File(this.folder).delete();
   }
 
   /**
