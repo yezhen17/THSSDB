@@ -15,10 +15,22 @@ public class PersistentStorage<V> {
     this.folder_name = folder_name;
     this.file_name = file_name;
     this.full_path = folder_name + "\\" + file_name;
-    if (just_created) {
-      File d = new File(folder_name);
+//    if (just_created) {
+//      File d = new File(folder_name);
+//      d.mkdirs();
+//      new File(this.full_path);
+//    }
+    File d = new File(this.folder_name);
+    if (!d.isDirectory()) {
       d.mkdirs();
-      new File(this.full_path);
+    }
+    File f = new File(this.full_path);
+    if (!f.isFile()) {
+      try {
+        f.createNewFile();
+      } catch (IOException e) {
+        throw new CustomIOException();
+      }
     }
   }
 

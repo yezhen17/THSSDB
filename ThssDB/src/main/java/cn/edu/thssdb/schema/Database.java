@@ -9,6 +9,7 @@ import cn.edu.thssdb.utils.Global;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -65,11 +66,7 @@ public class Database {
   public void create(String name, Column[] columns, int primaryIndex) {
     if (tables.containsKey(name))
       throw new DuplicateTableException();
-    try {
-      tables.put(name, new Table(this.name, name, columns, primaryIndex));
-    } catch (IOException e)  {
-      e.printStackTrace();
-    }
+    tables.put(name, new Table(this.name, name, columns, primaryIndex));
 //    try {
 //      lock.readLock().lock();
 //      if (tables.containsKey(name))
@@ -119,7 +116,8 @@ public class Database {
   public void drop(String name) {
     if (!tables.containsKey(name))
       throw new TableNotExistException();
-    tables.remove(name);
+    tables.remove(name).drop();
+    meta.writeToFile(tables.keySet());
 //    try {
 //      lock.readLock().lock();
 //      if (!tables.containsKey(name))
