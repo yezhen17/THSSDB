@@ -295,4 +295,8 @@ public class TransactionManager {
       readLockList.remove().unlock();
     }
   }
+
+  public boolean isUnderTransaction() {
+    return underTransaction;
+  }
 }

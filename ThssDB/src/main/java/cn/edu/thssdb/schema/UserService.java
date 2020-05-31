@@ -66,6 +66,17 @@ public class UserService {
                 operation.setCurrentUser(user.username, user.database);
 
                 if (operation instanceof UseOperation) {
+                    if (transactionManager.isUnderTransaction()) {
+                        TransactionStatus status = transactionManager.exec(new CommitOperation());
+                        if (!status.getStatus()) {
+                            throw new RuntimeException(status.getMessage());
+                        }
+
+                    }
+                    TransactionStatus status = transactionManager.exec(new CheckpointOperation());
+                    if (!status.getStatus()) {
+                        throw new RuntimeException(status.getMessage());
+                    }
                     operation.exec();
                     String databaseName = ((UseOperation) operation).getName();
                     user.database = databaseName;
