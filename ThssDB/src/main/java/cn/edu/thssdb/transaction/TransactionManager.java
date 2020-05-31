@@ -6,6 +6,7 @@ import cn.edu.thssdb.log.LoggerBuffer;
 import cn.edu.thssdb.operation.BaseOperation;
 import cn.edu.thssdb.schema.Manager;
 import cn.edu.thssdb.schema.Table;
+import cn.edu.thssdb.utils.Global;
 
 import java.util.ArrayList;
 import java.util.concurrent.locks.ReentrantLock;
@@ -39,44 +40,81 @@ public class TransactionManager {
     this.writeLockList = new LinkedList<>();
   }
 
-  // [method] 增删改操作
-  public TransactionStatus writeTransaction(BaseOperation operation) {
-    try {
-      // TODO 加锁
-      operation.exec();
-      operations.add(operation);
 
-    } catch (Exception e) {
-      return new TransactionStatus(false, e.getMessage());
-    } finally {
-      // TODO 似乎不用去锁
-    }
-
-
-    return new TransactionStatus(true, "Success");
-  }
 
   // 增删改操作
   public TransactionStatus readTransaction(BaseOperation operation) {
-    try {
-      // TODO 加读锁
-      operation.exec();
-      // operations.add(operation);
-
-    } catch (Exception e) {
-      return new TransactionStatus(false, e.getMessage());
-    } finally {
-      // TODO 去读锁
+    // *** READ_UNCOMMITTED ***
+    if (Global.DATABASE_ISOLATION_LEVEL == Global.ISOLATION_LEVEL.READ_UNCOMMITTED) {
+      // 执行 TODO
+      try {
+        operation.exec();
+      } catch (Exception e) {
+        return new TransactionStatus(false, e.getMessage());
+      }
+      return new TransactionStatus(true, "Success");
     }
-
-
-    return new TransactionStatus(true, "Success");
+    // *** READ_COMMITTED ***
+    if (Global.DATABASE_ISOLATION_LEVEL == Global.ISOLATION_LEVEL.READ_COMMITTED)  {
+      // 加即时读锁
+      ArrayList<String> tableNames = operation.getTableName();
+      if (tableNames != null)
+        for (String tableName : tableNames) { this.getTransactionReadLock(tableName); }
+      // 执行 TODO
+      try {
+        operation.exec();
+      } catch (Exception e) {
+        return new TransactionStatus(false, e.getMessage());
+      }
+      // 解即时读锁
+      if (tableNames != null)
+        for (String tableName : tableNames) { this.releaseTransactionReadLock(tableName); }
+      return new TransactionStatus(true, "Success");
+    }
+    // *** REPEATABLE_READ | SERIALIZATION ***
+    if ((Global.DATABASE_ISOLATION_LEVEL == Global.ISOLATION_LEVEL.REPEATABLE_READ) ||
+            (Global.DATABASE_ISOLATION_LEVEL == Global.ISOLATION_LEVEL.SERIALIZATION)) {
+      // 加非即时读锁
+      ArrayList<String> tableNames = operation.getTableName();
+      if (tableNames != null)
+        for (String tableName : tableNames) { this.getTransactionReadLock(tableName); }
+      // 执行 TODO
+      try {
+        operation.exec();
+      } catch (Exception e) {
+        return new TransactionStatus(false, e.getMessage());
+      }
+      return new TransactionStatus(true, "Success");
+    }
+    return new TransactionStatus(false, "Unknown isolation level!");
   }
 
+  // [method] 增删改操作
+  public TransactionStatus writeTransaction(BaseOperation operation) {
+    // *** READ_UNCOMMITTED | READ_COMMITTED | REPEATABLE_READ | SERIALIZATION ***
+    if ((Global.DATABASE_ISOLATION_LEVEL == Global.ISOLATION_LEVEL.READ_COMMITTED) ||
+            (Global.DATABASE_ISOLATION_LEVEL == Global.ISOLATION_LEVEL.READ_UNCOMMITTED) ||
+            (Global.DATABASE_ISOLATION_LEVEL == Global.ISOLATION_LEVEL.REPEATABLE_READ) ||
+            (Global.DATABASE_ISOLATION_LEVEL == Global.ISOLATION_LEVEL.SERIALIZATION)) {
+      // 加非即时写锁
+      ArrayList<String> tableNames = operation.getTableName();
+      if (tableNames != null)
+        for (String tableName : tableNames) { this.getTransactionWriteLock(tableName); }
+      // 执行 TODO
+      try {
+        operation.exec();
+      } catch (Exception e) {
+        return new TransactionStatus(false, e.getMessage());
+      }
+      return new TransactionStatus(true, "Success");
+    }
+    return new TransactionStatus(false, "Unknown isolation level!");
+  }
+
+
   public TransactionStatus commitTransaction() throws CustomIOException {
-    // TODO 去锁
-
-
+    // 解非即时读写锁
+    this.releaseTransactionReadWriteLock();
     LinkedList<String> log = new LinkedList<>();
     // 写入外存的Log
     while (!operations.isEmpty()) {
@@ -103,17 +141,13 @@ public class TransactionManager {
       index = tmp.intValue();
     }
     try {
-      // TODO 这里似乎不需要加锁，因为已经锁住了
-
-
       for (int i = operations.size(); i > index; i--) {
+        // TODO 在此根据Operation类型去锁即可
         BaseOperation op = operations.pop();
         op.undo();
       }
     } catch (Exception e) {
       return new TransactionStatus(false, e.getMessage());
-    } finally {
-      // TODO 去锁，把rollback的语句涉及的锁一个个去了
     }
     return new TransactionStatus(true, "Success");
   }
@@ -140,7 +174,15 @@ public class TransactionManager {
       return false;
     ReentrantReadWriteLock.WriteLock writeLock = table.lock.writeLock();
     // 获取写锁
-    writeLock.lock();
+    if (!writeLock.tryLock()) {
+      // 获取写锁失败 排除自身读锁的阻塞
+      while (true) {
+        if (!this.releaseTransactionReadLock(tableName))
+          break;
+      };
+      // 再次获取
+      writeLock.lock();
+    }
     writeLockList.add(writeLock);
     return true;
   }
@@ -166,7 +208,11 @@ public class TransactionManager {
       return false;
     ReentrantReadWriteLock.ReadLock readLock = table.lock.readLock();
     // 释放读锁
-    return readLockList.remove(readLock);
+    if (readLockList.remove(readLock)) {
+      readLock.unlock();
+      return true;
+    }
+    return false;
   }
 
   // [method] 释放事务写锁（NONE）
@@ -177,7 +223,11 @@ public class TransactionManager {
       return false;
     ReentrantReadWriteLock.WriteLock writeLock = table.lock.writeLock();
     // 释放写锁
-    return writeLockList.remove(writeLock);
+    if (writeLockList.remove(writeLock)) {
+      writeLock.unlock();
+      return true;
+    }
+    return false;
   }
 
   // [method] 释放事务读写锁（READ_UNCOMMITTED | READ_COMMITTED | REPEATABLE_READ | SERIALIZATION）
