@@ -11,7 +11,7 @@ import java.util.ArrayList;
 public class GrammarTest {
   public static void main(String[] args) {
     
-    CharStream input = CharStreams.fromString("INSERT INTO tableName VALUES (1, 2, null)");
+    CharStream input = CharStreams.fromString("rollback t;");
     // use db;CREATE TABLE tableName(a1 int primary key, primary key(a1));iNSERT INTO tableName(a1) VALUES (1);delete from tableName where a1 = 1;
     // CREATE TABLE tableName(a1 int primary key, primary key(a1));
     // INSERT INTO tableName(a1) VALUES (1);

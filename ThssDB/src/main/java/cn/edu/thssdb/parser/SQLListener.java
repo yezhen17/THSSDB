@@ -1,4 +1,4 @@
-// Generated from E:/THSSDB/THSSDB/THSSDB/ThssDB/src/main/java/cn/edu/thssdb/parser\SQL.g4 by ANTLR 4.8
+// Generated from D:/Tongtong/Course/Grade3_Spring/ThssDB/src/main/java/cn/edu/thssdb/parser\SQL.g4 by ANTLR 4.8
 package cn.edu.thssdb.parser;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
@@ -487,6 +487,16 @@ public interface SQLListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitView_name(SQLParser.View_nameContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link SQLParser#savepoint_name}.
+	 * @param ctx the parse tree
+	 */
+	void enterSavepoint_name(SQLParser.Savepoint_nameContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link SQLParser#savepoint_name}.
+	 * @param ctx the parse tree
+	 */
+	void exitSavepoint_name(SQLParser.Savepoint_nameContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link SQLParser#password}.
 	 * @param ctx the parse tree

@@ -36,7 +36,7 @@ savepoint_stmt:
     K_SAVEPOINT;
 
 rollback_stmt:
-    K_ROLLBACK;
+    K_ROLLBACK ( savepoint_name )?;
 
 commit_stmt: 
     K_COMMIT;
@@ -212,6 +212,9 @@ column_name :
     IDENTIFIER ;
 
 view_name :
+    IDENTIFIER;
+
+savepoint_name :
     IDENTIFIER;
 
 password :

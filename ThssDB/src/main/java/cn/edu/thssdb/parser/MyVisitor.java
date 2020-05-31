@@ -4,9 +4,7 @@ import cn.edu.thssdb.operation.*;
 import cn.edu.thssdb.parser.item.*;
 import cn.edu.thssdb.schema.Column;
 import cn.edu.thssdb.type.ColumnType;
-import com.sun.org.apache.xalan.internal.xsltc.dom.SimpleResultTreeImpl;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class MyVisitor extends SQLBaseVisitor{
@@ -45,6 +43,8 @@ public class MyVisitor extends SQLBaseVisitor{
     //ctx.getChild(0)是每个句子的语法树
     return visit(ctx.getChild(0));
   }
+
+
 
   @Override
   public Object visitCreate_db_stmt(SQLParser.Create_db_stmtContext ctx) {
@@ -581,12 +581,14 @@ public class MyVisitor extends SQLBaseVisitor{
 
   @Override
   public Object visitSavepoint_stmt(SQLParser.Savepoint_stmtContext ctx) {
+
     return new SavePointOperation();
   }
 
   @Override
   public Object visitRollback_stmt(SQLParser.Rollback_stmtContext ctx) {
-    return new RollbackOperation();
+    if (ctx.getChildCount() > 1) return new RollbackOperation(ctx.getChild(1).getText());
+    else return new RollbackOperation();
   }
 }
 
