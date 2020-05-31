@@ -33,7 +33,7 @@ sql_stmt :
     ;
 
 savepoint_stmt:
-    K_SAVEPOINT;
+    K_SAVEPOINT savepoint_name;
 
 rollback_stmt:
     K_ROLLBACK ( savepoint_name )?;

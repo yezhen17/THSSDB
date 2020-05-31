@@ -582,7 +582,7 @@ public class MyVisitor extends SQLBaseVisitor{
   @Override
   public Object visitSavepoint_stmt(SQLParser.Savepoint_stmtContext ctx) {
 
-    return new SavePointOperation();
+    return new SavePointOperation(ctx.getChild(1).getText());
   }
 
   @Override

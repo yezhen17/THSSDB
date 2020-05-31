@@ -2,7 +2,10 @@ package cn.edu.thssdb.operation;
 
 public class SavePointOperation extends BaseOperation {
 
-  public SavePointOperation() {
+  private String savepoint;
+
+  public SavePointOperation(String savepoint) {
+    this.savepoint = savepoint;
   }
 
   public void exec(){
