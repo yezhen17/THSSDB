@@ -37,7 +37,7 @@ public class UserService {
         this.user = user;
         try {
             logger = new Logger("", "");
-            transactionManager= new TransactionManager(logger);
+            transactionManager= new TransactionManager(user.database, logger);
         } catch (Exception e) {
             throw new RuntimeException();
         }
