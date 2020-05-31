@@ -30,25 +30,57 @@ public class ShowOperation extends BaseOperation {
     if(table==null){
       throw new TableNotExistException();
     }
+
     List<List<String>> showTable = new ArrayList<>();
+    List<String> columnNames = new ArrayList<>();
     ArrayList<Column> columns = table.getColumns();
-    ArrayList<String> columnNames = new ArrayList<>();
+
     for(int i=0;i<columns.size();i++){
-      showTable.add(new ArrayList<String>());
+
       columnNames.add(columns.get(i).getName());
     }
     Iterator<Row> rowIterator = table.iterator();
     while (rowIterator.hasNext()){
+
+      ArrayList<String> newRow = new ArrayList<>();
       Row row = rowIterator.next();
-      for(int i=0;i<row.getEntries().size();i++){
-        if(row.getEntries().get(i).value==null){
-          showTable.get(i).add("null");
-        }
-        else {
-          showTable.get(i).add(row.getEntries().get(i).value.toString());
-        }
+      for(Entry entry:row.getEntries()){
+        newRow.add(entry.toString());
       }
+      showTable.add(newRow);
     }
+
+    
+    Object[][] objects = new Object[showTable.size()][];
+    
+    for(int i=0;i<showTable.size();i++){
+      objects[i]=showTable.get(i).toArray();
+    }
+
+
+
+//    new ShowTable(objects,columnNames.toArray());
+
+//    按列排
+//    List<List<String>> showTable = new ArrayList<>();
+//    ArrayList<Column> columns = table.getColumns();
+//    ArrayList<String> columnNames = new ArrayList<>();
+//    for(int i=0;i<columns.size();i++){
+//      showTable.add(new ArrayList<String>());
+//      columnNames.add(columns.get(i).getName());
+//    }
+//    Iterator<Row> rowIterator = table.iterator();
+//    while (rowIterator.hasNext()){
+//      Row row = rowIterator.next();
+//      for(int i=0;i<row.getEntries().size();i++){
+//        if(row.getEntries().get(i).value==null){
+//          showTable.get(i).add("null");
+//        }
+//        else {
+//          showTable.get(i).add(row.getEntries().get(i).value.toString());
+//        }
+//      }
+//    }
     //todo return showTable and columnNames
     System.out.println(showTable);
     System.out.println(columnNames);
