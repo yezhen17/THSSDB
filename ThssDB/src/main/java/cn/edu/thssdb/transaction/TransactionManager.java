@@ -3,7 +3,8 @@ package cn.edu.thssdb.transaction;
 import cn.edu.thssdb.exception.CustomIOException;
 import cn.edu.thssdb.log.Logger;
 import cn.edu.thssdb.log.LoggerBuffer;
-import cn.edu.thssdb.operation.BaseOperation;
+import cn.edu.thssdb.operation.*;
+import cn.edu.thssdb.parser.item.SelectItem;
 import cn.edu.thssdb.schema.Manager;
 import cn.edu.thssdb.schema.Table;
 import cn.edu.thssdb.utils.Global;
@@ -24,6 +25,7 @@ public class TransactionManager {
   private HashMap<String, Integer> savepoints;                          // 检查点散列表
   private LinkedList<ReentrantReadWriteLock.ReadLock> readLockList;     // 读锁列表
   private LinkedList<ReentrantReadWriteLock.WriteLock> writeLockList;   // 写锁列表
+  private boolean underTransaction = false;                             // 是否在transaction过程
 
 
   // TODO 锁，应该需要记录每个operation用了什么锁
@@ -40,10 +42,51 @@ public class TransactionManager {
     this.writeLockList = new LinkedList<>();
   }
 
+  public TransactionStatus exec(BaseOperation operation) {
+    if (operation instanceof SelectOperation || operation instanceof ShowOperation) return readTransaction(operation);
+    else if (operation instanceof UpdateOperation || operation instanceof DeleteOperation
+    || operation instanceof InsertOperation) return writeTransaction(operation);
+    else if (operation instanceof CommitOperation) return commitTransaction();
+    else if (operation instanceof RollbackOperation) return rollbackTransaction(operation.getSavepoint());
+    else if (operation instanceof SavePointOperation) return savepointTransaction(operation.getSavepoint());
+    else if (operation instanceof BeginTransactionOperation) return beginTransaction();
+    else if (operation instanceof CheckpointOperation) return checkpointTransaction();
+    else return endTransaction(operation);
+  }
+
+  public TransactionStatus endTransaction(BaseOperation operation) {
+    if (!underTransaction) {
+      commitTransaction();
+    }
+    try {
+      operation.exec();
+    } catch (Exception e) {
+      return new TransactionStatus(false, e.getMessage());
+    }
+    return new TransactionStatus(true, "");
+  }
+
+  public TransactionStatus beginTransaction() {
+    if (underTransaction) return new TransactionStatus(false, "Transaction ongoing!");
+    else {
+      underTransaction = true;
+      return new TransactionStatus(true, "");
+    }
+  }
+
+  public TransactionStatus checkpointTransaction() {
+    if (!underTransaction) {
+      commitTransaction();
+    }
+    manager.getDatabaseByName(databaseName).persist();
+    logger.eraseFile();
+    return new TransactionStatus(true, "");
+  }
 
 
   // 增删改操作
   public TransactionStatus readTransaction(BaseOperation operation) {
+    underTransaction = true;
     // *** READ_UNCOMMITTED ***
     if (Global.DATABASE_ISOLATION_LEVEL == Global.ISOLATION_LEVEL.READ_UNCOMMITTED) {
       // 执行 TODO
@@ -52,7 +95,7 @@ public class TransactionManager {
       } catch (Exception e) {
         return new TransactionStatus(false, e.getMessage());
       }
-      return new TransactionStatus(true, "Success");
+      return new TransactionStatus(true, "");
     }
     // *** READ_COMMITTED ***
     if (Global.DATABASE_ISOLATION_LEVEL == Global.ISOLATION_LEVEL.READ_COMMITTED)  {
@@ -91,6 +134,7 @@ public class TransactionManager {
 
   // [method] 增删改操作
   public TransactionStatus writeTransaction(BaseOperation operation) {
+    underTransaction = true;
     // *** READ_UNCOMMITTED | READ_COMMITTED | REPEATABLE_READ | SERIALIZATION ***
     if ((Global.DATABASE_ISOLATION_LEVEL == Global.ISOLATION_LEVEL.READ_COMMITTED) ||
             (Global.DATABASE_ISOLATION_LEVEL == Global.ISOLATION_LEVEL.READ_UNCOMMITTED) ||
@@ -112,7 +156,7 @@ public class TransactionManager {
   }
 
 
-  public TransactionStatus commitTransaction() throws CustomIOException {
+  public TransactionStatus commitTransaction() {
     // 解非即时读写锁
     this.releaseTransactionReadWriteLock();
     LinkedList<String> log = new LinkedList<>();
@@ -123,15 +167,18 @@ public class TransactionManager {
     }
     log.add("COMMIT");
     logger.writeLines(log);
+    underTransaction = false;
     return new TransactionStatus(true, "Success");
   }
 
-  public TransactionStatus savepoint(String name) {
+  public TransactionStatus savepointTransaction(String name) {
+    if (!underTransaction) return new TransactionStatus(false, "No transaction ongoing!");
+    if (name == null) return new TransactionStatus(false, "No savepoint given.");
     savepoints.put(name, operations.size());
     return new TransactionStatus(true, "Success");
   }
 
-  public TransactionStatus rollback(String name) {
+  public TransactionStatus rollbackTransaction(String name) {
     int index = 0;
     if (name != null) {
       Integer tmp = savepoints.get(name);
@@ -146,6 +193,7 @@ public class TransactionManager {
         BaseOperation op = operations.pop();
         op.undo();
       }
+      if (index == 0) underTransaction = false;
     } catch (Exception e) {
       return new TransactionStatus(false, e.getMessage());
     }

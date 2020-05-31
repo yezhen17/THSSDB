@@ -45,6 +45,10 @@ public class BaseOperation {
 
   }
 
+  public String getSavepoint() {
+    return null;
+  }
+
   /**
    * [method] 获取记录
    */

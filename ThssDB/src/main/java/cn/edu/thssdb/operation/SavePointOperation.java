@@ -11,4 +11,9 @@ public class SavePointOperation extends BaseOperation {
   public void exec(){
 
   }
+
+  public String getSavepoint() {
+    return savepoint;
+  }
+
 }

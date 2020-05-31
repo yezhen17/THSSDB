@@ -169,6 +169,11 @@ public class Database {
 //    } finally {
 //      lock.writeLock().unlock();
 //    }
+    logRecover();
+
+  }
+
+  public synchronized void logRecover() {
     try {
       ArrayList<String> logs = this.logger.readLog();
       for (String log: logs) {
@@ -183,14 +188,13 @@ public class Database {
     } catch (Exception e) {
       throw new CustomIOException();
     }
-
   }
 
   /**
    * [method] 存储数据库（持久化）
    * [note] 将数据库持久化存储
    */
-  public synchronized void persist() throws DataFileNotFoundException, CustomIOException {
+  public synchronized void persist() {
     ArrayList<String> keys = new ArrayList<>();
     for(String key: tables.keySet())
     {

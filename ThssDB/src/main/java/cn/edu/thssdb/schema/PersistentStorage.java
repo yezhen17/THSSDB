@@ -41,7 +41,7 @@ public class PersistentStorage<V> {
     objectOutputStream.close();
   }
 
-  public void serialize(ArrayList<V> input) throws CustomIOException, DataFileNotFoundException {
+  public void serialize(ArrayList<V> input) throws CustomIOException {
     try {
       FileOutputStream fos = new FileOutputStream(full_path);
       ObjectOutputStream objectOutputStream = new ObjectOutputStream(fos);
@@ -50,14 +50,12 @@ public class PersistentStorage<V> {
       }
       objectOutputStream.flush();
       objectOutputStream.close();
-    } catch (FileNotFoundException e) {
-      throw new DataFileNotFoundException();
     } catch (IOException e) {
       throw new CustomIOException();
     }
   }
 
-  public void serialize(Iterator<V> iterator) throws CustomIOException, DataFileNotFoundException {
+  public void serialize(Iterator<V> iterator) throws CustomIOException {
     try {
       FileOutputStream fos = new FileOutputStream(full_path);
       ObjectOutputStream objectOutputStream = new ObjectOutputStream(fos);
@@ -66,8 +64,6 @@ public class PersistentStorage<V> {
       }
       objectOutputStream.flush();
       objectOutputStream.close();
-    } catch (FileNotFoundException e) {
-      throw new DataFileNotFoundException();
     } catch (IOException e) {
       throw new CustomIOException();
     }

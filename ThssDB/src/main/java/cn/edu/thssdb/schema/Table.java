@@ -152,7 +152,7 @@ public class Table implements Iterable<Row> {
    * [note] 将表持久化
    * @exception
    */
-  public synchronized void persist() throws DataFileNotFoundException, CustomIOException {
+  public synchronized void persist() {
     serialize();
     persistMeta();
   }
@@ -356,7 +356,7 @@ public class Table implements Iterable<Row> {
   /**
    * [method] 序列化
    */
-  private void serialize() throws DataFileNotFoundException, CustomIOException {
+  private void serialize() {
     // TODO
     persistentStorageData.serialize(iterator());
 //    try {

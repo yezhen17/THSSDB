@@ -1,7 +1,7 @@
 package cn.edu.thssdb.operation;
 
 
-public class CreateUserOperation {
+public class CreateUserOperation extends BaseOperation {
 
   private String userName;
   private String passWord;

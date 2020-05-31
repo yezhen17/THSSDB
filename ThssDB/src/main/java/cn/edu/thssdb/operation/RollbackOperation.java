@@ -12,7 +12,7 @@ public class RollbackOperation extends BaseOperation {
     this.savepoint = savepoint;
   }
 
-  public void exec(){
-    // todo
+  public String getSavepoint() {
+    return savepoint;
   }
 }

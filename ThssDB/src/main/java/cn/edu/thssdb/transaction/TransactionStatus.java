@@ -9,4 +9,12 @@ public class TransactionStatus {
     this.status = status;
     this.message = message;
   }
+
+  public String getMessage() {
+    return this.message;
+  }
+
+  public boolean getStatus() {
+    return status;
+  }
 }

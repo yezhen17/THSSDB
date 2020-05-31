@@ -2,11 +2,11 @@ package cn.edu.thssdb.schema;
 import cn.edu.thssdb.exception.CustomIOException;
 import cn.edu.thssdb.exception.DataFileNotFoundException;
 import cn.edu.thssdb.log.Logger;
-import cn.edu.thssdb.operation.BaseOperation;
-import cn.edu.thssdb.operation.UseOperation;
+import cn.edu.thssdb.operation.*;
 import cn.edu.thssdb.parser.MyParser;
 import cn.edu.thssdb.rpc.thrift.*;
 import cn.edu.thssdb.transaction.TransactionManager;
+import cn.edu.thssdb.transaction.TransactionStatus;
 import cn.edu.thssdb.utils.Global;
 
 import java.time.temporal.Temporal;
@@ -67,15 +67,17 @@ public class UserService {
                 operation.setCurrentUser(user.username, user.database);
 
                 if (operation instanceof UseOperation) {
-                    user.database = ((UseOperation) operation).getName();
-                }
-                if (operation.isTransactionType()) {
-                    // TODO 放到事务里
-                    System.out.println("transaction type");
-                    operation.exec(); // 暂时先不用事务，方便测试
-                } else {
                     operation.exec();
-                    // TODO 加log
+                    user.database = ((UseOperation) operation).getName();
+                } else if (operation instanceof CreateDatabaseOperation ||
+                           operation instanceof CreateUserOperation ||
+                           operation instanceof DropDatabaseOperation) {
+                    operation.exec();
+                } else {
+                    TransactionStatus status = transactionManager.exec(operation);
+                    if (!status.getStatus()) {
+                        throw new RuntimeException(status.getMessage());
+                    }
                 }
             }
             resp.setStatus(new Status(Global.SUCCESS_CODE));
