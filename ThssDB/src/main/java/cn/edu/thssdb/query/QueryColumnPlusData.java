@@ -175,7 +175,7 @@ public class QueryColumnPlusData {
       }
       case 1: {
         for (Row row : rows) {
-          data.add(String.valueOf(row.getEntries().get(idx)));
+          data.add(row.getEntries().get(idx).toString());
         }
         break;
       }

@@ -44,6 +44,7 @@ public class Entry implements Comparable<Entry>, Serializable {
    * @return 值对应字符串
    */
   public String toString() {
+    if (value == null) return "null";
     return value.toString();
   }
 

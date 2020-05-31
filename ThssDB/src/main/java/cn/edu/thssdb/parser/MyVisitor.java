@@ -281,9 +281,9 @@ public class MyVisitor extends SQLBaseVisitor{
       join_content = new FromItem(child_text.get(0), child_text.get(2),
               FromItem.JoinType.PRODUCT, new ArrayList<>());
     } else if (child_text.get(1).equalsIgnoreCase("NATURAL")) {
-      int right_pos = 2;
-      if (child_text.get(1).equalsIgnoreCase("INNER")) {
-        right_pos = 3;
+      int right_pos = 3;
+      if (child_text.get(2).equalsIgnoreCase("INNER")) {
+        right_pos = 4;
       }
       join_content = new FromItem(child_text.get(0), child_text.get(right_pos),
               FromItem.JoinType.NATURAL_INNER_JOIN, new ArrayList<>());
@@ -305,7 +305,7 @@ public class MyVisitor extends SQLBaseVisitor{
         join_type = FromItem.JoinType.FULL_OUTER_JOIN_ON;
       }
       join_content = new FromItem(child_text.get(0), child_text.get(right_pos),
-              join_type, new ArrayList<>());
+              join_type, (ArrayList<OnItem>) visit(ctx.getChild(right_pos + 2)));
     }
     return join_content;
   }
