@@ -8,10 +8,12 @@ import cn.edu.thssdb.rpc.thrift.*;
 import cn.edu.thssdb.transaction.TransactionManager;
 import cn.edu.thssdb.transaction.TransactionStatus;
 import cn.edu.thssdb.utils.Global;
+import cn.edu.thssdb.utils.ShowTable;
 
 import java.time.temporal.Temporal;
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -59,6 +61,7 @@ public class UserService {
      */
     public synchronized ExecuteStatementResp handle(String statement) {
         ExecuteStatementResp resp = new ExecuteStatementResp();
+        List<List<List<String>>> results = new LinkedList<>();
         try {
             ArrayList<BaseOperation> operations = MyParser.getOperations(statement);
             for (BaseOperation operation: operations) {
@@ -92,7 +95,12 @@ public class UserService {
                     if (!status.getStatus()) {
                         throw new RuntimeException(status.getMessage());
                     }
+                    List<List<String>> result = status.getRes();
+                    if (result != null) results.add(result);
                 }
+            }
+            for (List<List<String>> result: results) {
+                // new ShowTable(result);
             }
             resp.setStatus(new Status(Global.SUCCESS_CODE));
             resp.setInformation(Global.SUCCESS_EXECUTE);
