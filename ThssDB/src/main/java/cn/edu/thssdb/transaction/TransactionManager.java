@@ -59,7 +59,7 @@ public class TransactionManager {
     else return endTransaction(operation);
   }
 
-  public TransactionStatus endTransaction(BaseOperation operation) {
+  private TransactionStatus endTransaction(BaseOperation operation) {
     if (underTransaction) {
       commitTransaction();
     }
@@ -71,7 +71,7 @@ public class TransactionManager {
     return new TransactionStatus(true, "");
   }
 
-  public TransactionStatus beginTransaction() {
+  private TransactionStatus beginTransaction() {
     if (underTransaction) return new TransactionStatus(false, "Transaction ongoing!");
     else {
       underTransaction = true;
@@ -79,7 +79,7 @@ public class TransactionManager {
     }
   }
 
-  public TransactionStatus checkpointTransaction() {
+  private TransactionStatus checkpointTransaction() {
     if (underTransaction) {
       commitTransaction();
     }
@@ -90,7 +90,7 @@ public class TransactionManager {
 
 
   // 增删改操作
-  public TransactionStatus readTransaction(BaseOperation operation) {
+  private TransactionStatus readTransaction(BaseOperation operation) {
     underTransaction = true;
     // *** READ_UNCOMMITTED ***
     if (Global.DATABASE_ISOLATION_LEVEL == Global.ISOLATION_LEVEL.READ_UNCOMMITTED) {
@@ -138,7 +138,7 @@ public class TransactionManager {
   }
 
   // [method] 增删改操作
-  public TransactionStatus writeTransaction(BaseOperation operation) {
+  private TransactionStatus writeTransaction(BaseOperation operation) {
     underTransaction = true;
     // *** READ_UNCOMMITTED | READ_COMMITTED | REPEATABLE_READ | SERIALIZATION ***
     if ((Global.DATABASE_ISOLATION_LEVEL == Global.ISOLATION_LEVEL.READ_COMMITTED) ||
@@ -162,14 +162,15 @@ public class TransactionManager {
   }
 
 
-  public TransactionStatus commitTransaction() {
+  private TransactionStatus commitTransaction() {
     // 解非即时读写锁
     this.releaseTransactionReadWriteLock();
     LinkedList<String> log = new LinkedList<>();
     // 写入外存的Log
     while (!operations.isEmpty()) {
-      BaseOperation op = operations.pop();
+      BaseOperation op = operations.getFirst();
       log.addAll(op.getLog());
+      operations.removeFirst();
     }
     log.add("COMMIT");
     logger.writeLines(log);
@@ -177,14 +178,14 @@ public class TransactionManager {
     return new TransactionStatus(true, "Success");
   }
 
-  public TransactionStatus savepointTransaction(String name) {
+  private TransactionStatus savepointTransaction(String name) {
     if (!underTransaction) return new TransactionStatus(false, "No transaction ongoing!");
     if (name == null) return new TransactionStatus(false, "No savepoint given.");
     savepoints.put(name, operations.size());
     return new TransactionStatus(true, "Success");
   }
 
-  public TransactionStatus rollbackTransaction(String name) {
+  private TransactionStatus rollbackTransaction(String name) {
     int index = 0;
     if (name != null) {
       Integer tmp = savepoints.get(name);
