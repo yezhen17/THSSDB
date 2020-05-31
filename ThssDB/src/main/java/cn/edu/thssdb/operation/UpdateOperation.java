@@ -8,10 +8,7 @@ import cn.edu.thssdb.schema.*;
 import cn.edu.thssdb.type.ColumnType;
 import javafx.util.Pair;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.*;
 
 public class UpdateOperation extends BaseOperation {
   private String tableName;
@@ -195,5 +192,9 @@ public class UpdateOperation extends BaseOperation {
   }
 
 
+  @Override
+  public ArrayList<String> getTableName() {
+    return new ArrayList<String>(Arrays.asList(this.tableName));
+  }
 
 }

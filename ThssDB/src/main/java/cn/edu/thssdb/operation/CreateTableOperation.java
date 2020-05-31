@@ -7,6 +7,9 @@ import cn.edu.thssdb.schema.Column;
 import cn.edu.thssdb.schema.Database;
 import cn.edu.thssdb.schema.Manager;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 public class CreateTableOperation extends BaseOperation {
     private String name;            // 表名称
     private Column[] columns;       // 列定义
@@ -61,4 +64,9 @@ public class CreateTableOperation extends BaseOperation {
 
       database.create(name,columns,primaryIndex);
     }
+
+  @Override
+  public ArrayList<String> getTableName() {
+    return new ArrayList<>(Arrays.asList(this.name));
+  }
 }

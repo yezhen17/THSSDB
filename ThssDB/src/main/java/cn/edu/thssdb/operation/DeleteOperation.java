@@ -7,9 +7,7 @@ import cn.edu.thssdb.query.QueryColumn;
 import cn.edu.thssdb.schema.*;
 
 import javax.management.Query;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.*;
 
 public class DeleteOperation extends BaseOperation {
   private String tableName;
@@ -90,4 +88,9 @@ public class DeleteOperation extends BaseOperation {
     return log;
   }
 
+
+  @Override
+  public ArrayList<String> getTableName() {
+    return new ArrayList<String>(Arrays.asList(this.tableName));
+  }
 }

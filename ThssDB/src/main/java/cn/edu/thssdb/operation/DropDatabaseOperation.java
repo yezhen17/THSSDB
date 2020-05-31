@@ -20,4 +20,8 @@ public class DropDatabaseOperation extends BaseOperation {
       Manager manager = Manager.getInstance();
       manager.deleteDatabase(name);
     }
+
+    public String getName() {
+    return name;
+  }
 }

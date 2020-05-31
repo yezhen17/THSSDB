@@ -8,6 +8,7 @@ import cn.edu.thssdb.schema.Manager;
 import cn.edu.thssdb.schema.Row;
 
 import javax.xml.crypto.Data;
+import java.util.ArrayList;
 import java.util.LinkedList;
 
 public class BaseOperation {
@@ -25,6 +26,10 @@ public class BaseOperation {
     this.username = username;
     this.databaseName = databaseName;
     this.database = Manager.getInstance().getDatabaseByName(databaseName);
+  }
+
+  public ArrayList<String> getTableName(){
+    return null;
   }
 
 //

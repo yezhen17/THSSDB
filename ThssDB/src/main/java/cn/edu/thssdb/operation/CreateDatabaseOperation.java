@@ -21,4 +21,8 @@ public class CreateDatabaseOperation extends BaseOperation {
       Manager manager = Manager.getInstance();
       manager.createDatabaseIfNotExists(name);
     }
+
+    public String getName() {
+    return name;
+  }
 }

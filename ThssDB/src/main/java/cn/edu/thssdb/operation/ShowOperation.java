@@ -55,4 +55,9 @@ public class ShowOperation extends BaseOperation {
 
 
   }
+
+  @Override
+  public ArrayList<String> getTableName() {
+    return new ArrayList<String>(Arrays.asList(this.name));
+  }
 }

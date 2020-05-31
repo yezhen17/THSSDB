@@ -4,6 +4,9 @@ import cn.edu.thssdb.exception.DatabaseNotExistException;
 import cn.edu.thssdb.schema.Database;
 import cn.edu.thssdb.schema.Manager;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 public class DropTableOperation extends BaseOperation {
     private String name;      // 表名称
 
@@ -25,4 +28,9 @@ public class DropTableOperation extends BaseOperation {
 
       database.drop(name);
     }
+
+  @Override
+  public ArrayList<String> getTableName() {
+    return new ArrayList<String>(Arrays.asList(this.name));
+  }
 }

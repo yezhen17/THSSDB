@@ -9,6 +9,7 @@ import cn.edu.thssdb.schema.Manager;
 import cn.edu.thssdb.schema.Table;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class SelectOperation extends BaseOperation {
   private SelectContentItem selectContentItem;
@@ -53,5 +54,11 @@ public class SelectOperation extends BaseOperation {
     QueryResult queryResult = new QueryResult(selectContentItem, fromItem, whereItem, orderByItem, tables);
 
     queryResult.process();
+  }
+
+
+  @Override
+  public ArrayList<String> getTableName() {
+    return new ArrayList<>(Arrays.asList(fromItem.getTableNameA(),fromItem.getTableNameB()));
   }
 }

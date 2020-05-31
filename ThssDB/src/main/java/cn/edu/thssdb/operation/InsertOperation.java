@@ -7,6 +7,7 @@ import cn.edu.thssdb.parser.item.LiteralValueItem;
 import cn.edu.thssdb.schema.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
 
@@ -417,5 +418,10 @@ public class InsertOperation extends BaseOperation {
     }
     rowsToInsert.clear();
 
+  }
+
+  @Override
+  public ArrayList<String> getTableName() {
+    return new ArrayList<String>(Arrays.asList(this.tableName));
   }
 }
