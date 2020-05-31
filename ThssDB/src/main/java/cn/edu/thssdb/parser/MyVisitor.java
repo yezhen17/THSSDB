@@ -590,5 +590,10 @@ public class MyVisitor extends SQLBaseVisitor{
     if (ctx.getChildCount() > 1) return new RollbackOperation(ctx.getChild(1).getText());
     else return new RollbackOperation();
   }
+
+  @Override
+  public Object visitCheckpoint_stmt(SQLParser.Checkpoint_stmtContext ctx) {
+    return new CheckpointOperation();
+  }
 }
 

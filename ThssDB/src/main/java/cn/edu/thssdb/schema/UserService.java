@@ -36,8 +36,7 @@ public class UserService {
     public UserService(User user) {
         this.user = user;
         try {
-            logger = new Logger("", "");
-            transactionManager= new TransactionManager(user.database, logger);
+            transactionManager= new TransactionManager(user.database, null);
         } catch (Exception e) {
             throw new RuntimeException();
         }
@@ -68,7 +67,9 @@ public class UserService {
 
                 if (operation instanceof UseOperation) {
                     operation.exec();
-                    user.database = ((UseOperation) operation).getName();
+                    String databaseName = ((UseOperation) operation).getName();
+                    user.database = databaseName;
+                    transactionManager.setDatabase(databaseName);
                 } else if (operation instanceof CreateDatabaseOperation ||
                            operation instanceof CreateUserOperation ||
                            operation instanceof DropDatabaseOperation) {

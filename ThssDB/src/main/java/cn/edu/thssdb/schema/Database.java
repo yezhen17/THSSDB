@@ -40,6 +40,10 @@ public class Database {
     this.logger = new Logger(folder, logger_name);
   }
 
+  public Logger getLogger() {
+    return logger;
+  }
+
   /**
    * [method] 判断表是否存在
    * @param name {String} 表名称

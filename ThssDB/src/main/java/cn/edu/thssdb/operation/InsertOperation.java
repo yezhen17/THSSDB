@@ -393,7 +393,7 @@ public class InsertOperation extends BaseOperation {
   public LinkedList<String> getLog(){
     LinkedList<String> log = new LinkedList<>();
     for(Row row: rowsHasInsert){
-      log.add("INSERT" + row.toString());
+      log.add("INSERT " + tableName + " " + row.toString());
     }
     return log;
   }

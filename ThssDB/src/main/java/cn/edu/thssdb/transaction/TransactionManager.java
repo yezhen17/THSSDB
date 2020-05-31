@@ -42,6 +42,11 @@ public class TransactionManager {
     this.writeLockList = new LinkedList<>();
   }
 
+  public void setDatabase(String databaseName) {
+    this.databaseName = databaseName;
+    this.logger = manager.getDatabaseByName(databaseName).getLogger();
+  }
+
   public TransactionStatus exec(BaseOperation operation) {
     if (operation instanceof SelectOperation || operation instanceof ShowOperation) return readTransaction(operation);
     else if (operation instanceof UpdateOperation || operation instanceof DeleteOperation
@@ -55,7 +60,7 @@ public class TransactionManager {
   }
 
   public TransactionStatus endTransaction(BaseOperation operation) {
-    if (!underTransaction) {
+    if (underTransaction) {
       commitTransaction();
     }
     try {
@@ -75,7 +80,7 @@ public class TransactionManager {
   }
 
   public TransactionStatus checkpointTransaction() {
-    if (!underTransaction) {
+    if (underTransaction) {
       commitTransaction();
     }
     manager.getDatabaseByName(databaseName).persist();
@@ -147,6 +152,7 @@ public class TransactionManager {
       // 执行 TODO
       try {
         operation.exec();
+        operations.add(operation);
       } catch (Exception e) {
         return new TransactionStatus(false, e.getMessage());
       }

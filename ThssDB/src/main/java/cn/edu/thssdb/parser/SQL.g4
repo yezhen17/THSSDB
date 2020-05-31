@@ -30,7 +30,11 @@ sql_stmt :
     | commit_stmt
     | rollback_stmt
     | savepoint_stmt
+    | checkpoint_stmt
     ;
+
+checkpoint_stmt:
+    K_CHECKPOINT;
 
 savepoint_stmt:
     K_SAVEPOINT savepoint_name;
@@ -254,6 +258,7 @@ K_ASC : A S C;
 K_AVG : A V G;
 K_BEGIN : B E G I N;
 K_BY : B Y;
+K_CHECKPOINT : C H E C K P O I N T;
 K_COLUMN : C O L U M N;
 K_COMMIT : C O M M I T;
 K_COUNT : C O U N T;
