@@ -19,7 +19,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * [class] 表
  ***************/
 public class Table implements Iterable<Row> {
-  private ReentrantReadWriteLock lock;    // 可重入读写锁
+  public ReentrantReadWriteLock lock;     // 可重入读写锁
   private String databaseName;            // 数据库名称
   private String tableName;                // 表名称
 
