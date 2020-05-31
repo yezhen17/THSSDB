@@ -1,6 +1,7 @@
 package cn.edu.thssdb.schema;
 
 import cn.edu.thssdb.exception.*;
+import cn.edu.thssdb.log.Logger;
 import cn.edu.thssdb.log.LoggerBuffer;
 import cn.edu.thssdb.utils.Global;
 
@@ -18,7 +19,7 @@ public class Manager {
   private String current_database = null;        // 当前的数据库
   private Meta meta;                             // 元数据管理
   private ArrayList<String> databasesList;       // 数据库名称列表
-  private HashMap<String, LoggerBuffer> loggers;   // 数据库哈希表
+  // private HashMap<String, Logger> loggers;   // 数据库哈希表
 
   /**
    * [method] 获取管理器实例

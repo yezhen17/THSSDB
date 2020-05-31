@@ -1,6 +1,7 @@
 package cn.edu.thssdb.schema;
 
 import cn.edu.thssdb.exception.*;
+import cn.edu.thssdb.log.Logger;
 import cn.edu.thssdb.query.QueryResult;
 import cn.edu.thssdb.query.QueryTable;
 import cn.edu.thssdb.type.ColumnType;
@@ -20,6 +21,7 @@ public class Database {
   private HashMap<String, Table> tables;      // 表哈希表
   private ReentrantReadWriteLock lock;        // 可重入读写锁
   private Meta meta;                          // 元数据管理
+  private Logger logger;                      // 日志管理
 
   /**
    * [method] 构造方法
@@ -33,6 +35,8 @@ public class Database {
     String folder = Global.DATA_ROOT_FOLDER + "\\" + name;
     String meta_name = name + ".meta";
     this.meta = new Meta(folder, meta_name, true); // 暂时不加载表到内存
+    String logger_name = name + ".log";
+    this.logger = new Logger(folder, logger_name);
   }
 
   /**
@@ -135,7 +139,6 @@ public class Database {
    * [method] 查询表
    * @param queryTables {QueryTable[]} 查询条件
    * @return {String} 查询结果
-   * @exception TODO
    */
   public String select(QueryTable queryTables) {
     // TODO 查询模块
@@ -168,6 +171,21 @@ public class Database {
 //    } finally {
 //      lock.writeLock().unlock();
 //    }
+    try {
+      ArrayList<String> logs = this.logger.readLog();
+      for (String log: logs) {
+        String [] info = log.split(" ");
+        String type = info[0];
+        if (type.equals("DELETE")) {
+          tables.get(info[1]).delete(info[2]);
+        } else if (type.equals("INSERT")) {
+          tables.get(info[1]).insert(info[2]);
+        }
+      }
+    } catch (Exception e) {
+      throw new CustomIOException();
+    }
+
   }
 
   /**

@@ -183,18 +183,20 @@ public class UpdateOperation extends BaseOperation {
   public LinkedList<String> getLog(){
     LinkedList<String> deleteLog = new LinkedList<>();
     LinkedList<String> insertLog = new LinkedList<>();
+    int primaryIndex = table.primaryIndex;
     for(Pair<Row, Row> pair: rowsHasUpdate){
-      deleteLog.add("DELETE" + pair.getValue().toString());
-      insertLog.add("INSERT" + pair.getKey().toString());
+      deleteLog.add("DELETE " + tableName + " " + pair.getValue().getEntries().get(primaryIndex).toString());
+      insertLog.add("INSERT " + tableName + " " + pair.getKey().toString());
     }
     deleteLog.addAll(insertLog);
     return deleteLog;
   }
 
-
   @Override
   public ArrayList<String> getTableName() {
     return new ArrayList<String>(Arrays.asList(this.tableName));
   }
+
+
 
 }

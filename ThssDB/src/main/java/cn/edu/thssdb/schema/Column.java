@@ -66,4 +66,5 @@ public class Column implements Comparable<Column> {
   public boolean isPrimary() {
     return primary;
   }
+
 }

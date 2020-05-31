@@ -19,7 +19,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * [class] 表
  ***************/
 public class Table implements Iterable<Row> {
-  public ReentrantReadWriteLock lock;     // 可重入读写锁
+  public ReentrantReadWriteLock lock;    // 可重入读写锁
   private String databaseName;            // 数据库名称
   private String tableName;                // 表名称
 
@@ -196,6 +196,26 @@ public class Table implements Iterable<Row> {
   }
 
   /**
+   * [method] 插入行
+   * @param row {String} 待插入行的字符串形式
+   * @exception IllegalArgumentException
+   */
+  public void insert(String row) {
+    try {
+      String[] info = row.split(", ");
+      ArrayList<Entry> entries = new ArrayList<>();
+      int i = 0;
+      for (Column c: columns) {
+        entries.add(new Entry(ColumnType.getColumnTypeValue(c.getType(), info[i])));
+        i++;
+      }
+      index.put(entries.get(primaryIndex), new Row(entries));
+    } catch (Exception e) {
+      throw e;
+    }
+  }
+
+  /**
    * [method] 由Row删除行
    * @exception IllegalArgumentException
    */
@@ -217,6 +237,22 @@ public class Table implements Iterable<Row> {
    */
   public void delete(Entry entry) {
     index.remove(entry);
+//    try {
+//      lock.writeLock().lock();
+//      index.remove(entry);
+//    } finally {
+//      lock.writeLock().unlock();
+//    }
+  }
+
+  /**
+   * [method] 由值（主键的）删除行
+   * @exception IllegalArgumentException
+   */
+  public void delete(String val) {
+    ColumnType c = columns.get(primaryIndex).getType();
+    Entry primaryEntry = new Entry(ColumnType.getColumnTypeValue(c, val));
+    index.remove(primaryEntry);
 //    try {
 //      lock.writeLock().lock();
 //      index.remove(entry);
@@ -251,13 +287,14 @@ public class Table implements Iterable<Row> {
     }
     else {
       try {
+        delete(oldRow);
         insert(newRow);
       }
       catch (DuplicateKeyException e){
         throw e;
       }
 
-      delete(oldRow);
+
     }
 //    try {
 //      lock.writeLock().lock();

@@ -7,13 +7,17 @@ import cn.edu.thssdb.query.QueryColumn;
 import cn.edu.thssdb.schema.*;
 
 import javax.management.Query;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.LinkedList;
 
 public class DeleteOperation extends BaseOperation {
   private String tableName;
   private MultipleConditionItem whereItem = null; // null则删除所有
   private ArrayList<Row> rowsHasDelete;
   private Table table;
+  private int primaryIndex;
 
   /**
    * [method] 构造方法
@@ -82,15 +86,16 @@ public class DeleteOperation extends BaseOperation {
    */
   public LinkedList<String> getLog(){
     LinkedList<String> log = new LinkedList<>();
-    for(Row row:rowsHasDelete){
-      log.add("DELETE" + row.toString());
+    primaryIndex = table.primaryIndex;
+    for(Row row: rowsHasDelete){
+      log.add("DELETE " + tableName + " " + row.getEntries().get(primaryIndex).toString());
     }
     return log;
   }
-
 
   @Override
   public ArrayList<String> getTableName() {
     return new ArrayList<String>(Arrays.asList(this.tableName));
   }
+
 }
