@@ -13,22 +13,22 @@ struct GetTimeResp {
   2: required Status status
 }
 
-struct ConnectReq{
+struct ConnectReq {
   1: required string username
   2: required string password
 }
 
-struct ConnectResp{
+struct ConnectResp {
   1: required Status status
   2: required string information
   3: required i64 sessionId
 }
 
-struct DisconnectReq{
+struct DisconnectReq {
   1: required i64 sessionId
 }
 
-struct DisconnectResp{
+struct DisconnectResp {
   1: required Status status
   2: required string information
 }
@@ -38,13 +38,14 @@ struct ExecuteStatementReq {
   2: required string statement
 }
 
-struct ExecuteStatementResp{
+struct ExecuteStatementResp {
   1: required Status status
   2: required string information
   3: required bool isAbort
   4: required bool hasResult
-  5: optional list<string> columnsList      // only for query
-  6: optional list<list<string>> rowList    // only for query
+  5: optional list<string> tableList              // only for query
+  6: optional list<list<string>> columnsList      // only for query
+  7: optional list<list<list<string>>> rowList    // only for query
 }
 
 service IService {
