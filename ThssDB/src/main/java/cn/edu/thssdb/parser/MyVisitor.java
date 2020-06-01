@@ -239,7 +239,7 @@ public class MyVisitor extends SQLBaseVisitor{
 
     order_by_item = new OrderByItem(order_by_columns, order);
 
-    return new SelectOperation(select_content_item, from_item, where_item, order_by_item);
+    return new SelectOperation(select_content_item, from_item, where_item, order_by_item, ctx.getText());
 //    WholeSelectionItem res = new WholeSelectionItem(select_content_item, from_item, where_item, order_by_item);
 //    return res;
   }

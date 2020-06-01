@@ -117,7 +117,8 @@ public class TransactionManager {
       // 解即时读锁
       if (tableNames != null)
         for (String tableName : tableNames) { this.releaseTransactionReadLock(tableName); }
-      return new TransactionStatus(true, "Success");
+      return new TransactionStatus(true, "", operation.getData(),
+              operation.getColumns(), operation.getStmt());
     }
     // *** REPEATABLE_READ | SERIALIZATION ***
     if ((Global.DATABASE_ISOLATION_LEVEL == Global.ISOLATION_LEVEL.REPEATABLE_READ) ||

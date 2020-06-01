@@ -61,7 +61,9 @@ public class UserService {
      */
     public synchronized ExecuteStatementResp handle(String statement) {
         ExecuteStatementResp resp = new ExecuteStatementResp();
-        List<List<List<String>>> results = new LinkedList<>();
+        List<List<List<String>>> data_all = new ArrayList<>();
+        List<List<String>> columns_all = new ArrayList<>();
+        List<String> title_all = new ArrayList<>();
         try {
             ArrayList<BaseOperation> operations = MyParser.getOperations(statement);
             for (BaseOperation operation: operations) {
@@ -95,12 +97,18 @@ public class UserService {
                     if (!status.getStatus()) {
                         throw new RuntimeException(status.getMessage());
                     }
-                    List<List<String>> result = status.getRes();
-                    if (result != null) results.add(result);
+                    TransactionStatus.Table result = status.getRes();
+                    if (result != null) {
+                        title_all.add(result.title);
+                        columns_all.add(result.columns);
+                        data_all.add(result.data);
+                    }
                 }
             }
-            for (List<List<String>> result: results) {
-                // new ShowTable(result);
+            if (title_all.size() > 0) {
+                resp.setTableList(title_all);
+                resp.setColumnsList(columns_all);
+                resp.setRowList(data_all);
             }
             resp.setStatus(new Status(Global.SUCCESS_CODE));
             resp.setInformation(Global.SUCCESS_EXECUTE);

@@ -10,6 +10,7 @@ import cn.edu.thssdb.schema.Row;
 import javax.xml.crypto.Data;
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 
 public class BaseOperation {
   protected String username = "";
@@ -65,5 +66,17 @@ public class BaseOperation {
             this instanceof RollbackOperation ||
             this instanceof SavePointOperation ||
             this instanceof CheckpointOperation;
+  }
+
+  public List<List<String>> getData() {
+    return null;
+  }
+
+  public List<String> getColumns() {
+    return null;
+  }
+
+  public String getStmt() {
+    return null;
   }
 }

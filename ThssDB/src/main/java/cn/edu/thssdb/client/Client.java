@@ -2,6 +2,7 @@ package cn.edu.thssdb.client;
 
 import cn.edu.thssdb.rpc.thrift.*;
 import cn.edu.thssdb.utils.Global;
+import cn.edu.thssdb.utils.ShowTable;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -18,6 +19,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Scanner;
 
 /***************
@@ -230,6 +234,13 @@ public class Client {
       if (status.code == Global.SUCCESS_CODE) {
         // 成功
         println(resp.getInformation());
+        Iterator<List<List<String>>> data_all = resp.getRowListIterator();
+        Iterator<List<String>> columns_all = resp.getColumnsListIterator();
+        Iterator<String> title_all = resp.getTableListIterator();
+        while (title_all.hasNext()) {
+
+          new ShowTable(data_all.next(), columns_all.next(), title_all.next());
+        }
       } else if (status.code == Global.FAILURE_CODE){
         // 失败
         println(resp.getInformation());

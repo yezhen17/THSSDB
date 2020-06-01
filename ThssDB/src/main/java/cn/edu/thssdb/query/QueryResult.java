@@ -6,6 +6,7 @@ import cn.edu.thssdb.parser.item.*;
 import cn.edu.thssdb.schema.Entry;
 import cn.edu.thssdb.schema.Row;
 import cn.edu.thssdb.schema.Table;
+import javafx.util.Pair;
 
 import java.util.*;
 
@@ -26,7 +27,8 @@ public class QueryResult {
 
   private ArrayList<QueryColumnPlusData> queryRes;
 
-  private ArrayList<ArrayList<String>> finalTable;
+  private List<List<String>> finalTable;
+  private List<String> columnTitles;
 
   private ArrayList<QueryColumn> columns;
 //  private List<Integer> index;
@@ -56,7 +58,7 @@ public class QueryResult {
       this.columns.addAll(metaInfo.getColumns());
     }
   }
-  public ArrayList<ArrayList<String>> process() {
+  public void process() {
     ArrayList<Row> res = new ArrayList<>();
 
     // JOIN ON 条件与表达式树合并
@@ -173,9 +175,9 @@ public class QueryResult {
       }
     }
 
-    if (res.size() == 0) {
-      return new ArrayList<>();
-    }
+//    if (res.size() == 0) {
+//      return new ArrayList<>();
+//    }
 
     // 排序
     ArrayList<Integer> sort_indices = new ArrayList<>();
@@ -197,27 +199,28 @@ public class QueryResult {
 
     // 转换为行的列表
     finalTable = new ArrayList<>();
-//    ArrayList<String> titles = new ArrayList<>();
+
+    columnTitles = new ArrayList<>();
 //    finalTable.add(titles);
 
     int final_size = this.queryRes.get(0).getDataSize();
-    for (int i = 0; i <= final_size; i++) {
+    for (int i = 0; i < final_size; i++) {
       finalTable.add(new ArrayList<>());
     }
     for (QueryColumnPlusData qc: this.queryRes) {
-      finalTable.get(0).add(qc.getTitle());
+      columnTitles.add(qc.getTitle());
       ArrayList<String> data = qc.getData();
       for (int j = 0; j < data.size(); j++) {
-        finalTable.get(j + 1).add(data.get(j));
+        finalTable.get(j).add(data.get(j));
       }
     }
 
     // 去重
     if (this.selectContentItem.isDistinct()) {
-      ArrayList<ArrayList<String>> tmp_table = new ArrayList<>();
-      for (ArrayList<String> row: finalTable) {
+      List<List<String>> tmp_table = new ArrayList<>();
+      for (List<String> row: finalTable) {
         boolean flag = true;
-        for (ArrayList<String> other: tmp_table) {
+        for (List<String> other: tmp_table) {
           if (other.equals(row)) {
             flag = false;
             break;
@@ -227,7 +230,6 @@ public class QueryResult {
       }
       finalTable = tmp_table;
     }
-    return finalTable;
   }
 
   // 对结果排序，indices指的是排序属性的下标
@@ -359,5 +361,13 @@ public class QueryResult {
       qc.generateTitle();
       qc.generateData(rows);
     }
+  }
+
+  public List<List<String>> getFinalTable() {
+    return finalTable;
+  }
+
+  public List<String> getColumnTitles() {
+    return columnTitles;
   }
 }

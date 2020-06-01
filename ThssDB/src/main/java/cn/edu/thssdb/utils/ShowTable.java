@@ -5,6 +5,9 @@ import javafx.embed.swing.JFXPanel;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ShowTable {
 
@@ -23,6 +26,23 @@ public class ShowTable {
   public ShowTable(Object[][] tableData, Object[] columnTitle, String title) {
     JFrame jframe = new JFrame(title);
     JTable table = new JTable(tableData, columnTitle);
+    table.setEnabled(false);
+    jframe.add(new JScrollPane(table));
+    jframe.pack();
+    jframe.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+    jframe.setVisible(true);
+  }
+
+  public ShowTable(List<List<String>> tableData, List<String> columnTitle, String title) {
+    JFrame jframe = new JFrame(title);
+    JTable table = new JTable();
+    DefaultTableModel tableModel = (DefaultTableModel) table.getModel();
+    for (String column_title: columnTitle) {
+      tableModel.addColumn(column_title);
+    }
+    for (List<String> table_data: tableData) {
+      tableModel.addRow(table_data.toArray());
+    }
     table.setEnabled(false);
     jframe.add(new JScrollPane(table));
     jframe.pack();
