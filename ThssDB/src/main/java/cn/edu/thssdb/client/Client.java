@@ -234,13 +234,15 @@ public class Client {
       if (status.code == Global.SUCCESS_CODE) {
         // 成功
         println(resp.getInformation());
-        Iterator<List<List<String>>> data_all = resp.getRowListIterator();
-        Iterator<List<String>> columns_all = resp.getColumnsListIterator();
-        Iterator<String> title_all = resp.getTableListIterator();
-        while (title_all.hasNext()) {
-
-          new ShowTable(data_all.next(), columns_all.next(), title_all.next());
+        if (resp.getTableList() != null) {
+          Iterator<List<List<String>>> data_all = resp.getRowListIterator();
+          Iterator<List<String>> columns_all = resp.getColumnsListIterator();
+          Iterator<String> title_all = resp.getTableListIterator();
+          while (title_all.hasNext()) {
+            new ShowTable(data_all.next(), columns_all.next(), title_all.next());
+          }
         }
+
       } else if (status.code == Global.FAILURE_CODE){
         // 失败
         println(resp.getInformation());

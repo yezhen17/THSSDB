@@ -91,7 +91,7 @@ public class TransactionManager {
 
   // 增删改操作
   private TransactionStatus readTransaction(BaseOperation operation) {
-    underTransaction = true;
+
     // *** READ_UNCOMMITTED ***
     if (Global.DATABASE_ISOLATION_LEVEL == Global.ISOLATION_LEVEL.READ_UNCOMMITTED) {
       // 执行 TODO
@@ -111,6 +111,7 @@ public class TransactionManager {
       // 执行 TODO
       try {
         operation.exec();
+        underTransaction = true;
       } catch (Exception e) {
         return new TransactionStatus(false, e.getMessage());
       }
@@ -140,7 +141,7 @@ public class TransactionManager {
 
   // [method] 增删改操作
   private TransactionStatus writeTransaction(BaseOperation operation) {
-    underTransaction = true;
+
     // *** READ_UNCOMMITTED | READ_COMMITTED | REPEATABLE_READ | SERIALIZATION ***
     if ((Global.DATABASE_ISOLATION_LEVEL == Global.ISOLATION_LEVEL.READ_COMMITTED) ||
             (Global.DATABASE_ISOLATION_LEVEL == Global.ISOLATION_LEVEL.READ_UNCOMMITTED) ||
@@ -154,6 +155,7 @@ public class TransactionManager {
       try {
         operation.exec();
         operations.add(operation);
+        underTransaction = true;
       } catch (Exception e) {
         return new TransactionStatus(false, e.getMessage());
       }
