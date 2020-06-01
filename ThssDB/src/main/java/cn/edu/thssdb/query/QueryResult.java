@@ -3,11 +3,13 @@ package cn.edu.thssdb.query;
 import cn.edu.thssdb.exception.UnknownColumnException;
 import cn.edu.thssdb.exception.WrongTableNameException;
 import cn.edu.thssdb.parser.item.*;
+import cn.edu.thssdb.schema.Column;
 import cn.edu.thssdb.schema.Entry;
 import cn.edu.thssdb.schema.Row;
 import cn.edu.thssdb.schema.Table;
 import javafx.util.Pair;
 
+import javax.management.Query;
 import java.util.*;
 
 
@@ -94,6 +96,7 @@ public class QueryResult {
             }
           }
         }
+        break;
       }
       case LEFT_OUTER_JOIN_ON: {
         retain_left = true;
@@ -287,7 +290,7 @@ public class QueryResult {
             if (tableName == null) {
               int i = 0;
               for (QueryColumn qc: this.columns) {
-                res.add(new QueryColumnPlusData(qc.getFullColumnName(), i));
+                res.add(new QueryColumnPlusData(qc.getFullColumnName(), i, qc.getType()));
                 i++;
               }
             } else {
@@ -297,20 +300,22 @@ public class QueryResult {
                 }
                 int i = 0;
                 for (QueryColumn qc: this.columns) {
-                  res.add(new QueryColumnPlusData(qc.getFullColumnName(), i));
+                  res.add(new QueryColumnPlusData(qc.getFullColumnName(), i, qc.getType()));
                   i++;
                 }
               } else {
                 if (tableName.equalsIgnoreCase(fromItem.getTableNameA())) {
                   int t1_column_count = metaInfos.get(0).getColumnNum();
                   for (int i = 0; i < t1_column_count; i++) {
-                    res.add(new QueryColumnPlusData(this.columns.get(i).getFullColumnName(), i));
+                    QueryColumn tmp = this.columns.get(i);
+                    res.add(new QueryColumnPlusData(tmp.getFullColumnName(), i, tmp.getType()));
                   }
                 } else if (tableName.equalsIgnoreCase(fromItem.getTableNameB())) {
                   int t1_column_count = metaInfos.get(0).getColumnNum();
                   int total_count = this.columns.size();
                   for (int i = t1_column_count; i < total_count; i++) {
-                    res.add(new QueryColumnPlusData(this.columns.get(i).getFullColumnName(), i));
+                    QueryColumn tmp = this.columns.get(i);
+                    res.add(new QueryColumnPlusData(tmp.getFullColumnName(), i, tmp.getType()));
                   }
                 } else {
                   throw new WrongTableNameException();
@@ -319,7 +324,8 @@ public class QueryResult {
             }
           } else {
             int idx = findIndex(tableName, columnName);
-            res.add(new QueryColumnPlusData(getFullColumnName(tableName, columnName), idx));
+            res.add(new QueryColumnPlusData(getFullColumnName(tableName, columnName),
+                    idx, this.columns.get(idx).getType()));
           }
           break;
         }
@@ -328,7 +334,7 @@ public class QueryResult {
           String columnName = c.getColumnName();
           int idx = findIndex(tableName, columnName);
           res.add(new QueryColumnPlusData(c.getConstNum1(), getFullColumnName(tableName, columnName),
-                  c.getOp(), idx));
+                  c.getOp(), idx, this.columns.get(idx).getType()));
           break;
         }
         case 3: {
@@ -336,7 +342,7 @@ public class QueryResult {
           String columnName = c.getColumnName();
           int idx = findIndex(tableName, columnName);
           res.add(new QueryColumnPlusData(getFullColumnName(tableName, columnName), c.getConstNum2(),
-                  c.getOp(), idx));
+                  c.getOp(), idx, this.columns.get(idx).getType()));
           break;
         }
         case 4: {
@@ -347,7 +353,8 @@ public class QueryResult {
           String tableName = c.getTableName();
           String columnName = c.getColumnName();
           int idx = findIndex(tableName, columnName);
-          res.add(new QueryColumnPlusData(getFullColumnName(tableName, columnName), c.getAggregateFun(), idx));
+          res.add(new QueryColumnPlusData(getFullColumnName(tableName, columnName), c.getAggregateFun(),
+                  idx, this.columns.get(idx).getType()));
           break;
         }
       }

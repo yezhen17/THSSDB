@@ -238,8 +238,12 @@ public class Client {
           Iterator<List<List<String>>> data_all = resp.getRowListIterator();
           Iterator<List<String>> columns_all = resp.getColumnsListIterator();
           Iterator<String> title_all = resp.getTableListIterator();
-          while (title_all.hasNext()) {
+
+          // 限制窗口数量
+          int i = 0;
+          while (i < 3 && title_all.hasNext()) {
             new ShowTable(data_all.next(), columns_all.next(), title_all.next());
+            i++;
           }
         }
 

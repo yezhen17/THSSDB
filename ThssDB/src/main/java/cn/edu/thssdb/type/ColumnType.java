@@ -1,6 +1,7 @@
 package cn.edu.thssdb.type;
 
 import cn.edu.thssdb.exception.IllegalTypeException;
+import cn.edu.thssdb.operation.InsertOperation;
 import cn.edu.thssdb.parser.SQLParser;
 
 public enum ColumnType {
@@ -35,11 +36,28 @@ public enum ColumnType {
 
   public static Comparable getColumnTypeValue(ColumnType c, String val) {
     if (val.equalsIgnoreCase("null")) return null;
-    if(c == INT) return Integer.valueOf(val);
-    else if(c == LONG) return Long.valueOf(val);
-    else if(c == FLOAT) return Float.valueOf(val);
-    else if(c == DOUBLE) return Double.valueOf(val);
+//    if(c == INT) return Integer.valueOf(val);
+//    else if(c == LONG) return Long.valueOf(val);
+//    else if(c == FLOAT) return Float.valueOf(val);
+//    else if(c == DOUBLE) return Double.valueOf(val);
+    if(c == INT) return Double.valueOf(val).intValue();
+    else if(c == LONG) return Double.valueOf(val).longValue();
+    else if(c == FLOAT) return Double.valueOf(val).floatValue();
+    else if(c == DOUBLE) return Double.valueOf(val).doubleValue();
     else if(c == STRING) return val;
+    else throw new IllegalTypeException();
+  }
+
+  public static Comparable getColumnTypeValue(ColumnType c, Double val) {
+//    if(c == INT) return Integer.valueOf(val);
+//    else if(c == LONG) return Long.valueOf(val);
+//    else if(c == FLOAT) return Float.valueOf(val);
+//    else if(c == DOUBLE) return Double.valueOf(val);
+    if(c == INT) return val.intValue();
+    else if(c == LONG) return val.longValue();
+    else if(c == FLOAT) return val.floatValue();
+    else if(c == DOUBLE) return val;
+    // else if(c == STRING) return val;
     else throw new IllegalTypeException();
   }
 }

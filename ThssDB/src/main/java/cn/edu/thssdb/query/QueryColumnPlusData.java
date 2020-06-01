@@ -1,7 +1,9 @@
 package cn.edu.thssdb.query;
 
+import cn.edu.thssdb.schema.Column;
 import cn.edu.thssdb.schema.Entry;
 import cn.edu.thssdb.schema.Row;
+import cn.edu.thssdb.type.ColumnType;
 
 import java.util.ArrayList;
 
@@ -10,6 +12,7 @@ import java.util.ArrayList;
 public class QueryColumnPlusData {
   private String columnName;
   private int idx;
+  private ColumnType columnType;
   private double num1;
   private double num2;
   private String op;
@@ -27,29 +30,32 @@ public class QueryColumnPlusData {
     this.type = 0;
   }
 
-  public QueryColumnPlusData(String columnName, int idx) {
+  public QueryColumnPlusData(String columnName, int idx, ColumnType columnType) {
     init();
     this.idx = idx;
     this.columnName = columnName;
     this.type = 1;
+    this.columnType = columnType;
   }
 
-  public QueryColumnPlusData(double num1, String columnName, String op, int idx) {
+  public QueryColumnPlusData(double num1, String columnName, String op, int idx, ColumnType columnType) {
     init();
     this.op = op;
     this.idx = idx;
     this.columnName = columnName;
     this.num1 = num1;
     this.type = 2;
+    this.columnType = columnType;
   }
 
-  public QueryColumnPlusData(String columnName, double num2, String op, int idx) {
+  public QueryColumnPlusData(String columnName, double num2, String op, int idx, ColumnType columnType) {
     init();
     this.op = op;
     this.idx = idx;
     this.columnName = columnName;
     this.num2 = num2;
     this.type = 3;
+    this.columnType = columnType;
   }
 
   public QueryColumnPlusData(double num1, double num2, String op) {
@@ -60,12 +66,13 @@ public class QueryColumnPlusData {
     this.type = 4;
   }
 
-  public QueryColumnPlusData(String columnName, String aggr, int idx) {
+  public QueryColumnPlusData(String columnName, String aggr, int idx, ColumnType columnType) {
     init();
     this.idx = idx;
     this.columnName = columnName;
     this.aggr = aggr;
     this.type = 5;
+    this.columnType = columnType;
   }
 
   private void init() {
@@ -73,7 +80,7 @@ public class QueryColumnPlusData {
   }
 
   // 不同聚集函数求值
-  private Comparable aggregate(ArrayList<Entry> entries) {
+  private Double aggregate(ArrayList<Entry> entries) {
     double res = 0;
     switch (aggr) {
       case "sum": {
@@ -117,7 +124,7 @@ public class QueryColumnPlusData {
           if (entry.value == null) continue;
           count++;
         }
-        return count;
+        return (double) count;
       }
     }
   }
@@ -150,10 +157,10 @@ public class QueryColumnPlusData {
         title = columnName; break;
       }
       case 2: {
-        title = num1 + " " + op + " " + columnName; break;
+        title = ColumnType.getColumnTypeValue(columnType, String.valueOf(num1)) + " " + op + " " + columnName; break;
       }
       case 3: {
-        title = columnName + " " + op + " " + num2; break;
+        title = columnName + " " + op + " " + ColumnType.getColumnTypeValue(columnType, String.valueOf(num2)); break;
       }
       case 4: {
         title = num1 + " " + op + " " + num2; break;
@@ -182,15 +189,15 @@ public class QueryColumnPlusData {
       case 2: {
         for (Row row : rows) {
           String val = row.getEntries().get(idx).toString();
-
-          data.add(String.valueOf(calculate(num1, Double.valueOf(val))));
+          data.add(String.valueOf(ColumnType.getColumnTypeValue(columnType, calculate(num1, Double.valueOf(val)))));
+          //data.add(String.valueOf(calculate(num1, Double.valueOf(val))));
         }
         break;
       }
       case 3: {
         for (Row row : rows) {
           String val = row.getEntries().get(idx).toString();
-          data.add(String.valueOf(calculate(Double.valueOf(val), num2)));
+          data.add(String.valueOf(ColumnType.getColumnTypeValue(columnType, calculate(Double.valueOf(val), num2))));
         }
         break;
       }
@@ -205,9 +212,13 @@ public class QueryColumnPlusData {
         for (Row row : rows) {
           entries.add(row.getEntries().get(idx));
         }
-        Comparable res = aggregate(entries);
+        Double res = aggregate(entries);
         if (res == null) data.add("null");
-        else data.add(String.valueOf(res));
+        else {
+          if (aggr.equals("count")) data.add(String.valueOf(res.intValue()));
+          else if (aggr.equals("avg")) data.add(String.valueOf(res));
+          else data.add(String.valueOf(ColumnType.getColumnTypeValue(columnType, res)));
+        }
       }
     }
   }

@@ -234,7 +234,7 @@ public class MyVisitor extends SQLBaseVisitor{
         }
         i += 2;
       }
-      column_full_name.add((String) visit(ctx.getChild(6)));
+      // column_full_name.add((String) visit(ctx.getChild(6)));
     }
 
     order_by_item = new OrderByItem(order_by_columns, order);

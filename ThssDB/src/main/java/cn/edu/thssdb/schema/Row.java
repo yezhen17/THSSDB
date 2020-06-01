@@ -49,7 +49,7 @@ public class Row implements Serializable {
   public String toString() {
     if (entries == null)
       return "EMPTY";
-    StringJoiner sj = new StringJoiner(", ");
+    StringJoiner sj = new StringJoiner(",");
     for (Entry e : entries)
       sj.add(e.toString());
     return sj.toString();
