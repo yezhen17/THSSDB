@@ -223,7 +223,7 @@ public class Database {
   /**
    * [method] 退出数据库
    */
-  public void quit() throws DataFileNotFoundException, CustomIOException {
+  public void quit() {
     this.persist();
   }
 

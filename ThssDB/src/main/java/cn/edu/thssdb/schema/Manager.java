@@ -7,6 +7,7 @@ import cn.edu.thssdb.utils.Global;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /***************
@@ -19,6 +20,7 @@ public class Manager {
   private String current_database = null;        // 当前的数据库
   private Meta meta;                             // 元数据管理
   private ArrayList<String> databasesList;       // 数据库名称列表
+  private List<String> onlineDatabases;
   // private HashMap<String, Logger> loggers;   // 数据库哈希表
 
   /**
@@ -36,6 +38,7 @@ public class Manager {
     databases = new HashMap<>();
     lock = new ReentrantReadWriteLock();
     databasesList = new ArrayList<>();
+    onlineDatabases = new ArrayList<>();
     try {
       // 目前没有权限管理，可扩展
       meta = new Meta(Global.DATA_ROOT_FOLDER, "manager.data", true);
@@ -143,8 +146,12 @@ public class Manager {
       databases.get(current_database).quit();
     }
     if (databasesList.contains(name)) {
-      databases.get(name).recover();
-      current_database = name;
+      if (!onlineDatabases.contains(name)) {
+        databases.get(name).recover();
+        current_database = name;
+        onlineDatabases.add(name);
+      }
+
     } else {
       throw new DatabaseNotExistException();
     }

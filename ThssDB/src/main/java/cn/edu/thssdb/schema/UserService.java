@@ -51,7 +51,7 @@ public class UserService {
          */
     }
 
-    public void disconnect() throws DataFileNotFoundException, CustomIOException {
+    public void disconnect() {
         Manager.getInstance().getDatabaseByName(user.database).persist();
     }
 

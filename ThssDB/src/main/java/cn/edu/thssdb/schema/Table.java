@@ -203,7 +203,7 @@ public class Table implements Iterable<Row> {
    */
   public void insert(String row) {
     try {
-      String[] info = row.split(", ");
+      String[] info = row.split(",");
       ArrayList<Entry> entries = new ArrayList<>();
       int i = 0;
       for (Column c: columns) {
