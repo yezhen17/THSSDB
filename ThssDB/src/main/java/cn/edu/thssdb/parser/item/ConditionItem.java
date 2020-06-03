@@ -75,15 +75,22 @@ public class ConditionItem {
     int cmp_res = 0;
     switch (this.type) {
       case 0: {
-        cmp_res = row.getEntries().get(idx1).compareTo(row.getEntries().get(idx2));
+        Entry tmp1 = row.getEntries().get(idx1);
+        Entry tmp2 = row.getEntries().get(idx2);
+        if (tmp1 == null || tmp2 == null) return false;
+        else cmp_res = tmp1.compareTo(tmp2);
         break;
       }
       case 1: {
-        cmp_res = row.getEntries().get(idx1).compareTo(e2);
+        Entry tmp = row.getEntries().get(idx1);
+        if (tmp.value == null) return false;
+        else cmp_res = tmp.compareTo(e2);
         break;
       }
       case 2: {
-        cmp_res = e1.compareTo(row.getEntries().get(idx2));
+        Entry tmp = row.getEntries().get(idx2);
+        if (tmp.value == null) return false;
+        else cmp_res = e1.compareTo(tmp);
         break;
       }
       case 3: {
