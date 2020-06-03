@@ -316,12 +316,12 @@ IDENTIFIER :
     [a-zA-Z_] [a-zA-Z_0-9]* ;
 
 INTEGER_LITERAL
-  : DIGIT+
+  : [-+]? DIGIT+
   ;
 
 FLOAT_LITERAL
-  : DIGIT+ ( '.' DIGIT* )? ( E [-+]? DIGIT+ )?
-  | '.' DIGIT+ ( E [-+]? DIGIT+ )?
+  : [-+]? DIGIT+ ( '.' DIGIT* )? ( E [-+]? DIGIT+ )?
+  | [-+]? '.' DIGIT+ ( E [-+]? DIGIT+ )?
   ;
 
 NUMERIC_LITERAL :

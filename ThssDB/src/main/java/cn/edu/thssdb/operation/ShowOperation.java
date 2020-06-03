@@ -9,12 +9,16 @@ import java.util.*;
 public class ShowOperation extends BaseOperation {
 
   private String name;      // 表名称
+  private String stmt;
+  private List<List<String>> showTable;
+  private List<String> columnNames;
 
   /**
    * [method] 构造方法
    */
   public ShowOperation(String name) {
     this.name = name;
+    this.stmt = "show table "+ this.name;
   }
 
   /**
@@ -31,12 +35,11 @@ public class ShowOperation extends BaseOperation {
       throw new TableNotExistException();
     }
 
-    List<List<String>> showTable = new ArrayList<>();
-    List<String> columnNames = new ArrayList<>();
+    showTable = new ArrayList<>();
+    columnNames = new ArrayList<>();
     ArrayList<Column> columns = table.getColumns();
 
     for(int i=0;i<columns.size();i++){
-
       columnNames.add(columns.get(i).getName());
     }
     Iterator<Row> rowIterator = table.iterator();
@@ -49,47 +52,18 @@ public class ShowOperation extends BaseOperation {
       }
       showTable.add(newRow);
     }
-
-    
-    Object[][] objects = new Object[showTable.size()][];
-    
-    for(int i=0;i<showTable.size();i++){
-      objects[i]=showTable.get(i).toArray();
-    }
-
-
-
-//    new ShowTable(objects,columnNames.toArray());
-
-//    按列排
-//    List<List<String>> showTable = new ArrayList<>();
-//    ArrayList<Column> columns = table.getColumns();
-//    ArrayList<String> columnNames = new ArrayList<>();
-//    for(int i=0;i<columns.size();i++){
-//      showTable.add(new ArrayList<String>());
-//      columnNames.add(columns.get(i).getName());
-//    }
-//    Iterator<Row> rowIterator = table.iterator();
-//    while (rowIterator.hasNext()){
-//      Row row = rowIterator.next();
-//      for(int i=0;i<row.getEntries().size();i++){
-//        if(row.getEntries().get(i).value==null){
-//          showTable.get(i).add("null");
-//        }
-//        else {
-//          showTable.get(i).add(row.getEntries().get(i).value.toString());
-//        }
-//      }
-//    }
-    //todo return showTable and columnNames
-    System.out.println(showTable);
-    System.out.println(columnNames);
-
-
   }
 
   @Override
   public ArrayList<String> getTableName() {
     return new ArrayList<String>(Arrays.asList(this.name));
   }
+
+  public String getStmt(){return this.stmt;}
+
+  public List<List<String>> getData(){return showTable;}
+
+  public List<String> getColumns(){return columnNames;}
+
+
 }
