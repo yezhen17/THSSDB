@@ -119,7 +119,7 @@ public class UserService {
             e.printStackTrace();
             resp.setStatus(new Status(Global.FAILURE_CODE));
             if (e.getMessage() == null) {
-                resp.setInformation("...");
+                resp.setInformation(e.toString());
             } else {
                 resp.setInformation(e.getMessage());
             }

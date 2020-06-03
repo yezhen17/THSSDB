@@ -484,12 +484,12 @@ public class MyVisitor extends SQLBaseVisitor{
     }
     else {
       try {
-        long i = Long.parseLong(str);
+        Long.parseLong(str);
         //int i = Integer.valueOf(str);
       }
       catch (NumberFormatException e){
         try {
-          double d = Double.valueOf(str);
+          Double.valueOf(str);
         }
         catch (NumberFormatException r){
           throw new IllegalArgumentException();

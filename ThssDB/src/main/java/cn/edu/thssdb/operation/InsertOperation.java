@@ -421,13 +421,14 @@ public class InsertOperation extends BaseOperation {
 
   @Override
   public ArrayList<String> getTableName() {
-    return new ArrayList<String>(Arrays.asList(this.tableName));
+    return new ArrayList<>(Arrays.asList(this.tableName));
   }
 
   private ArrayList<Entry> matchType(Column column, LiteralValueItem value, String primaryKey, ArrayList<Entry> entries) {
+    LiteralValueItem.Type value_type = value.getType();
     switch (column.getType()) {
       case INT:
-        if (value.getType() == LiteralValueItem.Type.INT_OR_LONG) {
+        if (value_type == LiteralValueItem.Type.INT_OR_LONG) {
           try {
             int tmp = Integer.parseInt(value.getString());
             if (column.getName().equals(primaryKey) && table.index.contains(new Entry(tmp))) {
@@ -437,7 +438,7 @@ public class InsertOperation extends BaseOperation {
           } catch (NumberFormatException e) {
             throw e;
           }
-        } else if (value.getType() == LiteralValueItem.Type.NULL) {
+        } else if (value_type == LiteralValueItem.Type.NULL) {
           if (column.isNotNull()) {
             throw new WrongInsertException("Exception: wrong insert operation ( " + column.getName() + " cannot be null)");
           }
@@ -447,7 +448,7 @@ public class InsertOperation extends BaseOperation {
         }
         break;
       case LONG:
-        if (value.getType() == LiteralValueItem.Type.INT_OR_LONG) {
+        if (value_type == LiteralValueItem.Type.INT_OR_LONG) {
           try {
             long tmp = Long.parseLong(value.getString());
             if (column.getName().equals(primaryKey) && table.index.contains(new Entry(tmp))) {
@@ -457,7 +458,7 @@ public class InsertOperation extends BaseOperation {
           } catch (NumberFormatException e) {
             throw e;
           }
-        } else if (value.getType() == LiteralValueItem.Type.NULL) {
+        } else if (value_type == LiteralValueItem.Type.NULL) {
           if (column.isNotNull()) {
             throw new WrongInsertException("Exception: wrong insert operation ( " + column.getName() + " cannot be null)");
           }
@@ -467,7 +468,7 @@ public class InsertOperation extends BaseOperation {
         }
         break;
       case DOUBLE:
-        if (value.getType() == LiteralValueItem.Type.FLOAT_OR_DOUBLE) {
+        if (value_type == LiteralValueItem.Type.FLOAT_OR_DOUBLE || value_type == LiteralValueItem.Type.INT_OR_LONG) {
           try {
             double tmp = Double.parseDouble(value.getString());
             if (column.getName().equals(primaryKey) && table.index.contains(new Entry(tmp))) {
@@ -477,7 +478,7 @@ public class InsertOperation extends BaseOperation {
           } catch (NumberFormatException e) {
             throw e;
           }
-        } else if (value.getType() == LiteralValueItem.Type.NULL) {
+        } else if (value_type == LiteralValueItem.Type.NULL) {
           if (column.isNotNull()) {
             throw new WrongInsertException("Exception: wrong insert operation ( " + column.getName() + " cannot be null)");
           }
@@ -487,7 +488,7 @@ public class InsertOperation extends BaseOperation {
         }
         break;
       case FLOAT:
-        if (value.getType() == LiteralValueItem.Type.FLOAT_OR_DOUBLE) {
+        if (value_type == LiteralValueItem.Type.FLOAT_OR_DOUBLE || value_type == LiteralValueItem.Type.INT_OR_LONG) {
           try {
             float tmp = Float.parseFloat(value.getString());
             if (column.getName().equals(primaryKey) && table.index.contains(new Entry(tmp))) {
@@ -497,7 +498,7 @@ public class InsertOperation extends BaseOperation {
           } catch (NumberFormatException e) {
             throw e;
           }
-        } else if (value.getType() == LiteralValueItem.Type.NULL) {
+        } else if (value_type == LiteralValueItem.Type.NULL) {
           if (column.isNotNull()) {
             throw new WrongInsertException("Exception: wrong insert operation ( " + column.getName() + " cannot be null)");
           }
@@ -507,12 +508,12 @@ public class InsertOperation extends BaseOperation {
         }
         break;
       case STRING:
-        if (value.getType() == LiteralValueItem.Type.STRING) {
+        if (value_type == LiteralValueItem.Type.STRING) {
           if (column.getName().equals(primaryKey) && table.index.contains(new Entry(value.getString()))) {
             throw new DuplicateKeyException();
           }
           entries.add(new Entry(value.getString()));
-        } else if (value.getType() == LiteralValueItem.Type.NULL) {
+        } else if (value_type == LiteralValueItem.Type.NULL) {
           if (column.isNotNull()) {
             throw new WrongInsertException("Exception: wrong insert operation ( " + column.getName() + " cannot be null)");
           }

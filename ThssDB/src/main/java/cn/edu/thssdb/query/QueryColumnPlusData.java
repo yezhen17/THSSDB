@@ -1,5 +1,6 @@
 package cn.edu.thssdb.query;
 
+import cn.edu.thssdb.exception.CalculationTypeException;
 import cn.edu.thssdb.schema.Column;
 import cn.edu.thssdb.schema.Entry;
 import cn.edu.thssdb.schema.Row;
@@ -81,7 +82,7 @@ public class QueryColumnPlusData {
 
   // 不同聚集函数求值
   private Double aggregate(ArrayList<Entry> entries) {
-    double res = 0;
+    Double res = 0.0;
     switch (aggr) {
       case "sum": {
         for (Entry entry: entries) {
@@ -91,29 +92,35 @@ public class QueryColumnPlusData {
         return res;
       }
       case "avg": {
-        int count = 0;
+        double count = 0.0;
         for (Entry entry: entries) {
           if (entry.value == null) continue;
           res += Double.valueOf(entry.toString());
           count++;
         }
-        if (count == 0) return 0.0;
+        if (count == 0.0) return 0.0;
         return res / count;
       }
       case "max": {
-        double max = Double.MIN_VALUE;
+        Double max = -Double.MAX_VALUE;
         for (Entry entry: entries) {
           if (entry.value == null) continue;
-          if (entry.value.compareTo(max) == 1) max = Double.valueOf(entry.toString());
+          Double tmp = Double.valueOf(entry.toString());
+          if (tmp.compareTo(max) == 1) {
+            max = tmp;
+          }
         }
-        if (max == Double.MIN_VALUE) return null;
+        if (max == -Double.MAX_VALUE) return null;
         return max;
       }
       case "min": {
-        double min = Double.MAX_VALUE;
+        Double min = Double.MAX_VALUE;
         for (Entry entry: entries) {
           if (entry.value == null) continue;
-          if (entry.value.compareTo(min) == -1) min = Double.valueOf(entry.toString());
+          Double tmp = Double.valueOf(entry.toString());
+          if (tmp.compareTo(min) == -1) {
+            min = tmp;
+          }
         }
         if (min == Double.MAX_VALUE) return null;
         return min;
@@ -175,7 +182,7 @@ public class QueryColumnPlusData {
   public void generateData(ArrayList<Row> rows) {
     switch (type) {
       case 0: {
-        for (Row row : rows) {
+        for (int i = 0; i < rows.size(); i++) {
           data.add(String.valueOf(num1));
         }
         break;
@@ -188,26 +195,36 @@ public class QueryColumnPlusData {
       }
       case 2: {
         for (Row row : rows) {
-          String val = row.getEntries().get(idx).toString();
-          data.add(String.valueOf(ColumnType.getColumnTypeValue(columnType, calculate(num1, Double.valueOf(val)))));
+          Entry tmp = row.getEntries().get(idx);
+          if (tmp.value == null) data.add("null");
+          else {
+            String val = tmp.toString();
+            data.add(String.valueOf(ColumnType.getColumnTypeValue(columnType, calculate(num1, Double.valueOf(val)))));
+          }
+
           //data.add(String.valueOf(calculate(num1, Double.valueOf(val))));
         }
         break;
       }
       case 3: {
         for (Row row : rows) {
-          String val = row.getEntries().get(idx).toString();
-          data.add(String.valueOf(ColumnType.getColumnTypeValue(columnType, calculate(Double.valueOf(val), num2))));
+          Entry tmp = row.getEntries().get(idx);
+          if (tmp.value == null) data.add("null");
+          else {
+            String val = tmp.toString();
+            data.add(String.valueOf(ColumnType.getColumnTypeValue(columnType, calculate(Double.valueOf(val), num2))));
+          }
         }
         break;
       }
       case 4: {
-        for (Row row : rows) {
+        for (int i = 0; i < rows.size(); i++) {
           data.add(String.valueOf(calculate(num1, num2)));
         }
         break;
       }
       default: {
+        if (columnType == ColumnType.STRING && (aggr.equals("sum") || aggr.equals("avg"))) throw new CalculationTypeException();
         ArrayList<Entry> entries = new ArrayList<>();
         for (Row row : rows) {
           entries.add(row.getEntries().get(idx));
