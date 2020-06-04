@@ -47,7 +47,6 @@ public class QueryResult {
     this.orderByItem = orderByItem;
 
     this.metaInfos = new ArrayList<>();
-
     queryTable = new QueryTable(tables);
     for (Table table: tables) {
       this.metaInfos.add(new MetaInfo(table.getTableName(), table.getColumns()));
@@ -118,83 +117,79 @@ public class QueryResult {
 
     if (whereItem != null) {
       whereItem.setColumn(this.columns);
-    }
+      // 接下来筛选符合条件的Row
+      if (queryTable.getTableNum() == 1) {
+        for (QueryTable it = queryTable; it.hasNext(); ) {
+          Row r = it.next();
+          if (whereItem.getTreeValue(r).getValue()) {
+            res.add(r);
+          }
+        }
+      } else {
+        int column_count1 = metaInfos.get(0).getColumnNum();
+        int column_count2 = metaInfos.get(1).getColumnNum();
+        int n1 = queryTable.n1;
+        int n2 = queryTable.n2;
+        boolean [] t1_count = new boolean[n1];
+        boolean [] t2_count = new boolean[n2];
+        int i = 0;
+        for (QueryTable it = queryTable; it.hasNext(); ) {
+          Row r = it.next();
+          if (whereItem.getTreeValue(r).getValue()) {
+            res.add(r);
+            t1_count[i / n2] = true;
+            t2_count[i % n2] = true;
+          } else {
+            // LEFT OUTER JOIN
+            if (retain_left) {
+              if ((i % n2) == (n2 - 1) && !t1_count[i / n2]) {
+                ArrayList<Entry> entries = new ArrayList<>();
+                ArrayList<Entry> r_entries = r.getEntries();
+                for (int k = 0; k < column_count1; k++) {
+                  entries.add(new Entry(r_entries.get(k)));
+                }
+                for (int k = 0; k < column_count2; k++) {
+                  entries.add(new Entry(null));
+                }
+                res.add(new Row(entries));
+              }
+            }
+            // RIGHT OUTER JOIN
+            if (retain_right) {
+              if ((i / n2) == (n1 - 1) && !t2_count[i % n2]) {
+                ArrayList<Entry> entries = new ArrayList<>();
+                ArrayList<Entry> r_entries = r.getEntries();
 
-
-    // 接下来筛选符合条件的Row
-    if (queryTable.getTableNum() == 1) {
-      for (QueryTable it = queryTable; it.hasNext(); ) {
-        Row r = it.next();
-        if (whereItem == null || whereItem.getTreeValue(r).getValue()) {
-          res.add(r);
+                for (int k = 0; k < column_count1; k++) {
+                  entries.add(new Entry(null)); // 以null填充
+                }
+                for (int k = column_count1; k < column_count1 + column_count2; k++) {
+                  entries.add(new Entry(r_entries.get(k)));
+                }
+                res.add(new Row(entries));
+              }
+            }
+          }
+          i++;
         }
       }
     } else {
-      int column_count1 = metaInfos.get(0).getColumnNum();
-      int column_count2 = metaInfos.get(1).getColumnNum();
-      int n1 = queryTable.n1;
-      int n2 = queryTable.n2;
-      boolean [] t1_count = new boolean[n1];
-      boolean [] t2_count = new boolean[n2];
-      int i = 0;
+      // 如果没有条件，直接一一放到res中，可能效率高一丁点
       for (QueryTable it = queryTable; it.hasNext(); ) {
         Row r = it.next();
-        if (whereItem == null || whereItem.getTreeValue(r).getValue()) {
-          res.add(r);
-          t1_count[i / n2] = true;
-          t2_count[i % n2] = true;
-        } else {
-          // LEFT OUTER JOIN
-          if (retain_left) {
-            if ((i % n2) == (n2 - 1) && !t1_count[i / n2]) {
-              ArrayList<Entry> entries = new ArrayList<>();
-              ArrayList<Entry> r_entries = r.getEntries();
-              for (int k = 0; k < column_count1; k++) {
-                entries.add(new Entry(r_entries.get(k)));
-              }
-              for (int k = 0; k < column_count2; k++) {
-                entries.add(new Entry(null));
-              }
-              res.add(new Row(entries));
-            }
-          }
-          // RIGHT OUTER JOIN
-          if (retain_right) {
-            if ((i / n2) == (n1 - 1) && !t2_count[i % n2]) {
-              ArrayList<Entry> entries = new ArrayList<>();
-              ArrayList<Entry> r_entries = r.getEntries();
-
-              for (int k = 0; k < column_count1; k++) {
-                entries.add(new Entry(null)); // 以null填充
-              }
-              for (int k = column_count1; k < column_count1 + column_count2; k++) {
-                entries.add(new Entry(r_entries.get(k)));
-              }
-              res.add(new Row(entries));
-            }
-          }
-        }
-        i++;
+        res.add(r);
       }
     }
+
+
+
 
 //    if (res.size() == 0) {
 //      return new ArrayList<>();
 //    }
 
-    // 排序
-    ArrayList<Integer> sort_indices = new ArrayList<>();
-    for (ColumnFullNameItem c: orderByItem.getColumnList()) {
-      int i = 0;
-      for (QueryColumn column: columns) {
-        if (column.compareTo(c)) {
-          sort_indices.add(i); // TODO 没有找到报错
-          break;
-        }
-        i++;
-      }
-    }
-    sortArray(res, orderByItem.getOrder(), sort_indices);
+    // 排序（如需要）
+    sortArray(res, orderByItem.getOrder());
 
     // select选择子项
     this.queryRes = columnToData(this.selectContentItem.getSelectContent());
@@ -236,9 +231,21 @@ public class QueryResult {
   }
 
   // 对结果排序，indices指的是排序属性的下标
-  private static void sortArray(ArrayList<Row> rows, int order, ArrayList<Integer> indices) {
+  private void sortArray(ArrayList<Row> rows, int order) {
     if (order == 0) {
       return;
+    }
+    // 排序依据的列索引
+    ArrayList<Integer> indices = new ArrayList<>();
+    for (ColumnFullNameItem c: orderByItem.getColumnList()) {
+      int i = 0;
+      for (QueryColumn column: columns) {
+        if (column.compareTo(c)) {
+          indices.add(i); // TODO 没有找到报错
+          break;
+        }
+        i++;
+      }
     }
     Collections.sort(rows, (r1, r2) -> {
       int flag = 0;

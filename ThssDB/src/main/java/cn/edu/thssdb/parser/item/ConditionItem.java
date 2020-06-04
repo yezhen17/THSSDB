@@ -190,5 +190,18 @@ public class ConditionItem {
       }
 
     }
+
+  }
+
+  public int getType() {
+    return type;
+  }
+
+  public int getIdx1() {
+    return idx1;
+  }
+
+  public int getIdx2() {
+    return idx2;
   }
 }

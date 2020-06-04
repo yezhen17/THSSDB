@@ -1,5 +1,6 @@
 package cn.edu.thssdb.query;
 
+import cn.edu.thssdb.parser.item.ConditionItem;
 import cn.edu.thssdb.schema.Entry;
 import cn.edu.thssdb.schema.Row;
 import cn.edu.thssdb.schema.Table;
@@ -17,6 +18,7 @@ public class QueryTable implements Iterator<Row> {
   int n1;
   int n2;
   Row cache;
+  boolean t1_primary = false;
 
   public QueryTable(ArrayList<Table> tables) {
     this.tables = tables;
@@ -33,6 +35,15 @@ public class QueryTable implements Iterator<Row> {
       if (t1.hasNext()) {
         cache = t1.next();
       }
+
+    }
+  }
+
+  public void setSingleCondition(ConditionItem cond, int c1Len) {
+    int type = cond.getType();
+    if (type == 1) {
+      boolean is_t1 = true;
+      if (cond.getIdx1() >= c1Len) is_t1 = false;
 
     }
   }
