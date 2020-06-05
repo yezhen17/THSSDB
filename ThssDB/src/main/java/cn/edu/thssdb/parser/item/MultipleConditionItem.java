@@ -13,6 +13,8 @@ public class MultipleConditionItem extends BaseTree<ConditionItem> {
   private ArrayList<QueryColumn> columns;
 
   public MultipleConditionItem(MultipleConditionItem m1, MultipleConditionItem m2, String op) {
+    if (op.equalsIgnoreCase("and") || op.equals("&&")) op = "and";
+    if (op.equalsIgnoreCase("or") || op.equals("||")) op = "or";
     this.root = new Node<>(op, m1.getRoot(), m2.getRoot());
   }
 
@@ -34,9 +36,9 @@ public class MultipleConditionItem extends BaseTree<ConditionItem> {
 
   @Override
   protected ConditionItem merge(ConditionItem v1, ConditionItem v2, String op, Row row) {
-    if (op.equalsIgnoreCase("and") || op.equals("&&")) {
+    if (op.equals("and")) {
       return new ConditionItem(v1.evaluate(row) && v2.evaluate(row));
-    } else if (op.equalsIgnoreCase("or") || op.equals("||")) {
+    } else if (op.equals("or")) {
       return new ConditionItem(v1.evaluate(row) || v2.evaluate(row));
     } else {
       return new ConditionItem(true); // 这种情况实际不会发生

@@ -32,6 +32,20 @@ public class ConditionItem {
     this.c1 = c1;
     this.c2 = c2;
     this.cmp = ComparisonType.string2ComparisonType(cmp);
+    if (c1.getIsC()) {
+      if (c2.getIsNull()) type = 4;
+      if (c2.getIsC()) {
+        type = 0;
+      } else {
+        type = 1;
+      }
+    } else {
+      if (c2.getIsC()) {
+        type = 2;
+      } else {
+        type = 3;
+      }
+    }
     this.is_bool = false;
   }
 
@@ -88,7 +102,7 @@ public class ConditionItem {
         break;
       }
       case 2: {
-        Entry tmp = row.getEntries().get(idx2);
+        Entry tmp = row.getEntries().get(idx1);
         if (tmp.value == null) return false;
         else cmp_res = e1.compareTo(tmp);
         break;
@@ -98,7 +112,7 @@ public class ConditionItem {
         break;
       }
       default: {
-        break; // 不会出现
+        break; // IS NULL
       }
     }
     // int cmp_res = row.getEntries().get(c1).compareTo(row.getEntries().get(c1));
@@ -163,12 +177,12 @@ public class ConditionItem {
         int i = 0;
         for (QueryColumn column : columns) {
           if (column.compareTo(c2.getC())) {
-            idx2 = i;
+            idx1 = i;
             break;
           }
           i++;
         }
-        ColumnType type = columns.get(idx2).getType();
+        ColumnType type = columns.get(idx1).getType();
         String l = c1.getL().getString();
         Comparable val = null;
         if (c1.getL().getType() != LiteralValueItem.Type.NULL) {
@@ -191,6 +205,15 @@ public class ConditionItem {
 
     }
 
+  }
+
+  // 返回是不是属于第一个table
+  public boolean setSingleTableIdx(int firstTableColumns) {
+    if (idx1 >= firstTableColumns) {
+      idx1 -= firstTableColumns;
+      return false;
+    }
+    return true;
   }
 
   public int getType() {

@@ -2,7 +2,9 @@ package cn.edu.thssdb.schema;
 
 import cn.edu.thssdb.exception.*;
 import cn.edu.thssdb.index.BPlusTree;
+import cn.edu.thssdb.parser.item.MultipleConditionItem;
 import cn.edu.thssdb.type.ColumnType;
+import cn.edu.thssdb.type.ComparisonType;
 import cn.edu.thssdb.utils.Global;
 import com.sun.org.apache.bcel.internal.generic.DUP;
 import javafx.util.Pair;
@@ -324,32 +326,34 @@ public class Table implements Iterable<Row> {
    * [method] 更通用地，由column名和值查找行，这类函数还需根据查询模块的设计再调整和优化
    * @exception IllegalArgumentException
    */
-  public ArrayList<Row> search(String column_name, Comparable value, int compare_type) {
+  public ArrayList<Row> search(String column_name, Comparable value, ComparisonType type) {
     ArrayList<Row> res = new ArrayList<>();
-    int i = 0;
-    boolean has_column = false;
-    for (Column c : columns) {
-      if (c.getName() == column_name) {
-        has_column = true;
-        break;
-      }
-      i++;
+//    int i = 0;
+//    boolean has_column = false;
+//    for (Column c : columns) {
+//      if (c.getName() == column_name) {
+//        has_column = true;
+//        break;
+//      }
+//      i++;
+//    }
+//    assert has_column; // 参数检查打算在解析时进行，这里只是示意，由name找column index也可以封装
+    if (type == ComparisonType.EQ) {
+      res.add(index.get(new Entry(value)));
     }
-    assert has_column; // 参数检查打算在解析时进行，这里只是示意，由name找column index也可以封装
-    if (i == primaryIndex) {
-      if (compare_type == 0) {
-        res.add(index.get(new Entry(value)));
-      }
-      // TODO
-    } else {
-      for (Iterator<Row> it = iterator(); it.hasNext(); ) {
-        Row r = it.next();
-        // 兼容 > == < 后续可以根据查询模块设计调整
-        if (new Entry(value).compareTo(r.getEntries().get(i)) == compare_type) {
-          res.add(r);
-        }
-      }
-    }
+
+//    if (i == primaryIndex) {
+//
+//      // TODO
+//    } else {
+//      for (Iterator<Row> it = iterator(); it.hasNext(); ) {
+//        Row r = it.next();
+//        // 兼容 > == < 后续可以根据查询模块设计调整
+//        if (cond.getTreeValue(r).getValue()) {
+//          res.add(r);
+//        }
+//      }
+//    }
     return res;
   }
 

@@ -7,6 +7,7 @@ import cn.edu.thssdb.schema.Column;
 import cn.edu.thssdb.schema.Entry;
 import cn.edu.thssdb.schema.Row;
 import cn.edu.thssdb.schema.Table;
+import cn.edu.thssdb.tree.Node;
 import javafx.util.Pair;
 
 import javax.management.Query;
@@ -26,6 +27,8 @@ public class QueryResult {
   private ArrayList<MetaInfo> metaInfos;
 
   private QueryTable queryTable;
+  private ArrayList<Table> tables;
+  private int firstTableColumnNum;
 
   private ArrayList<QueryColumnPlusData> queryRes;
 
@@ -47,7 +50,9 @@ public class QueryResult {
     this.orderByItem = orderByItem;
 
     this.metaInfos = new ArrayList<>();
-    queryTable = new QueryTable(tables);
+    this.tables = tables;
+    this.firstTableColumnNum = tables.get(0).getColumns().size();
+
     for (Table table: tables) {
       this.metaInfos.add(new MetaInfo(table.getTableName(), table.getColumns()));
     }
@@ -61,6 +66,26 @@ public class QueryResult {
   }
   public void process() {
     ArrayList<Row> res = new ArrayList<>();
+
+
+
+    if (whereItem != null) {
+      Node<ConditionItem> root = whereItem.getRoot();
+      if (root.isLeaf()) {
+        ConditionItem tmp = root.getValue();
+        int type = tmp.getType();
+        if (type == 1 || type == 2 || type == 4) {
+          whereItem.setColumn(this.columns);
+          boolean isFirst = tmp.setSingleTableIdx(firstTableColumnNum);
+          queryTable = new QueryTable(tables, tmp, isFirst);
+          whereItem = null;
+        }
+      } else if (root.getLeft().isLeaf() && root.getRight().isLeaf() && root.getOp().equals("and")) {
+        //
+      }
+    } else {
+      queryTable = new QueryTable(tables);
+    }
 
     // JOIN ON 条件与表达式树合并
     FromItem.JoinType joinType = fromItem.getJoinType();
@@ -117,69 +142,73 @@ public class QueryResult {
 
     if (whereItem != null) {
       whereItem.setColumn(this.columns);
-      // 接下来筛选符合条件的Row
-      if (queryTable.getTableNum() == 1) {
-        for (QueryTable it = queryTable; it.hasNext(); ) {
-          Row r = it.next();
-          if (whereItem.getTreeValue(r).getValue()) {
-            res.add(r);
-          }
-        }
-      } else {
-        int column_count1 = metaInfos.get(0).getColumnNum();
-        int column_count2 = metaInfos.get(1).getColumnNum();
-        int n1 = queryTable.n1;
-        int n2 = queryTable.n2;
-        boolean [] t1_count = new boolean[n1];
-        boolean [] t2_count = new boolean[n2];
-        int i = 0;
-        for (QueryTable it = queryTable; it.hasNext(); ) {
-          Row r = it.next();
-          if (whereItem.getTreeValue(r).getValue()) {
-            res.add(r);
-            t1_count[i / n2] = true;
-            t2_count[i % n2] = true;
-          } else {
-            // LEFT OUTER JOIN
-            if (retain_left) {
-              if ((i % n2) == (n2 - 1) && !t1_count[i / n2]) {
-                ArrayList<Entry> entries = new ArrayList<>();
-                ArrayList<Entry> r_entries = r.getEntries();
-                for (int k = 0; k < column_count1; k++) {
-                  entries.add(new Entry(r_entries.get(k)));
-                }
-                for (int k = 0; k < column_count2; k++) {
-                  entries.add(new Entry(null));
-                }
-                res.add(new Row(entries));
-              }
-            }
-            // RIGHT OUTER JOIN
-            if (retain_right) {
-              if ((i / n2) == (n1 - 1) && !t2_count[i % n2]) {
-                ArrayList<Entry> entries = new ArrayList<>();
-                ArrayList<Entry> r_entries = r.getEntries();
-
-                for (int k = 0; k < column_count1; k++) {
-                  entries.add(new Entry(null)); // 以null填充
-                }
-                for (int k = column_count1; k < column_count1 + column_count2; k++) {
-                  entries.add(new Entry(r_entries.get(k)));
-                }
-                res.add(new Row(entries));
-              }
-            }
-          }
-          i++;
-        }
-      }
-    } else {
-      // 如果没有条件，直接一一放到res中，可能效率高一丁点
-      for (QueryTable it = queryTable; it.hasNext(); ) {
-        Row r = it.next();
-        res.add(r);
-      }
     }
+    res = queryTable.traverse(whereItem, retain_left, retain_right);
+//    if (whereItem != null) {
+//      whereItem.setColumn(this.columns);
+//      // 接下来筛选符合条件的Row
+//      if (queryTable.getTableNum() == 1) {
+//        for (QueryTable it = queryTable; it.hasNext(); ) {
+//          Row r = it.next();
+//          if (whereItem.getTreeValue(r).getValue()) {
+//            res.add(r);
+//          }
+//        }
+//      } else {
+//        int column_count1 = metaInfos.get(0).getColumnNum();
+//        int column_count2 = metaInfos.get(1).getColumnNum();
+//        int n1 = queryTable.n1;
+//        int n2 = queryTable.n2;
+//        boolean [] t1_count = new boolean[n1];
+//        boolean [] t2_count = new boolean[n2];
+//        int i = 0;
+//        for (QueryTable it = queryTable; it.hasNext(); ) {
+//          Row r = it.next();
+//          if (whereItem.getTreeValue(r).getValue()) {
+//            res.add(r);
+//            t1_count[i / n2] = true;
+//            t2_count[i % n2] = true;
+//          } else {
+//            // LEFT OUTER JOIN
+//            if (retain_left) {
+//              if ((i % n2) == (n2 - 1) && !t1_count[i / n2]) {
+//                ArrayList<Entry> entries = new ArrayList<>();
+//                ArrayList<Entry> r_entries = r.getEntries();
+//                for (int k = 0; k < column_count1; k++) {
+//                  entries.add(new Entry(r_entries.get(k)));
+//                }
+//                for (int k = 0; k < column_count2; k++) {
+//                  entries.add(new Entry(null));
+//                }
+//                res.add(new Row(entries));
+//              }
+//            }
+//            // RIGHT OUTER JOIN
+//            if (retain_right) {
+//              if ((i / n2) == (n1 - 1) && !t2_count[i % n2]) {
+//                ArrayList<Entry> entries = new ArrayList<>();
+//                ArrayList<Entry> r_entries = r.getEntries();
+//
+//                for (int k = 0; k < column_count1; k++) {
+//                  entries.add(new Entry(null)); // 以null填充
+//                }
+//                for (int k = column_count1; k < column_count1 + column_count2; k++) {
+//                  entries.add(new Entry(r_entries.get(k)));
+//                }
+//                res.add(new Row(entries));
+//              }
+//            }
+//          }
+//          i++;
+//        }
+//      }
+//    } else {
+//      // 如果没有条件，直接一一放到res中，可能效率高一丁点
+//      for (QueryTable it = queryTable; it.hasNext(); ) {
+//        Row r = it.next();
+//        res.add(r);
+//      }
+//    }
 
 
 
