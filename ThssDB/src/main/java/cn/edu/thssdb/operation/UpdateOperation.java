@@ -25,6 +25,7 @@ public class UpdateOperation extends BaseOperation {
   final static String wrongColumnType = "Exception: wrong update operation ( type unmatched )!";
   final static String columnNotNull = "Exception: wrong update operation ( this column cannot be null )!";//列数与值数不匹配
   final static String duplicateKey = "Exception: wrong update operation ( update causes duplicate key )!";
+  final static String wrongStringLength = "Exception: wrong update operation ( update causes string exceeds length limit )!";
 
   /**
    * [method] 构造方法
@@ -101,6 +102,9 @@ public class UpdateOperation extends BaseOperation {
       }
     } else if(itemType == LiteralValueItem.Type.STRING){
       if(columnType == ColumnType.STRING){
+        if(columnToUpdate.getMaxLength()<itemString.length()){
+          throw new WrongUpdateException(wrongStringLength);
+        }
         valueToUpdate = itemString;
       } else {
         throw new WrongUpdateException(wrongColumnType);
