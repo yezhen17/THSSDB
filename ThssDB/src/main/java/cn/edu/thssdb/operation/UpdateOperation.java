@@ -99,7 +99,7 @@ public class UpdateOperation extends BaseOperation {
       } else {
         throw new WrongUpdateException(wrongColumnType);
       }
-    } else if(columnType == ColumnType.STRING){
+    } else if(itemType == LiteralValueItem.Type.STRING){
       if(columnType == ColumnType.STRING){
         valueToUpdate = itemString;
       } else {
