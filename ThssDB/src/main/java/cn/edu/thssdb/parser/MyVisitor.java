@@ -14,11 +14,11 @@ public class MyVisitor extends SQLBaseVisitor{
 
   @Override
   public Object visitParse(SQLParser.ParseContext ctx) {
-    int n = ctx.getChildCount();
-    ArrayList res = new ArrayList<>();
-    for (int i = 0; i <= n-1; ++i)
-      res.addAll((ArrayList)visit(ctx.getChild(i)));
-    return res;
+//    int n = ctx.getChildCount();
+//    ArrayList res = new ArrayList<>();
+//    for (int i = 0; i < n; ++i)
+//      res.addAll((ArrayList)visit(ctx.getChild(i)));
+    return visit(ctx.getChild(0));
   }
 
 
@@ -29,8 +29,9 @@ public class MyVisitor extends SQLBaseVisitor{
     int n = ctx.getChildCount();
     ArrayList res = new ArrayList();
     //+2是为了跳过；
-    for (int i = 0; i < n; i += 2) {
-      res.add(visit(ctx.getChild(i)));
+    for (int i = 0; i < n; i++) {
+      Object stmt = visit(ctx.getChild(i));
+      if (stmt != null) res.add(stmt);
 //      System.out.println(ctx.getChild(i + 1).getText());
     }
     //res的内容是自己定义的statement类的列表
@@ -39,7 +40,7 @@ public class MyVisitor extends SQLBaseVisitor{
 
   @Override
   public Object visitSql_stmt(SQLParser.Sql_stmtContext ctx) {
-    System.out.println(ctx.getText());
+    // System.out.println(ctx.getText());
     //ctx.getChild(0)是每个句子的语法树
     return visit(ctx.getChild(0));
   }
@@ -361,7 +362,7 @@ public class MyVisitor extends SQLBaseVisitor{
       if (ctx.getChild(0).getText().equalsIgnoreCase("(")) {
         return (MultipleConditionItem) visit(ctx.getChild(1));
       } else {
-        System.out.println(visit(ctx.getChild(0)));
+        // System.out.println(visit(ctx.getChild(0)));
         return new MultipleConditionItem((MultipleConditionItem) visit(ctx.getChild(0)),
                 (MultipleConditionItem) visit(ctx.getChild(2)),
                 ctx.getChild(1).getText());

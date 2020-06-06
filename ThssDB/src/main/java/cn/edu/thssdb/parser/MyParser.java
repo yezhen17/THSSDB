@@ -24,7 +24,7 @@ public class MyParser {
     ArrayList res;
     try {
       MyVisitor visitor = new MyVisitor();
-       res = (ArrayList) visitor.visit(parser.parse());
+      res = (ArrayList) visitor.visit(parser.parse());
     } catch (Exception e) {
       throw e; // 这里抛出异常让上层处理
     }

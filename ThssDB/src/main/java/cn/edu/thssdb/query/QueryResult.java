@@ -67,8 +67,7 @@ public class QueryResult {
   public void process() {
     ArrayList<Row> res = new ArrayList<>();
 
-
-
+    boolean no_where_left = false;
     if (whereItem != null) {
       Node<ConditionItem> root = whereItem.getRoot();
       if (root.isLeaf()) {
@@ -81,9 +80,12 @@ public class QueryResult {
           whereItem = null;
         }
       } else if (root.getLeft().isLeaf() && root.getRight().isLeaf() && root.getOp().equals("and")) {
-        //
+        queryTable = new QueryTable(tables);
+      } else {
+        queryTable = new QueryTable(tables);
       }
     } else {
+      no_where_left = true;
       queryTable = new QueryTable(tables);
     }
 
@@ -139,11 +141,37 @@ public class QueryResult {
         break;
       }
     }
-
-    if (whereItem != null) {
+    if (no_where_left && !retain_left && !retain_right && whereItem != null && whereItem.getRoot().isLeaf()) {
+      // Node<ConditionItem> root = whereItem.getRoot();
+      ConditionItem tmp = whereItem.getRoot().getValue();
       whereItem.setColumn(this.columns);
+      int primary = tmp.getPrimaryIndexTable(firstTableColumnNum,
+              tables.get(0).primaryIndex, tables.get(1).primaryIndex);
+      if (primary < 0) {
+        res = queryTable.traverse(whereItem, retain_left, retain_right);
+      } else {
+        whereItem = null;
+        if (tmp.getIdx1() == primary) {
+          int idx = tmp.getIdx2();
+          if (idx >= firstTableColumnNum) idx -= firstTableColumnNum;
+          res = queryTable.traverseSmart(null, primary < firstTableColumnNum, idx);
+        } else {
+          int idx = tmp.getIdx1();
+          if (idx >= firstTableColumnNum) idx -= firstTableColumnNum;
+          res = queryTable.traverseSmart(null, primary < firstTableColumnNum, idx);
+        }
+
+      }
+
+    } else {
+      if (whereItem != null) {
+        whereItem.setColumn(this.columns);
+      }
+      res = queryTable.traverse(whereItem, retain_left, retain_right);
     }
-    res = queryTable.traverse(whereItem, retain_left, retain_right);
+
+
+
 //    if (whereItem != null) {
 //      whereItem.setColumn(this.columns);
 //      // 接下来筛选符合条件的Row

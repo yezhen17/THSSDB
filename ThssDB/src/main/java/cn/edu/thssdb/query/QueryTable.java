@@ -1,5 +1,6 @@
 package cn.edu.thssdb.query;
 
+import cn.edu.thssdb.exception.KeyNotExistException;
 import cn.edu.thssdb.parser.item.ConditionItem;
 import cn.edu.thssdb.parser.item.MultipleConditionItem;
 import cn.edu.thssdb.parser.item.WhereItem;
@@ -21,7 +22,7 @@ public class QueryTable extends BaseQueryTable implements Iterator<Row> {
   int n2;
   Row cache;
   boolean t1_primary = false;
-  boolean reverse = false;
+  boolean useSmart = false;
 
   public QueryTable(ArrayList<Table> tables) {
     this.tables = tables;
@@ -132,6 +133,70 @@ public class QueryTable extends BaseQueryTable implements Iterator<Row> {
     }
   }
 
+  public ArrayList<Row> traverseSmart(MultipleConditionItem cond, boolean table1, int idx) {
+    ArrayList<Row> res = new ArrayList<>();
+    Iterator<Row> notPrim;
+    Table primTable;
+    if (table1) {
+      notPrim = t2;
+      primTable = tables.get(0);
+      if (cond != null) {
+        while (notPrim.hasNext()) {
+          Row r = notPrim.next();
+          Entry v = r.getEntries().get(idx);
+          try {
+            Row nr = combineRow(primTable.search(v), r);
+            if(cond.getTreeValue(r).getValue()) res.add(nr);
+          } catch (KeyNotExistException e) {
+
+          }
+        }
+      } else {
+        while (notPrim.hasNext()) {
+          Row r = notPrim.next();
+          Entry v = r.getEntries().get(idx);
+          try {
+            res.add(combineRow(primTable.search(v), r));
+          } catch (KeyNotExistException e) {
+
+          }
+        }
+      }
+    } else {
+      notPrim = t1;
+      primTable = tables.get(1);
+      if (cond != null) {
+        while (notPrim.hasNext()) {
+          Row r = notPrim.next();
+          Entry v = r.getEntries().get(idx);
+          try {
+            Row nr = combineRow(r, primTable.search(v));
+            if(cond.getTreeValue(r).getValue()) res.add(nr);
+          } catch (KeyNotExistException e) {
+
+          }
+        }
+      } else {
+        while (notPrim.hasNext()) {
+          Row r = notPrim.next();
+          Entry v = r.getEntries().get(idx);
+          try {
+            res.add(combineRow(r, primTable.search(v)));
+          } catch (KeyNotExistException e) {
+
+          }
+        }
+      }
+    }
+
+
+    return res;
+  }
+
+
+
+
+
   public ArrayList<Row> traverse(MultipleConditionItem cond, boolean retain_left, boolean retain_right) {
     ArrayList<Row> res = new ArrayList<>();
     if (cond != null) {
@@ -144,49 +209,63 @@ public class QueryTable extends BaseQueryTable implements Iterator<Row> {
           }
         }
       } else {
-        int column_count1 = tables.get(0).getColumns().size();
-        int column_count2 = tables.get(1).getColumns().size();
-        boolean [] t1_count = new boolean[n1];
-        boolean [] t2_count = new boolean[n2];
-        int i = 0;
-        while(hasNext()) {
-          Row r = next();
-          if (cond.getTreeValue(r).getValue()) {
-            res.add(r);
-            t1_count[i / n2] = true;
-            t2_count[i % n2] = true;
-          } else {
-            // LEFT OUTER JOIN
-            if (retain_left) {
-              if ((i % n2) == (n2 - 1) && !t1_count[i / n2]) {
-                ArrayList<Entry> entries = new ArrayList<>();
-                ArrayList<Entry> r_entries = r.getEntries();
-                for (int k = 0; k < column_count1; k++) {
-                  entries.add(new Entry(r_entries.get(k)));
+        if (retain_left || retain_right) {
+          int column_count1 = tables.get(0).getColumns().size();
+          int column_count2 = tables.get(1).getColumns().size();
+          boolean [] t1_count = new boolean[n1];
+          boolean [] t2_count = new boolean[n2];
+          int i = 0;
+          int j = 0;
+          while(hasNext()) {
+            Row r = next();
+            if (cond.getTreeValue(r).getValue()) {
+              res.add(r);
+              t1_count[j] = true;
+              t2_count[i] = true;
+            } else {
+              // LEFT OUTER JOIN
+              if (retain_left) {
+                if (i == (n2 - 1) && !t1_count[j]) {
+                  ArrayList<Entry> entries = new ArrayList<>();
+                  ArrayList<Entry> r_entries = r.getEntries();
+                  for (int k = 0; k < column_count1; k++) {
+                    entries.add(new Entry(r_entries.get(k)));
+                  }
+                  for (int k = 0; k < column_count2; k++) {
+                    entries.add(new Entry(null));
+                  }
+                  res.add(new Row(entries));
                 }
-                for (int k = 0; k < column_count2; k++) {
-                  entries.add(new Entry(null));
+              }
+              // RIGHT OUTER JOIN
+              if (retain_right) {
+                if (j == (n1 - 1) && !t2_count[i]) {
+                  ArrayList<Entry> entries = new ArrayList<>();
+                  ArrayList<Entry> r_entries = r.getEntries();
+
+                  for (int k = 0; k < column_count1; k++) {
+                    entries.add(new Entry(null)); // 以null填充
+                  }
+                  for (int k = column_count1; k < column_count1 + column_count2; k++) {
+                    entries.add(new Entry(r_entries.get(k)));
+                  }
+                  res.add(new Row(entries));
                 }
-                res.add(new Row(entries));
               }
             }
-            // RIGHT OUTER JOIN
-            if (retain_right) {
-              if ((i / n2) == (n1 - 1) && !t2_count[i % n2]) {
-                ArrayList<Entry> entries = new ArrayList<>();
-                ArrayList<Entry> r_entries = r.getEntries();
-
-                for (int k = 0; k < column_count1; k++) {
-                  entries.add(new Entry(null)); // 以null填充
-                }
-                for (int k = column_count1; k < column_count1 + column_count2; k++) {
-                  entries.add(new Entry(r_entries.get(k)));
-                }
-                res.add(new Row(entries));
-              }
+            i++;
+            if (i == n2) {
+              i = 0;
+              j++;
             }
           }
-          i++;
+        } else {
+          while(hasNext()) {
+            Row r = next();
+            if (cond.getTreeValue(r).getValue()) {
+              res.add(r);
+            }
+          }
         }
       }
     } else {

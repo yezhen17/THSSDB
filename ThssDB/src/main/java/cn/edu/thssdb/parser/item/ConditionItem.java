@@ -216,6 +216,21 @@ public class ConditionItem {
     return true;
   }
 
+  // 返回哪个表的是主键
+  public int getPrimaryIndexTable(int firstTableColumns, int primary1, int primary2) {
+    if (idx1 >= firstTableColumns) {
+      if (idx1 == primary1 + firstTableColumns) return idx1;
+    } else {
+      if (idx1 == primary1) return idx1;
+    }
+    if (idx2 >= firstTableColumns) {
+      if (idx2 == primary2 + firstTableColumns) return idx2;
+    } else {
+      if (idx2 == primary2) return idx2;
+    }
+    return -1;
+  }
+
   public int getType() {
     return type;
   }
