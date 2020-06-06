@@ -39,6 +39,11 @@ public final class BPlusTreeInternalNode<K extends Comparable<K>, V> extends BPl
   }
 
   @Override
+  void set(K key, V value) {
+    searchChild(key).set(key, value);
+  }
+
+  @Override
   void put(K key, V value) {
     BPlusTreeNode<K, V> child = searchChild(key);
     child.put(key, value);

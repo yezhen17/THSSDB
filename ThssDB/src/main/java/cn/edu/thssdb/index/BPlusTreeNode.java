@@ -13,6 +13,8 @@ abstract class BPlusTreeNode<K extends Comparable<K>, V> {
 
   abstract void put(K key, V value);
 
+  abstract void set(K key, V value);
+
   abstract void remove(K key);
 
   abstract boolean containsKey(K key);

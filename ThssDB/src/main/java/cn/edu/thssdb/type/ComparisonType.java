@@ -3,6 +3,7 @@ package cn.edu.thssdb.type;
 public enum ComparisonType {
   LT, GT, NGT, NLT, EQ, NEQ, ISNULL;
 
+  // 字符串->类型
   public static ComparisonType string2ComparisonType(String s) {
     if(s.equals("<")) return LT;
     else if(s.equals(">")) return GT;

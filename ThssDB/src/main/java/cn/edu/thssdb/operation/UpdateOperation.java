@@ -16,6 +16,7 @@ public class UpdateOperation extends BaseOperation {
   private LiteralValueItem literalValueItem;
   private MultipleConditionItem whereItem = null;
   private ArrayList<Pair<Row,Row>> rowsHasUpdate;
+  private int columnIdxToUpdate;
 
 
   private Table table = null;
@@ -49,9 +50,6 @@ public class UpdateOperation extends BaseOperation {
      */
   public void exec() {
 
-    if (database==null){
-      throw new DatabaseNotExistException();
-    }
 
     table = database.get(tableName);
     if(table==null){
@@ -62,9 +60,10 @@ public class UpdateOperation extends BaseOperation {
     Column columnToUpdate = null;
 
     int primaryKeyIndex = -1;
-    for(int i=0;i<columns.size();i++){
+    for(int i = 0; i < columns.size(); i++){
       if(columns.get(i).getName().equals(columnName)){
         columnToUpdate = columns.get(i);
+        columnIdxToUpdate = i;
         if(columnToUpdate.isPrimary()){
           primaryKeyIndex = i;
         }
@@ -80,74 +79,125 @@ public class UpdateOperation extends BaseOperation {
     String itemString = literalValueItem.getString();
     Comparable valueToUpdate;
 
-    if(itemType==LiteralValueItem.Type.INT_OR_LONG){
-      if(columnType==ColumnType.INT){
+    if (itemType == LiteralValueItem.Type.INT_OR_LONG){
+      if (columnType == ColumnType.INT){
         valueToUpdate = Integer.valueOf(itemString);
-      } else if(columnType==ColumnType.LONG){
+      } else if (columnType == ColumnType.LONG){
         valueToUpdate = Long.valueOf(itemString);
-      } else {
-        throw new WrongUpdateException(wrongColumnType);
-      }
-    } else if(itemType==LiteralValueItem.Type.FLOAT_OR_DOUBLE){
-      if(columnType==ColumnType.DOUBLE){
+      } else if (columnType == ColumnType.DOUBLE){
         valueToUpdate = Double.valueOf(itemString);
-      } else if(columnType==ColumnType.FLOAT){
+      } else if (columnType == ColumnType.FLOAT){
         valueToUpdate = Float.valueOf(itemString);
       } else {
         throw new WrongUpdateException(wrongColumnType);
       }
-    } else if(columnType==ColumnType.STRING){
-      if(columnType==ColumnType.STRING){
+    } else if (itemType == LiteralValueItem.Type.FLOAT_OR_DOUBLE){
+      if (columnType == ColumnType.DOUBLE){
+        valueToUpdate = Double.valueOf(itemString);
+      } else if (columnType == ColumnType.FLOAT){
+        valueToUpdate = Float.valueOf(itemString);
+      } else {
+        throw new WrongUpdateException(wrongColumnType);
+      }
+    } else if(columnType == ColumnType.STRING){
+      if(columnType == ColumnType.STRING){
         valueToUpdate = itemString;
       } else {
         throw new WrongUpdateException(wrongColumnType);
       }
     } else {
-      if(columnToUpdate.isNotNull()){
+      if (columnToUpdate.isNotNull()){
         throw new WrongUpdateException(columnNotNull);
       }
       valueToUpdate = null;
     }
 
     Iterator<Row> rowIterator = table.iterator();
-    if(whereItem == null){
-      while (rowIterator.hasNext()){
-        Row oldRow = rowIterator.next();
-        Row newRow = getNewRow(oldRow,valueToUpdate);
-
-        if(primaryKeyIndex!=-1 && table.index.contains(newRow.getEntries().get(primaryKeyIndex))){
-          undo();
+    if (whereItem == null){
+      if (primaryKeyIndex != -1) {
+        if (table.index.size() > 1) {
           throw new WrongUpdateException(duplicateKey);
+        } else {
+          if (rowIterator.hasNext()) {
+            Row oldRow = rowIterator.next();
+            Row newRow = getNewRow(oldRow, valueToUpdate);
+            if (newRow != null) {
+              table.update(oldRow, newRow);
+              rowsHasUpdate.add(new Pair<>(oldRow,newRow));
+            }
+          }
         }
-        else {
-          table.update(oldRow,newRow);
+//        while (rowIterator.hasNext()){
+//          Row oldRow = rowIterator.next();
+//          Row newRow = getNewRow(oldRow, valueToUpdate);
+//          if(table.index.contains(newRow.getEntries().get(primaryKeyIndex))){
+//            undo();
+//            throw new WrongUpdateException(duplicateKey);
+//          }
+//          else {
+//            table.update(oldRow,newRow);
+//            rowsHasUpdate.add(new Pair<>(oldRow,newRow));
+//          }
+//        }
+      } else {
+        while (rowIterator.hasNext()) {
+          Row oldRow = rowIterator.next();
+          Row newRow = getNewRow(oldRow, valueToUpdate);
+          if (newRow == null) {
+            continue;
+          }
           rowsHasUpdate.add(new Pair<>(oldRow,newRow));
         }
-
+        table.updateAll(columnIdxToUpdate, valueToUpdate);
+//        while (rowIterator.hasNext()){
+//          Row oldRow = rowIterator.next();
+//          Row newRow = getNewRow(oldRow, valueToUpdate);
+//          else {
+//            table.update(oldRow,newRow);
+//            rowsHasUpdate.add(new Pair<>(oldRow,newRow));
+//          }
+//        }
       }
-
     }
     else {
       ArrayList<QueryColumn> queryColumns = new ArrayList<>();
-      for(Column column:columns){
-        queryColumns.add(new QueryColumn(column,tableName));
+      for (Column column: columns) {
+        queryColumns.add(new QueryColumn(column, tableName));
       }
       whereItem.setColumn(queryColumns);
-      while (rowIterator.hasNext()){
-        Row oldRow = rowIterator.next();
-        if(whereItem.getTreeValue(oldRow).getValue()){
-          Row newRow = getNewRow(oldRow,valueToUpdate);
-
-          if(primaryKeyIndex!=-1 && table.index.contains(newRow.getEntries().get(primaryKeyIndex))){
-            undo();
-            throw new WrongUpdateException(duplicateKey);
+      if (primaryKeyIndex != -1) {
+        Entry entryToUpdate = new Entry(valueToUpdate);
+        while (rowIterator.hasNext()) {
+          Row oldRow = rowIterator.next();
+          if (whereItem.getTreeValue(oldRow).getValue()) {
+            Row newRow = getNewRow(oldRow, valueToUpdate);
+            if (newRow == null) {
+              continue;
+            }
+            if(table.index.contains(entryToUpdate)){
+              undo();
+              throw new WrongUpdateException(duplicateKey);
+            }
+            else {
+              table.update(oldRow,newRow);
+              rowsHasUpdate.add(new Pair<>(oldRow,newRow));
+            }
           }
-          else {
-            table.update(oldRow,newRow);
+        }
+      } else {
+        while (rowIterator.hasNext()) {
+          Row oldRow = rowIterator.next();
+          if (whereItem.getTreeValue(oldRow).getValue()) {
+            Row newRow = getNewRow(oldRow, valueToUpdate);
+            if (newRow == null) {
+              continue;
+            }
+            table.updateNoRemove(oldRow, newRow);
             rowsHasUpdate.add(new Pair<>(oldRow,newRow));
           }
         }
       }
+
     }
 //    update();
 
@@ -165,14 +215,27 @@ public class UpdateOperation extends BaseOperation {
 
 
   private Row getNewRow(Row oldRow, Comparable valueToUpdate) {
+
     ArrayList<Entry> entries = new ArrayList<>();
-    for (int index = 0; index < table.getColumns().size(); index++) {
-      if (table.getColumns().get(index).getName().equals(columnName)) {
-        entries.add(new Entry(valueToUpdate));
-      } else {
-        entries.add(new Entry(oldRow.getEntries().get(index).value));
-      }
+    ArrayList<Entry> old_entries = oldRow.getEntries();
+    for (Entry e: old_entries) {
+      entries.add(new Entry(e.value));
     }
+    Entry tmp = new Entry(valueToUpdate);
+    if (entries.get(columnIdxToUpdate).compareTo(tmp) == 0) {
+      return null;
+    } else {
+      entries.set(columnIdxToUpdate, new Entry(valueToUpdate));
+    }
+
+
+//    for (int index = 0; index < table.getColumns().size(); index++) {
+//      if (table.getColumns().get(index).getName().equals(columnName)) {
+//        entries.add(new Entry(valueToUpdate));
+//      } else {
+//        entries.add(new Entry(oldRow.getEntries().get(index).value));
+//      }
+//    }
     Row newRow = new Row(entries);
     return newRow;
   }

@@ -55,6 +55,14 @@ public class BPlusTreeLeafNode<K extends Comparable<K>, V> extends BPlusTreeNode
   }
 
   @Override
+  void set(K key, V value) {
+    int index = binarySearch(key);
+    if (index >= 0)
+      values.set(index, value);
+    throw new KeyNotExistException();
+  }
+
+  @Override
   void remove(K key) {
     int index = binarySearch(key);
     if (index >= 0) {

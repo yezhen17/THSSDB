@@ -16,6 +16,7 @@ public enum ColumnType {
     else throw new IllegalArgumentException();
   }
 
+  // 字符串->类型
   public static ColumnType string2ColumnType(String s) {
     if(s.equals("INT")) return INT;
     else if(s.equals("LONG")) return LONG;
@@ -25,6 +26,7 @@ public enum ColumnType {
     else throw new IllegalTypeException();
   }
 
+  // 类型->字符串
   public static String columnType2String(ColumnType c) {
     if(c == INT) return "INT";
     else if(c == LONG) return "LONG";
@@ -34,12 +36,9 @@ public enum ColumnType {
     else throw new IllegalTypeException();
   }
 
+  // 根据类型，获取对应的值
   public static Comparable getColumnTypeValue(ColumnType c, String val) {
     if (val.equalsIgnoreCase("null")) return null;
-//    if(c == INT) return Integer.valueOf(val);
-//    else if(c == LONG) return Long.valueOf(val);
-//    else if(c == FLOAT) return Float.valueOf(val);
-//    else if(c == DOUBLE) return Double.valueOf(val);
     if(c == INT) return Double.valueOf(val).intValue();
     else if(c == LONG) return Double.valueOf(val).longValue();
     else if(c == FLOAT) return Double.valueOf(val).floatValue();
@@ -48,16 +47,12 @@ public enum ColumnType {
     else throw new IllegalTypeException();
   }
 
+  // 根据类型，获取对应的值
   public static Comparable getColumnTypeValue(ColumnType c, Double val) {
-//    if(c == INT) return Integer.valueOf(val);
-//    else if(c == LONG) return Long.valueOf(val);
-//    else if(c == FLOAT) return Float.valueOf(val);
-//    else if(c == DOUBLE) return Double.valueOf(val);
     if(c == INT) return val.intValue();
     else if(c == LONG) return val.longValue();
     else if(c == FLOAT) return val.floatValue();
     else if(c == DOUBLE) return val;
-    // else if(c == STRING) return val;
     else throw new IllegalTypeException();
   }
 }

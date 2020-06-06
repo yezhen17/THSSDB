@@ -134,6 +134,7 @@ public class QueryTable extends BaseQueryTable implements Iterator<Row> {
   }
 
   public ArrayList<Row> traverseSmart(MultipleConditionItem cond, boolean table1, int idx) {
+    if (idx == -1) return traverse(cond, false, false);
     ArrayList<Row> res = new ArrayList<>();
     Iterator<Row> notPrim;
     Table primTable;

@@ -91,24 +91,37 @@ public class ConditionItem {
       case 0: {
         Entry tmp1 = row.getEntries().get(idx1);
         Entry tmp2 = row.getEntries().get(idx2);
-        if (tmp1 == null || tmp2 == null) return false;
-        else cmp_res = tmp1.compareTo(tmp2);
+        try {
+          cmp_res = tmp1.compareTo(tmp2);
+        } catch (NullPointerException e) {
+          return false;
+        }
         break;
       }
       case 1: {
         Entry tmp = row.getEntries().get(idx1);
-        if (tmp.value == null) return false;
-        else cmp_res = tmp.compareTo(e2);
+        try {
+          cmp_res = tmp.compareTo(e2);
+        } catch (NullPointerException e) {
+          return false;
+        }
         break;
       }
       case 2: {
         Entry tmp = row.getEntries().get(idx1);
-        if (tmp.value == null) return false;
-        else cmp_res = e1.compareTo(tmp);
+        try {
+          cmp_res = e1.compareTo(tmp);
+        } catch (NullPointerException e) {
+          return false;
+        }
         break;
       }
       case 3: {
-        cmp_res = e1.compareTo(e2);
+        try {
+          cmp_res = e1.compareTo(e2);
+        } catch (NullPointerException e) {
+          return false;
+        }
         break;
       }
       default: {
@@ -125,7 +138,7 @@ public class ConditionItem {
       case NLT: res = cmp_res >= 0; break; // >=
       case EQ: res = cmp_res == 0; break; // ==
       case NEQ: res = cmp_res != 0; break; // >=
-      default: res = row.getEntries().get(idx1) == null; break;
+      default: res = row.getEntries().get(idx1).value == null; break;
     }
     return res;
   }
@@ -144,7 +157,10 @@ public class ConditionItem {
         }
         i++;
       }
-      if (c2.getIsNull()) return;
+      if (c2.getIsNull()) {
+        type = 4;
+        return;
+      }
       if (c2.getIsC()) {
         type = 0;
         i = 0;

@@ -25,6 +25,10 @@ public final class BPlusTree<K extends Comparable<K>, V> implements Iterable<Pai
     root.put(key, value);
   }
 
+  public void updateNoRemove(K key, V value) {
+    root.set(key, value);
+  }
+
   public void put(K key, V value) {
     if (key == null) throw new IllegalArgumentException("argument key to put() is null");
     root.put(key, value);

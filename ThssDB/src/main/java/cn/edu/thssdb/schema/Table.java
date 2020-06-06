@@ -2,6 +2,7 @@ package cn.edu.thssdb.schema;
 
 import cn.edu.thssdb.exception.*;
 import cn.edu.thssdb.index.BPlusTree;
+import cn.edu.thssdb.index.BPlusTreeIterator;
 import cn.edu.thssdb.parser.item.MultipleConditionItem;
 import cn.edu.thssdb.type.ColumnType;
 import cn.edu.thssdb.type.ComparisonType;
@@ -168,14 +169,6 @@ public class Table implements Iterable<Row> {
     for(Row row:rows){
       index.put(row.getEntries().get(primaryIndex), row);
     }
-//    try {
-//      lock.writeLock().lock();
-//      for(Row row:rows){
-//        index.put(row.getEntries().get(primaryIndex), row);
-//      }
-//    } finally {
-//      lock.writeLock().unlock();
-//    }
   }
 
   /**
@@ -189,13 +182,6 @@ public class Table implements Iterable<Row> {
     } catch (DuplicateKeyException e){
       throw e;
     }
-
-//    try {
-//      lock.writeLock().lock();
-//      index.put(row.getEntries().get(primaryIndex), row);
-//    } finally {
-//      lock.writeLock().unlock();
-//    }
   }
 
   /**
@@ -224,12 +210,6 @@ public class Table implements Iterable<Row> {
    */
   public void delete(Row row) {
     index.remove(row.getEntries().get(primaryIndex));
-//    try {
-//      lock.writeLock().lock();
-//      index.remove(row.getEntries().get(primaryIndex));
-//    } finally {
-//      lock.writeLock().unlock();
-//    }
   }
 
 
@@ -240,12 +220,6 @@ public class Table implements Iterable<Row> {
    */
   public void delete(Entry entry) {
     index.remove(entry);
-//    try {
-//      lock.writeLock().lock();
-//      index.remove(entry);
-//    } finally {
-//      lock.writeLock().unlock();
-//    }
   }
 
   /**
@@ -256,12 +230,6 @@ public class Table implements Iterable<Row> {
     ColumnType c = columns.get(primaryIndex).getType();
     Entry primaryEntry = new Entry(ColumnType.getColumnTypeValue(c, val));
     index.remove(primaryEntry);
-//    try {
-//      lock.writeLock().lock();
-//      index.remove(entry);
-//    } finally {
-//      lock.writeLock().unlock();
-//    }
   }
 
   /**
@@ -270,13 +238,6 @@ public class Table implements Iterable<Row> {
   public void delete() {
     index.clear();
     index = new BPlusTree<>();
-//    try {
-//      lock.writeLock().lock();
-//      index.clear();
-//      index = new BPlusTree<>();
-//    } finally {
-//      lock.writeLock().unlock();
-//    }
   }
 
   /**
@@ -285,6 +246,7 @@ public class Table implements Iterable<Row> {
    * @exception IllegalArgumentException
    */
   public void update(Row oldRow, Row newRow) {
+    // index.update(newRow.getEntries().get(primaryIndex), newRow);
     if(oldRow.getEntries().get(primaryIndex).compareTo(newRow.getEntries().get(primaryIndex))==0) {
         index.update(newRow.getEntries().get(primaryIndex), newRow);
     }
@@ -296,21 +258,18 @@ public class Table implements Iterable<Row> {
       catch (DuplicateKeyException e){
         throw e;
       }
-
-
     }
-//    try {
-//      lock.writeLock().lock();
-//      if(oldRow.getEntries().get(primaryIndex).compareTo(newRow.getEntries().get(primaryIndex))==0) {
-//        index.update(newRow.getEntries().get(primaryIndex), newRow);
-//      }
-//      else {
-//        delete(oldRow);
-//        insert(newRow);
-//      }
-//    } finally {
-//      lock.writeLock().unlock();
-//    }
+  }
+
+  public void updateNoRemove(Row oldRow, Row newRow) {
+    index.updateNoRemove(oldRow.getEntries().get(primaryIndex), newRow);
+  }
+
+  public void updateAll(int idx, Comparable val) {
+    BPlusTreeIterator<Entry, Row> it = index.iterator();
+    while (it.hasNext()) {
+      it.next().getValue().getEntries().set(idx, new Entry(val));
+    }
   }
 
   /**

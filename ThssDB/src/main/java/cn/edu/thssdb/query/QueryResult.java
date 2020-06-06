@@ -65,7 +65,7 @@ public class QueryResult {
     }
   }
   public void process() {
-    ArrayList<Row> res = new ArrayList<>();
+    ArrayList<Row> res;
 
     boolean no_where_left = false;
     if (whereItem != null) {
@@ -110,7 +110,7 @@ public class QueryResult {
       case NATURAL_INNER_JOIN: {
         for (QueryColumn c1: metaInfos.get(0).getColumns()) {
           for (QueryColumn c2: metaInfos.get(1).getColumns()) {
-            if (c1.getName().equalsIgnoreCase(c2.getName())) {
+            if (c1.getColumnName().equalsIgnoreCase(c2.getColumnName())) {
               ConditionItem conditionItem = new ConditionItem(new ComparerItem(c1.getColumn()),
                       new ComparerItem(c2.getColumn()), "=");
               if (whereItem != null) {
@@ -148,17 +148,30 @@ public class QueryResult {
       int primary = tmp.getPrimaryIndexTable(firstTableColumnNum,
               tables.get(0).primaryIndex, tables.get(1).primaryIndex);
       if (primary < 0) {
-        res = queryTable.traverse(whereItem, retain_left, retain_right);
+        res = queryTable.traverse(whereItem, false, false);
       } else {
         whereItem = null;
+        boolean t1 = primary < firstTableColumnNum;
         if (tmp.getIdx1() == primary) {
           int idx = tmp.getIdx2();
-          if (idx >= firstTableColumnNum) idx -= firstTableColumnNum;
-          res = queryTable.traverseSmart(null, primary < firstTableColumnNum, idx);
+          if (idx >= firstTableColumnNum) {
+            if (t1) {
+              idx -= firstTableColumnNum;
+            } else {
+              idx = -1;
+            }
+          }
+          res = queryTable.traverseSmart(null, t1, idx);
         } else {
           int idx = tmp.getIdx1();
-          if (idx >= firstTableColumnNum) idx -= firstTableColumnNum;
-          res = queryTable.traverseSmart(null, primary < firstTableColumnNum, idx);
+          if (idx >= firstTableColumnNum) {
+            if (!t1) {
+              idx -= firstTableColumnNum;
+            } else {
+              idx = -1;
+            }
+          }
+          res = queryTable.traverseSmart(null, t1, idx);
         }
 
       }
