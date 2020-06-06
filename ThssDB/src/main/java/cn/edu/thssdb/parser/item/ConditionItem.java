@@ -12,14 +12,9 @@ import java.util.ArrayList;
 
 public class ConditionItem {
   private boolean value;
-  //  private int c1;
-//  private int c2;
   ComparerItem c1 = null;
   ComparerItem c2 = null;
-//  ColumnFullNameItem c1 = null;
-//  ColumnFullNameItem c2 = null;
-//  LiteralValueItem l1 = null;
-//  LiteralValueItem l2 = null;
+
   int idx1;
   int idx2;
   Entry e1;
@@ -48,34 +43,6 @@ public class ConditionItem {
     }
     this.is_bool = false;
   }
-
-//  public ConditionItem(ColumnFullNameItem c1, ColumnFullNameItem c2, String cmp) {
-//    this.c1 = c1;
-//    this.c2 = c2;
-//    this.cmp = ComparisonType.string2ComparisonType(cmp);
-//    this.is_bool = false;
-//  }
-//
-//  public ConditionItem(LiteralValueItem l1, LiteralValueItem l2, String cmp) {
-//    this.l1 = l1;
-//    this.l2 = l2;
-//    this.cmp = ComparisonType.string2ComparisonType(cmp);
-//    this.is_bool = false;
-//  }
-//
-//  public ConditionItem(LiteralValueItem l1, ColumnFullNameItem c2, String cmp) {
-//    this.l1 = l1;
-//    this.c2 = c2;
-//    this.cmp = ComparisonType.string2ComparisonType(cmp);
-//    this.is_bool = false;
-//  }
-//
-//  public ConditionItem(ColumnFullNameItem c1, LiteralValueItem l2, String cmp) {
-//    this.c1 = c1;
-//    this.l2 = l2;
-//    this.cmp = ComparisonType.string2ComparisonType(cmp);
-//    this.is_bool = false;
-//  }
 
   public ConditionItem(boolean value) {
     this.value = value;
@@ -128,7 +95,6 @@ public class ConditionItem {
         break; // IS NULL
       }
     }
-    // int cmp_res = row.getEntries().get(c1).compareTo(row.getEntries().get(c1));
 
     boolean res;
     switch (cmp) {
@@ -177,13 +143,13 @@ public class ConditionItem {
         String l = c2.getL().getString();
         Comparable val = null;
         if (c2.getL().getType() != LiteralValueItem.Type.NULL) {
-
-          // TODO 似乎不用catch
-          if(type == ColumnType.INT) val = Integer.valueOf(l);
-          else if(type == ColumnType.LONG) val = Long.valueOf(l);
-          else if(type == ColumnType.FLOAT) val = Float.valueOf(l);
-          else if(type == ColumnType.DOUBLE) val = Double.valueOf(l);
-          else if(type == ColumnType.STRING) val = l;
+          val = ColumnType.getColumnTypeValue(type, l);
+//          // TODO 似乎不用catch
+//          if(type == ColumnType.INT) val = Integer.valueOf(l);
+//          else if(type == ColumnType.LONG) val = Long.valueOf(l);
+//          else if(type == ColumnType.FLOAT) val = Float.valueOf(l);
+//          else if(type == ColumnType.DOUBLE) val = Double.valueOf(l);
+//          else if(type == ColumnType.STRING) val = l;
         }
         e2 = new Entry(val);
       }
@@ -204,11 +170,12 @@ public class ConditionItem {
         if (c1.getL().getType() != LiteralValueItem.Type.NULL) {
 
           // TODO 似乎不用catch
-          if(type == ColumnType.INT) val = Integer.valueOf(l);
-          else if(type == ColumnType.LONG) val = Long.valueOf(l);
-          else if(type == ColumnType.FLOAT) val = Float.valueOf(l);
-          else if(type == ColumnType.DOUBLE) val = Double.valueOf(l);
-          else if(type == ColumnType.STRING) val = l;
+          val = ColumnType.getColumnTypeValue(type, l);
+//          if(type == ColumnType.INT) val = Integer.valueOf(l);
+//          else if(type == ColumnType.LONG) val = Long.valueOf(l);
+//          else if(type == ColumnType.FLOAT) val = Float.valueOf(l);
+//          else if(type == ColumnType.DOUBLE) val = Double.valueOf(l);
+//          else if(type == ColumnType.STRING) val = l;
         }
         e1 = new Entry(val);
       } else {

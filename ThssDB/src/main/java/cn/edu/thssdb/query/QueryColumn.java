@@ -9,11 +9,6 @@ public class QueryColumn {
   private String tableName;
   private ColumnType type;
 
-//  public QueryColumn (String name, ColumnType type, boolean primary, boolean notNull, int maxLength, String tableName) {
-//    super(name, type, primary, notNull, maxLength);
-//    this.tableName = tableName;
-//  }
-
   public QueryColumn (Column column, String tableName) {
     this.columnName = column.getName();
     this.tableName = tableName;
