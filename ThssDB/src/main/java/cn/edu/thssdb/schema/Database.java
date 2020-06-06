@@ -206,6 +206,8 @@ public class Database {
       keys.add(key);
     }
     this.meta.writeToFile(keys); // 目前 一行一个table名
+
+    this.logger.eraseFile();
 //    try {
 //      lock.readLock().lock();
 //      ArrayList<String> keys = new ArrayList<>();

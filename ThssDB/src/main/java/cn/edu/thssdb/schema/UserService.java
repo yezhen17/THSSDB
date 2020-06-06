@@ -22,9 +22,8 @@ import java.util.concurrent.locks.ReentrantLock;
  ***************/
 public class UserService {
     public User user;                                          // 用户数据
-    
-    // TODO
-    private Logger logger;
+    private Long sessionId;
+
     private TransactionManager transactionManager;
     /*
     private Thread serviceThread;                               // 服务线程
@@ -35,8 +34,9 @@ public class UserService {
     /**
      * [method] 构造方法
      */
-    public UserService(User user) {
+    public UserService(User user, Long sessionId) {
         this.user = user;
+        this.sessionId = sessionId;
         try {
             transactionManager= new TransactionManager(user.database, null);
         } catch (Exception e) {
@@ -52,9 +52,28 @@ public class UserService {
     }
 
     public void disconnect() {
-        Manager.getInstance().getDatabaseByName(user.database).persist();
+        forceCommit();
+        if (user.database != null) {
+            Manager.getInstance().quitDatabase(user.database);
+        }
+
     }
 
+    private void forceCommit() {
+        if (user.database != null) {
+            if (transactionManager.isUnderTransaction()) {
+                TransactionStatus status = transactionManager.exec(new CommitOperation());
+                if (!status.getStatus()) {
+                    throw new RuntimeException(status.getMessage());
+                }
+            }
+//            TransactionStatus status = transactionManager.exec(new CheckpointOperation());
+//            if (!status.getStatus()) {
+//                throw new RuntimeException(status.getMessage());
+//            }
+            // Manager.getInstance().getDatabaseByName(user.database).persist();
+        }
+    }
 
     /**
      * [method] 服务处理方法 —— 主方法
@@ -71,28 +90,19 @@ public class UserService {
                 operation.setCurrentUser(user.username, user.database);
 
                 if (operation instanceof UseOperation) {
-                    if (transactionManager.isUnderTransaction()) {
-                        TransactionStatus status = transactionManager.exec(new CommitOperation());
-                        if (!status.getStatus()) {
-                            throw new RuntimeException(status.getMessage());
-                        }
 
-                    }
-                    if (user.database != null) {
-                        TransactionStatus status = transactionManager.exec(new CheckpointOperation());
-                        if (!status.getStatus()) {
-                            throw new RuntimeException(status.getMessage());
-                        }
-                    }
+                    forceCommit();
                     operation.exec();
                     String databaseName = ((UseOperation) operation).getName();
                     user.database = databaseName;
                     transactionManager.setDatabase(databaseName);
                 } else if (operation instanceof CreateDatabaseOperation ||
-                           operation instanceof CreateUserOperation ||
                            operation instanceof DropDatabaseOperation) {
                     operation.exec();
-                } else {
+                } else if (operation instanceof CreateUserOperation) {
+                    ((CreateUserOperation) operation).exec(sessionId);
+                }
+                else {
                     TransactionStatus status = transactionManager.exec(operation);
                     if (!status.getStatus()) {
                         throw new RuntimeException(status.getMessage());

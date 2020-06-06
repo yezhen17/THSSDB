@@ -447,7 +447,7 @@ public class MyVisitor extends SQLBaseVisitor{
     String psd = (String) visit(ctx.getChild(5));
     psd = psd.substring(1,psd.length()-1);
     //todo
-    return new CreateUserOperation(user,psd);
+    return new CreateUserOperation(user, psd);
   }
 
   @Override

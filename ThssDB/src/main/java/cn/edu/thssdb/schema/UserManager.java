@@ -150,7 +150,7 @@ public class UserManager {
             long sessionId = getRandomSessionId();
             try {
                 lock.writeLock().lock();
-                onlineUsers.put(sessionId, new UserService(user));
+                onlineUsers.put(sessionId, new UserService(user, sessionId));
             } finally {
                 lock.writeLock().unlock();
             }
@@ -169,7 +169,7 @@ public class UserManager {
         long sessionId = getRandomSessionId();
         try {
             lock.writeLock().lock();
-            onlineUsers.put(sessionId, new UserService(user));
+            onlineUsers.put(sessionId, new UserService(user, sessionId));
         } finally {
             lock.writeLock().unlock();
         }

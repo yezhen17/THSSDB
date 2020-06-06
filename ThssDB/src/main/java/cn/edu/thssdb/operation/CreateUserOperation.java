@@ -1,6 +1,10 @@
 package cn.edu.thssdb.operation;
 
 
+import cn.edu.thssdb.schema.Manager;
+import cn.edu.thssdb.schema.User;
+import cn.edu.thssdb.schema.UserManager;
+
 public class CreateUserOperation extends BaseOperation {
 
   private String userName;
@@ -17,8 +21,8 @@ public class CreateUserOperation extends BaseOperation {
   /**
    * [method] 执行操作
    */
-  public void exec() {
-    //todo sessionid?
+  public void exec(Long sessionId) {
+    UserManager.getInstance().logon(sessionId, userName, passWord, User.Permission.USER);
   }
 
 

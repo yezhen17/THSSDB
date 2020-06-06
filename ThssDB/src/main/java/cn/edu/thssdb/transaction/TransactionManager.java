@@ -84,7 +84,7 @@ public class TransactionManager {
       commitTransaction();
     }
     manager.getDatabaseByName(databaseName).persist();
-    logger.eraseFile();
+    // logger.eraseFile();
     return new TransactionStatus(true, "");
   }
 
