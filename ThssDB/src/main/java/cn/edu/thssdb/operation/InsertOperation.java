@@ -24,9 +24,11 @@ public class InsertOperation extends BaseOperation {
   final static String wrongColumnNum = "Exception: wrong insert operation (columns unmatched)!";//列数不匹配
   final static String wrongColumnType = "Exception: wrong insert operation (type unmatched)!";//类型不匹配
   final static String wrongValueNum = "Exception: wrong insert operation (number of columns and values unmatched)!";//列数与值数不匹配
-  final static String duplicateValueType = "Exception: wrong insert operation (duplicate name of columns)!";//类型不匹配
+  final static String duplicateValueType = "Exception: wrong insert operation (duplicate name of columns)!";//列名重复
   final static String wrongColumnName = "Exception: wrong insert operation (wrong column name)!";//属性名不在列定义中
   final static String duplicateKey = "Exception: wrong insert operation (insertion causes duplicate key)!";//主键重复
+  final static String wrongstringlength = "Exception: wrong insert operation (string exceeds length limit)!";//字符串过长
+
 
 
   /**
@@ -511,6 +513,9 @@ public class InsertOperation extends BaseOperation {
         if (value_type == LiteralValueItem.Type.STRING) {
           if (column.getName().equals(primaryKey) && table.index.contains(new Entry(value.getString()))) {
             throw new DuplicateKeyException();
+          }
+          if(value.getString().length()>column.getMaxLength()){
+            throw new WrongInsertException(wrongstringlength);
           }
           entries.add(new Entry(value.getString()));
         } else if (value_type == LiteralValueItem.Type.NULL) {
