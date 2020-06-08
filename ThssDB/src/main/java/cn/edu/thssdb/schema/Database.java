@@ -2,6 +2,8 @@ package cn.edu.thssdb.schema;
 
 import cn.edu.thssdb.exception.*;
 import cn.edu.thssdb.log.Logger;
+import cn.edu.thssdb.operation.BaseOperation;
+import cn.edu.thssdb.parser.MyParser;
 import cn.edu.thssdb.query.QueryResult;
 import cn.edu.thssdb.query.QueryTable;
 import cn.edu.thssdb.type.ColumnType;
@@ -187,9 +189,16 @@ public class Database {
           tables.get(info[1]).delete(info[2]);
         } else if (type.equals("INSERT")) {
           tables.get(info[1]).insert(info[2]);
+        } else if (!type.equals("COMMIT")) {
+          ArrayList<BaseOperation> operations = MyParser.getOperations(log);
+          for (BaseOperation op: operations) {
+            op.setCurrentUser(null, name);
+            op.exec();
+          }
         }
       }
     } catch (Exception e) {
+      e.printStackTrace();
       throw new CustomIOException();
     }
   }

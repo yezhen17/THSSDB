@@ -1,12 +1,8 @@
 package cn.edu.thssdb.parser.item;
 
 public class ColumnFullNameItem {
-  private String tableName = null;
-  private String columnName = null;
-
-  public ColumnFullNameItem() {
-
-  }
+  private String tableName;
+  private String columnName;
 
   public ColumnFullNameItem(String tableName, String columnName) {
     this.tableName = tableName;
@@ -30,6 +26,4 @@ public class ColumnFullNameItem {
     return columnName.equalsIgnoreCase(this.columnName) && (tableName == null ||
             tableName.equalsIgnoreCase(this.tableName));
   }
-
-
 }

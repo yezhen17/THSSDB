@@ -47,12 +47,10 @@ public class InsertOperation extends BaseOperation {
     rowsToInsert = new ArrayList<>();
   }
 
-
   /**
    * [method] 执行操作
    */
   public void exec() {
-
     if (database == null) {
       throw new DatabaseNotExistException();
     }
@@ -134,15 +132,6 @@ public class InsertOperation extends BaseOperation {
         Iterator<Column> column_it = columns.iterator();
         int i = 0;
         while(column_it.hasNext()) {
-//          boolean hasMatched = false;
-//
-//          for (int j = 0; j < columnNames.size(); j++) {
-//            if (columns.get(i).getName().equals(columnNames.get(j))) {
-//              entries = matchType(columns.get(i), value.get(j), primaryKey, entries);
-//              hasMatched = true;
-//              break;
-//            }
-//          }
           Column c = column_it.next();
           int match = columnMatch[i];
 
@@ -166,9 +155,7 @@ public class InsertOperation extends BaseOperation {
         } else {
           rowsToInsert.add(newRow);
         }
-
       }
-
     }
     insert();
 
@@ -327,4 +314,3 @@ public class InsertOperation extends BaseOperation {
   }
 
 }
-

@@ -11,9 +11,9 @@ import java.util.ArrayList;
 public class GrammarTest {
   public static void main(String[] args) {
 
-    System.out.println(Double.valueOf(0.0).compareTo(-Double.MAX_VALUE));
+    // System.out.println(Double.valueOf(0.0).compareTo(-Double.MAX_VALUE));
     
-    CharStream input = CharStreams.fromString("rollback t;;;;");
+    CharStream input = CharStreams.fromString("CREATE TABLE tableName(a1 int primary key, primary key(a1));rollback t;;;;");
     // use db;CREATE TABLE tableName(a1 int primary key, primary key(a1));iNSERT INTO tableName(a1) VALUES (1);delete from tableName where a1 = 1;
     // CREATE TABLE tableName(a1 int primary key, primary key(a1));
     // INSERT INTO tableName(a1) VALUES (1);

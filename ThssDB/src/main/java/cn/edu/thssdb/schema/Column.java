@@ -47,8 +47,8 @@ public class Column implements Comparable<Column> {
    * [method] 转化为字符串
    * @return 值对应字符串
    */
-  public String toString(char delimitor) {
-    return name + delimitor + type + delimitor + primary + delimitor + notNull + delimitor + maxLength;
+  public String toString(char delimiter) {
+    return name + delimiter + type + delimiter + primary + delimiter + notNull + delimiter + maxLength;
   }
 
   public int getMaxLength() {

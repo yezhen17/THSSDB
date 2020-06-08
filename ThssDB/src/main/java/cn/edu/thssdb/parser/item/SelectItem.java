@@ -66,12 +66,6 @@ public class SelectItem {
     this.aggregateFun = aggregateFun.toLowerCase();
   }
 
-  public SelectItem(String tableName,String columnName,String aggregateFun){
-    this.tableName = tableName;
-    this.columnName = columnName;
-    this.aggregateFun = aggregateFun;
-  }
-
   public int getType() {
     return type;
   }

@@ -1,7 +1,5 @@
 package cn.edu.thssdb.parser.item;
 
-import cn.edu.thssdb.schema.Column;
-
 public class OnItem {
   private String tableNameA;
   private String columnNameA;

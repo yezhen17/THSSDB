@@ -50,7 +50,9 @@ public class UpdateOperation extends BaseOperation {
      * [method] 执行操作
      */
   public void exec() {
-
+    if (database==null){
+      throw new DatabaseNotExistException();
+    }
 
     table = database.get(tableName);
     if(table==null){
@@ -131,18 +133,6 @@ public class UpdateOperation extends BaseOperation {
             }
           }
         }
-//        while (rowIterator.hasNext()){
-//          Row oldRow = rowIterator.next();
-//          Row newRow = getNewRow(oldRow, valueToUpdate);
-//          if(table.index.contains(newRow.getEntries().get(primaryKeyIndex))){
-//            undo();
-//            throw new WrongUpdateException(duplicateKey);
-//          }
-//          else {
-//            table.update(oldRow,newRow);
-//            rowsHasUpdate.add(new Pair<>(oldRow,newRow));
-//          }
-//        }
       } else {
         while (rowIterator.hasNext()) {
           Row oldRow = rowIterator.next();
@@ -153,14 +143,6 @@ public class UpdateOperation extends BaseOperation {
           rowsHasUpdate.add(new Pair<>(oldRow,newRow));
         }
         table.updateAll(columnIdxToUpdate, valueToUpdate);
-//        while (rowIterator.hasNext()){
-//          Row oldRow = rowIterator.next();
-//          Row newRow = getNewRow(oldRow, valueToUpdate);
-//          else {
-//            table.update(oldRow,newRow);
-//            rowsHasUpdate.add(new Pair<>(oldRow,newRow));
-//          }
-//        }
       }
     }
     else {
@@ -213,10 +195,7 @@ public class UpdateOperation extends BaseOperation {
     }
   }
 
-
-
   private Row getNewRow(Row oldRow, Comparable valueToUpdate) {
-
     ArrayList<Entry> entries = new ArrayList<>();
     ArrayList<Entry> old_entries = oldRow.getEntries();
     for (Entry e: old_entries) {
@@ -228,15 +207,6 @@ public class UpdateOperation extends BaseOperation {
     } else {
       entries.set(columnIdxToUpdate, new Entry(valueToUpdate));
     }
-
-
-//    for (int index = 0; index < table.getColumns().size(); index++) {
-//      if (table.getColumns().get(index).getName().equals(columnName)) {
-//        entries.add(new Entry(valueToUpdate));
-//      } else {
-//        entries.add(new Entry(oldRow.getEntries().get(index).value));
-//      }
-//    }
     Row newRow = new Row(entries);
     return newRow;
   }

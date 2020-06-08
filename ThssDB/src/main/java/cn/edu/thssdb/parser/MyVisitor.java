@@ -4,12 +4,28 @@ import cn.edu.thssdb.operation.*;
 import cn.edu.thssdb.parser.item.*;
 import cn.edu.thssdb.schema.Column;
 import cn.edu.thssdb.type.ColumnType;
+import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.misc.Interval;
+import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.util.ArrayList;
 
 public class MyVisitor extends SQLBaseVisitor{
 
   public MyVisitor(){super();}
+
+  public String getFullText(ParseTree tree) {
+    ParserRuleContext context = (ParserRuleContext) tree;
+    if (context.children == null) {
+      return "";
+    }
+    Token startToken = context.start;
+    Token stopToken = context.stop;
+    Interval interval = new Interval(startToken.getStartIndex(), stopToken.getStopIndex());
+    String result = context.start.getInputStream().getText(interval);
+    return result;
+  }
 
 
   @Override
@@ -109,7 +125,7 @@ public class MyVisitor extends SQLBaseVisitor{
     for(int i=0;i<columns.size();i++){
       pColumns[i]=columns.get(i);
     }
-    return new CreateTableOperation(tableName,pColumns,primaryKeyIndex);
+    return new CreateTableOperation(tableName,pColumns,primaryKeyIndex, getFullText(ctx));
   }
 
   @Override
@@ -240,8 +256,7 @@ public class MyVisitor extends SQLBaseVisitor{
 
     order_by_item = new OrderByItem(order_by_columns, order);
 
-    return new SelectOperation(select_content_item, from_item, where_item, order_by_item, ctx.getText());
-//    WholeSelectionItem res = new WholeSelectionItem(select_content_item, from_item, where_item, order_by_item);
+    return new SelectOperation(select_content_item, from_item, where_item, order_by_item, getFullText(ctx));
 //    return res;
   }
 
@@ -583,7 +598,7 @@ public class MyVisitor extends SQLBaseVisitor{
   @Override
   public Object visitSavepoint_stmt(SQLParser.Savepoint_stmtContext ctx) {
 
-    return new SavePointOperation(ctx.getChild(1).getText());
+    return new SavepointOperation(ctx.getChild(1).getText());
   }
 
   @Override

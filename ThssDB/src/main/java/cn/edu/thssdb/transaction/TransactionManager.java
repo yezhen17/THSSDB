@@ -1,10 +1,7 @@
 package cn.edu.thssdb.transaction;
 
-import cn.edu.thssdb.exception.CustomIOException;
 import cn.edu.thssdb.log.Logger;
-import cn.edu.thssdb.log.LoggerBuffer;
 import cn.edu.thssdb.operation.*;
-import cn.edu.thssdb.parser.item.SelectItem;
 import cn.edu.thssdb.schema.Manager;
 import cn.edu.thssdb.schema.Table;
 import cn.edu.thssdb.utils.Global;
@@ -16,7 +13,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 
 public class TransactionManager {
-//  LoggerBuffer loggerBuffer;
   private static ReentrantLock lock = new ReentrantLock();              // 互斥锁
   private String databaseName;                                          // 数据库名称
   private Manager manager;                                              // 管理器对象
@@ -53,7 +49,7 @@ public class TransactionManager {
     || operation instanceof InsertOperation) return writeTransaction(operation);
     else if (operation instanceof CommitOperation) return commitTransaction();
     else if (operation instanceof RollbackOperation) return rollbackTransaction(operation.getSavepoint());
-    else if (operation instanceof SavePointOperation) return savepointTransaction(operation.getSavepoint());
+    else if (operation instanceof SavepointOperation) return savepointTransaction(operation.getSavepoint());
     else if (operation instanceof BeginTransactionOperation) return beginTransaction();
     else if (operation instanceof CheckpointOperation) return checkpointTransaction();
     else return endTransaction(operation);
@@ -65,6 +61,9 @@ public class TransactionManager {
     }
     try {
       operation.exec();
+      if (operation instanceof CreateTableOperation || operation instanceof DropTableOperation) {
+        logger.writeLines(operation.getLog());
+      }
     } catch (Exception e) {
       return new TransactionStatus(false, e.getMessage());
     }

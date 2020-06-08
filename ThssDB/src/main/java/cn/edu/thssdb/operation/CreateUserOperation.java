@@ -24,6 +24,4 @@ public class CreateUserOperation extends BaseOperation {
   public void exec(Long sessionId) {
     UserManager.getInstance().logon(sessionId, userName, passWord, User.Permission.USER);
   }
-
-
 }

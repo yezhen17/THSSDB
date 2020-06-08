@@ -1,13 +1,10 @@
 package cn.edu.thssdb.schema;
 
 import cn.edu.thssdb.exception.*;
-import cn.edu.thssdb.log.Logger;
-import cn.edu.thssdb.log.LoggerBuffer;
 import cn.edu.thssdb.utils.Global;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /***************

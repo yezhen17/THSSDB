@@ -25,7 +25,6 @@ public class ShowOperation extends BaseOperation {
    * [method] 执行操作
    */
   public void exec() {
-
     if (database==null){
       throw new DatabaseNotExistException();
     }

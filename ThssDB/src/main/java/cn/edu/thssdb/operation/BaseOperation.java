@@ -1,13 +1,8 @@
 package cn.edu.thssdb.operation;
 
-import cn.edu.thssdb.exception.CustomIOException;
-import cn.edu.thssdb.exception.DataFileNotFoundException;
-import cn.edu.thssdb.exception.MetaFileNotFoundException;
 import cn.edu.thssdb.schema.Database;
 import cn.edu.thssdb.schema.Manager;
-import cn.edu.thssdb.schema.Row;
 
-import javax.xml.crypto.Data;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -16,11 +11,6 @@ public class BaseOperation {
   protected String username = "";
   protected String databaseName = "";
   protected Database database;
-
-
-  public BaseOperation() {
-
-  }
 
   // 在执行语句前都会调用这个
   public void setCurrentUser(String username, String databaseName) {
@@ -33,17 +23,13 @@ public class BaseOperation {
     return null;
   }
 
-//
-//  private String getUserOperationDatabase() {
-//    return "";
-//  } // 获取当前用户正在操作的数据库
 
-  public void exec() throws CustomIOException, ClassNotFoundException, MetaFileNotFoundException, DataFileNotFoundException {
-
+  public void exec() {
+    // 被继承
   }
 
   public void undo() {
-
+    // 被继承
   }
 
   public String getSavepoint() {
@@ -55,17 +41,6 @@ public class BaseOperation {
    */
   public LinkedList<String> getLog(){
     return null;
-  }
-
-  public boolean isTransactionType() {
-    return this instanceof BeginTransactionOperation ||
-            this instanceof CommitOperation ||
-            this instanceof DeleteOperation ||
-            this instanceof InsertOperation ||
-            this instanceof UpdateOperation ||
-            this instanceof RollbackOperation ||
-            this instanceof SavePointOperation ||
-            this instanceof CheckpointOperation;
   }
 
   public List<List<String>> getData() {

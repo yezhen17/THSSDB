@@ -6,6 +6,7 @@ import cn.edu.thssdb.schema.Manager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 
 public class DropTableOperation extends BaseOperation {
     private String name;      // 表名称
@@ -31,6 +32,11 @@ public class DropTableOperation extends BaseOperation {
 
   @Override
   public ArrayList<String> getTableName() {
-    return new ArrayList<String>(Arrays.asList(this.name));
+    return new ArrayList<>(Arrays.asList(this.name));
+  }
+
+  @Override
+  public LinkedList<String> getLog() {
+    return new LinkedList<>(Arrays.asList("DROP TABLE " + name));
   }
 }

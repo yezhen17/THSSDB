@@ -88,15 +88,4 @@ public class Logger {
   public void writeCommit() throws CustomIOException {
     appendToFile("COMMIT\n");
   }
-
-
-
-  public void writeLog(String type, int transactionId) throws CustomIOException {
-    appendToFile(type + " " + String.valueOf(transactionId) + "\n");
-  }
-
-  public void writeLog(int transactionId, Comparable oldValue, Comparable newValue) throws CustomIOException {
-    appendToFile(String.valueOf(transactionId) + " " +
-            String.valueOf(oldValue) + " " + String.valueOf(newValue) + "\n");
-  }
 }

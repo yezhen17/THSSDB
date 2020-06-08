@@ -1,6 +1,5 @@
 package cn.edu.thssdb.parser.item;
 
-
 import java.util.ArrayList;
 
 public class SelectContentItem {

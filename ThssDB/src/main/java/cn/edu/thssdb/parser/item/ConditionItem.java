@@ -144,12 +144,6 @@ public class ConditionItem {
         Comparable val = null;
         if (c2.getL().getType() != LiteralValueItem.Type.NULL) {
           val = ColumnType.getColumnTypeValue(type, l);
-//          // TODO 似乎不用catch
-//          if(type == ColumnType.INT) val = Integer.valueOf(l);
-//          else if(type == ColumnType.LONG) val = Long.valueOf(l);
-//          else if(type == ColumnType.FLOAT) val = Float.valueOf(l);
-//          else if(type == ColumnType.DOUBLE) val = Double.valueOf(l);
-//          else if(type == ColumnType.STRING) val = l;
         }
         e2 = new Entry(val);
       }
@@ -168,14 +162,7 @@ public class ConditionItem {
         String l = c1.getL().getString();
         Comparable val = null;
         if (c1.getL().getType() != LiteralValueItem.Type.NULL) {
-
-          // TODO 似乎不用catch
           val = ColumnType.getColumnTypeValue(type, l);
-//          if(type == ColumnType.INT) val = Integer.valueOf(l);
-//          else if(type == ColumnType.LONG) val = Long.valueOf(l);
-//          else if(type == ColumnType.FLOAT) val = Float.valueOf(l);
-//          else if(type == ColumnType.DOUBLE) val = Double.valueOf(l);
-//          else if(type == ColumnType.STRING) val = l;
         }
         e1 = new Entry(val);
       } else {

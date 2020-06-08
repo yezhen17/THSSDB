@@ -3,14 +3,12 @@ package cn.edu.thssdb.query;
 import cn.edu.thssdb.exception.KeyNotExistException;
 import cn.edu.thssdb.parser.item.ConditionItem;
 import cn.edu.thssdb.parser.item.MultipleConditionItem;
-import cn.edu.thssdb.parser.item.WhereItem;
 import cn.edu.thssdb.schema.Entry;
 import cn.edu.thssdb.schema.Row;
 import cn.edu.thssdb.schema.Table;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedList;
 
 // 根据使用的表，生成一个Row迭代器
 public class QueryTable extends BaseQueryTable implements Iterator<Row> {
