@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 // 根据使用的表，生成一个Row迭代器
-public class QueryTable extends BaseQueryTable implements Iterator<Row> {
+public class QueryTable implements Iterator<Row> {
   private int tableNum;
   private ArrayList<Table> tables;
   Iterator<Row> t1;
@@ -120,14 +120,6 @@ public class QueryTable extends BaseQueryTable implements Iterator<Row> {
         t2 = tables.get(1).iterator();
       }
       return combineRow(cache, t2.next());
-//      Row tmp = t2.next();
-//      if (tmp != null) {
-//        return combineRow(cache, tmp);
-//      } else {
-//        cache = t1.next();
-//        t2 = tables.get(1).iterator();
-//        return combineRow(cache, t2.next());
-//      }
     }
   }
 
@@ -278,20 +270,16 @@ public class QueryTable extends BaseQueryTable implements Iterator<Row> {
   }
 
 
-//  // 将两个表的Row合并为一个
-//  public static Row combineRow(Row r1, Row r2) {
-//
-//    ArrayList<Entry> res = new ArrayList<>();
-//    res.addAll(r1.getEntries());
-//    res.addAll(r2.getEntries());
-//    return new Row(res);
-//  }
-//
-//  public int getTableNum() {
-//    return tableNum;
-//  }
+  // 将两个表的Row合并为一个
+  public static Row combineRow(Row r1, Row r2) {
 
-//  public Row getRow(int tableId, int rowId) {
-//    return tables.get(tableId).index
-//  }
+    ArrayList<Entry> res = new ArrayList<>();
+    res.addAll(r1.getEntries());
+    res.addAll(r2.getEntries());
+    return new Row(res);
+  }
+
+  public int getTableNum() {
+    return tableNum;
+  }
 }

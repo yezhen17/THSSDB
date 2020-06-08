@@ -8,8 +8,9 @@ import cn.edu.thssdb.type.ColumnType;
 
 import java.util.ArrayList;
 
-
-// 这个类别存储一个列对应的所有数据
+/*
+ 这个类别存储一个列对应的所有数据
+ */
 public class QueryColumnPlusData {
   private String columnName;
   private int idx;

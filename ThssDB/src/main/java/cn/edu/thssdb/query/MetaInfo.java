@@ -4,19 +4,16 @@ import cn.edu.thssdb.schema.Column;
 import java.util.ArrayList;
 import java.util.List;
 
+/*
+ 一个或两个表的元数据
+ */
 class MetaInfo {
-
   private String tableName;
   private List<Column> columns;
 
   MetaInfo(String tableName, ArrayList<Column> columns) {
     this.tableName = tableName;
     this.columns = columns;
-  }
-
-  int columnFind(String name) {
-    // TODO
-    return 0;
   }
 
   // 产生带表名的列列表

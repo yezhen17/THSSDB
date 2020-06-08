@@ -1,6 +1,7 @@
 package cn.edu.thssdb.query;
 
 import cn.edu.thssdb.exception.UnknownColumnException;
+import cn.edu.thssdb.exception.WrongOrderByColumnException;
 import cn.edu.thssdb.exception.WrongTableNameException;
 import cn.edu.thssdb.parser.item.*;
 import cn.edu.thssdb.schema.Row;
@@ -32,13 +33,9 @@ public class QueryResult {
   private List<String> columnTitles;
 
   private ArrayList<QueryColumn> columns;
-//  private List<Integer> index;
-//  private List<Cell> attrs;
 
   public QueryResult(SelectContentItem selectContentItem, FromItem fromItem,
                      MultipleConditionItem whereItem, OrderByItem orderByItem, ArrayList<Table> tables) {
-//    this.index = new ArrayList<>();
-//    this.attrs = new ArrayList<>();
 
     this.selectContentItem = selectContentItem;
     this.fromItem = fromItem;
@@ -179,93 +176,19 @@ public class QueryResult {
       res = queryTable.traverse(whereItem, retain_left, retain_right);
     }
 
-
-
-//    if (whereItem != null) {
-//      whereItem.setColumn(this.columns);
-//      // 接下来筛选符合条件的Row
-//      if (queryTable.getTableNum() == 1) {
-//        for (QueryTable it = queryTable; it.hasNext(); ) {
-//          Row r = it.next();
-//          if (whereItem.getTreeValue(r).getValue()) {
-//            res.add(r);
-//          }
-//        }
-//      } else {
-//        int column_count1 = metaInfos.get(0).getColumnNum();
-//        int column_count2 = metaInfos.get(1).getColumnNum();
-//        int n1 = queryTable.n1;
-//        int n2 = queryTable.n2;
-//        boolean [] t1_count = new boolean[n1];
-//        boolean [] t2_count = new boolean[n2];
-//        int i = 0;
-//        for (QueryTable it = queryTable; it.hasNext(); ) {
-//          Row r = it.next();
-//          if (whereItem.getTreeValue(r).getValue()) {
-//            res.add(r);
-//            t1_count[i / n2] = true;
-//            t2_count[i % n2] = true;
-//          } else {
-//            // LEFT OUTER JOIN
-//            if (retain_left) {
-//              if ((i % n2) == (n2 - 1) && !t1_count[i / n2]) {
-//                ArrayList<Entry> entries = new ArrayList<>();
-//                ArrayList<Entry> r_entries = r.getEntries();
-//                for (int k = 0; k < column_count1; k++) {
-//                  entries.add(new Entry(r_entries.get(k)));
-//                }
-//                for (int k = 0; k < column_count2; k++) {
-//                  entries.add(new Entry(null));
-//                }
-//                res.add(new Row(entries));
-//              }
-//            }
-//            // RIGHT OUTER JOIN
-//            if (retain_right) {
-//              if ((i / n2) == (n1 - 1) && !t2_count[i % n2]) {
-//                ArrayList<Entry> entries = new ArrayList<>();
-//                ArrayList<Entry> r_entries = r.getEntries();
-//
-//                for (int k = 0; k < column_count1; k++) {
-//                  entries.add(new Entry(null)); // 以null填充
-//                }
-//                for (int k = column_count1; k < column_count1 + column_count2; k++) {
-//                  entries.add(new Entry(r_entries.get(k)));
-//                }
-//                res.add(new Row(entries));
-//              }
-//            }
-//          }
-//          i++;
-//        }
-//      }
-//    } else {
-//      // 如果没有条件，直接一一放到res中，可能效率高一丁点
-//      for (QueryTable it = queryTable; it.hasNext(); ) {
-//        Row r = it.next();
-//        res.add(r);
-//      }
-//    }
-
-
-
-
-//    if (res.size() == 0) {
-//      return new ArrayList<>();
-//    }
-
     // 排序（如需要）
     sortArray(res, orderByItem.getOrder());
 
     // select选择子项
     this.queryRes = columnToData(this.selectContentItem.getSelectContent());
-    generateQueryRecord(res);
+    for (QueryColumnPlusData qc: this.queryRes) {
+      qc.generateTitle();
+      qc.generateData(res);
+    }
 
     // 转换为行的列表
     finalTable = new ArrayList<>();
-
     columnTitles = new ArrayList<>();
-//    finalTable.add(titles);
 
     int final_size = this.queryRes.get(0).getDataSize();
     for (int i = 0; i < final_size; i++) {
@@ -305,13 +228,16 @@ public class QueryResult {
     ArrayList<Integer> indices = new ArrayList<>();
     for (ColumnFullNameItem c: orderByItem.getColumnList()) {
       int i = 0;
+      boolean flag = false;
       for (QueryColumn column: columns) {
         if (column.compareTo(c)) {
-          indices.add(i); // TODO 没有找到报错
+          indices.add(i);
+          flag = true;
           break;
         }
         i++;
       }
+      if (!flag) throw new WrongOrderByColumnException();
     }
     Collections.sort(rows, (r1, r2) -> {
       int flag = 0;
@@ -433,14 +359,6 @@ public class QueryResult {
       }
     }
     return res;
-  }
-
-  // SELECT 子句
-  public void generateQueryRecord(ArrayList<Row> rows) {
-    for (QueryColumnPlusData qc: this.queryRes) {
-      qc.generateTitle();
-      qc.generateData(rows);
-    }
   }
 
   public List<List<String>> getFinalTable() {

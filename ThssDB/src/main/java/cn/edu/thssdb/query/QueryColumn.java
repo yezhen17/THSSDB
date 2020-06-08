@@ -4,6 +4,9 @@ import cn.edu.thssdb.parser.item.ColumnFullNameItem;
 import cn.edu.thssdb.schema.Column;
 import cn.edu.thssdb.type.ColumnType;
 
+/*
+ 列类型 + 全名
+ */
 public class QueryColumn {
   private String columnName;
   private String tableName;
