@@ -3,16 +3,13 @@ package cn.edu.thssdb.schema;
 import cn.edu.thssdb.exception.*;
 import cn.edu.thssdb.index.BPlusTree;
 import cn.edu.thssdb.index.BPlusTreeIterator;
-import cn.edu.thssdb.parser.item.MultipleConditionItem;
 import cn.edu.thssdb.type.ColumnType;
 import cn.edu.thssdb.type.ComparisonType;
 import cn.edu.thssdb.utils.Global;
-import com.sun.org.apache.bcel.internal.generic.DUP;
 import javafx.util.Pair;
-import org.omg.PortableInterceptor.INACTIVE;
 
-import javax.xml.bind.annotation.XmlElementDecl;
 import java.io.*;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -40,8 +37,8 @@ public class Table implements Iterable<Row> {
    * @param columns {Column[]} 列定义表
    * @param primaryIndex {int} 主键索引
    */
-  public Table(String databaseName, String tableName, Column[] columns, int primaryIndex) throws CustomIOException {
-    initData(databaseName, tableName, true);
+  public Table(String databaseName, String tableName, Column[] columns, int primaryIndex) {
+    initData(databaseName, tableName);
     this.lock = new ReentrantReadWriteLock();
     this.columns = new ArrayList<>(Arrays.asList(columns));
     this.primaryIndex = primaryIndex;
@@ -54,8 +51,8 @@ public class Table implements Iterable<Row> {
    * @param databaseName {String} 数据库名称
    * @param tableName {String} 表名称
    */
-  public Table(String databaseName, String tableName) throws CustomIOException, MetaFileNotFoundException, ClassNotFoundException {
-    initData(databaseName, tableName, false);
+  public Table(String databaseName, String tableName) {
+    initData(databaseName, tableName);
     this.lock = new ReentrantReadWriteLock();
     this.columns = new ArrayList<>();
     this.index = new BPlusTree<>();
@@ -67,17 +64,16 @@ public class Table implements Iterable<Row> {
    * [method] 初始化元数据和数据存储相关
    * @param databaseName {String} 数据库名称
    * @param tableName {String} 表名称
-   * @param just_created {boolean} 是否是新建的Table
    * @exception IllegalArgumentException
    */
-  private void initData(String databaseName, String tableName, boolean just_created) throws CustomIOException {
+  private void initData(String databaseName, String tableName) throws CustomIOException {
     this.databaseName = databaseName;
     this.tableName = tableName;
-    folder = Global.DATA_ROOT_FOLDER + "\\" + databaseName + "\\" + tableName;
+    folder = Paths.get(Global.DATA_ROOT_FOLDER, databaseName, tableName).toString();
     String meta_name = tableName + ".meta";
     String data_name = tableName + ".data";
-    this.persistentStorageData = new PersistentStorage<>(folder, data_name, just_created);
-    this.tableMeta = new Meta(folder, meta_name, just_created);
+    this.persistentStorageData = new PersistentStorage<>(folder, data_name);
+    this.tableMeta = new Meta(folder, meta_name);
   }
 
   /**
@@ -88,7 +84,7 @@ public class Table implements Iterable<Row> {
     ArrayList<String> meta_data = new ArrayList<>();
     meta_data.add(Global.DATABASE_NAME_META + " " + databaseName);
     meta_data.add(Global.TABLE_NAME_META + " " + tableName);
-    meta_data.add(Global.PRIMARY_KEY_INDEX_META + " " + String.valueOf(primaryIndex));
+    meta_data.add(Global.PRIMARY_KEY_INDEX_META + " " + primaryIndex);
     for (Column column : columns) {
       meta_data.add(column.toString(' '));
     }
@@ -99,7 +95,7 @@ public class Table implements Iterable<Row> {
    * [method] 恢复metadata
    * @exception MetaFileNotFoundException, CustomIOException
    */
-  private void recoverMeta() throws MetaFileNotFoundException, CustomIOException {
+  private void recoverMeta() {
     ArrayList<String []> meta_data = this.tableMeta.readFromFile();
     try {
       String [] database_name = meta_data.get(0);
@@ -333,7 +329,7 @@ public class Table implements Iterable<Row> {
   /**
    * [method] 反序列化
    */
-  private ArrayList<Row> deserialize() throws ClassNotFoundException {
+  private ArrayList<Row> deserialize() {
     // TODO
     return persistentStorageData.deserialize();
   }

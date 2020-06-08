@@ -14,7 +14,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class Manager {
   private HashMap<String, Database> databases;   // 数据库哈希表
   private static ReentrantReadWriteLock lock;    // 可重入读写锁
-  private String current_database = null;        // 当前的数据库
   private Meta meta;                             // 元数据管理
   private ArrayList<String> databasesList;       // 数据库名称列表
   private HashMap<String, Integer> onlineDatabases;
@@ -37,8 +36,7 @@ public class Manager {
     databasesList = new ArrayList<>();
     onlineDatabases = new HashMap<>();
     try {
-      // 目前没有权限管理，可扩展
-      meta = new Meta(Global.DATA_ROOT_FOLDER, "manager.data", true);
+      meta = new Meta(Global.DATA_ROOT_FOLDER, "manager.data");
       ArrayList<String[]> db_list = this.meta.readFromFile();
       System.out.println(db_list);
       for (String [] db_info: db_list) {
@@ -69,7 +67,7 @@ public class Manager {
   /**
    * [method] 写元数据
    */
-  public void writeMeta() throws CustomIOException {
+  public void writeMeta() {
     ArrayList<String> db_list = new ArrayList<>();
     for (String name: databasesList) {
       db_list.add(name);
@@ -110,11 +108,13 @@ public class Manager {
    * @param name {String} 数据库名称
    * @exception DatabaseNotExistException 数据库不存在
    */
-  public void deleteDatabase(String name) throws CustomIOException {
+  public void deleteDatabase(String name) {
     if (!databases.containsKey(name))
       throw new DatabaseNotExistException();
     databases.get(name).wipeData();
     databases.remove(name);
+    databasesList.remove(name);
+    onlineDatabases.remove(name);
     writeMeta();
 //    try {
 //      lock.readLock().lock();
@@ -149,7 +149,7 @@ public class Manager {
    * [method] 切换数据库
    * @param name {String} 数据库名称
    */
-  public void switchDatabase(String name) throws MetaFileNotFoundException, ClassNotFoundException {
+  public void switchDatabase(String name) {
 //    if (current_database != null) {
 //      databases.get(current_database).quit();
 //
@@ -157,7 +157,6 @@ public class Manager {
     if (databasesList.contains(name)) {
       if (!onlineDatabases.keySet().contains(name)) {
         databases.get(name).recover();
-        current_database = name;
         onlineDatabases.put(name, 1);
       } else {
         onlineDatabases.replace(name, onlineDatabases.get(name) + 1);
@@ -179,20 +178,6 @@ public class Manager {
 //      }
 //    } finally {
 //    lock.writeLock().unlock();
-//    }
-  }
-
-  /**
-   * [method] 获取当前数据库名称
-   * return {String} 当前数据库名称，没有则返回null
-   */
-  public String getCurrentDatabaseName() {
-    return current_database;
-//    try {
-//      lock.readLock().lock();
-//      return current_database;
-//    } finally {
-//      lock.readLock().unlock();
 //    }
   }
 

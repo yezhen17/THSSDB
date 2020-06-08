@@ -6,6 +6,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
 import static org.junit.Assert.assertTrue;
@@ -16,17 +17,15 @@ public class MetaTest {
   Meta test;
   @Before
   public void setUp() throws CustomIOException {
-    test = new Meta("test", "tmp.meta", true);
+    test = new Meta("test", "tmp.meta");
   }
 
   @Test
   public void testCreateDelete() {
-    File f = new File("test\\tmp.meta");
+    File f = Paths.get("test", "tmp.meta").toFile();
     assertTrue(f.isFile());
     f.delete();
-    assertThrows(MetaFileNotFoundException.class, () -> {
-      test.readFromFile();
-    });
+    assertThrows(MetaFileNotFoundException.class, () -> test.readFromFile());
   }
 
   @Test

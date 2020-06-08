@@ -5,12 +5,14 @@ import cn.edu.thssdb.exception.DataFileNotFoundException;
 import cn.edu.thssdb.exception.DuplicateTableException;
 import cn.edu.thssdb.exception.MetaFileNotFoundException;
 import cn.edu.thssdb.type.ColumnType;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import javax.print.attribute.standard.DateTimeAtCompleted;
 import java.io.*;
 import java.lang.reflect.Method;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -23,7 +25,7 @@ public class DatabaseTest {
   private HashMap<String, Table> tables;
 
   @Before
-  public void setUp() throws IOException, ClassNotFoundException {
+  public void setUp() {
     database = new Database("db1");
     tables = new HashMap<>();
 //    Column [] cs = new Column[2];
@@ -56,17 +58,15 @@ public class DatabaseTest {
   }
 
   @Test
-  public void testPersist() throws IOException {
+  public void testPersistRecover() throws IOException {
     Column [] cs = new Column[2];
     cs[0] = new Column("c1", ColumnType.INT, true, true, 100);
     cs[1] = new Column("c2", ColumnType.STRING, false, true, 100);
     database.create("t1", cs, 0);
     database.persist();
-    File d = new File("data\\db1\\t1");
-    if (!d.exists()) {
-      d.mkdir();
-    }
-    File fr = new File("data\\db1\\db1.meta");
+    database.recover();
+    assertEquals(database.get("t1").getColumns().get(0).toString(' '), "c1 INT true true 100");
+    File fr = Paths.get("data", "db1", "db1.meta").toFile();
     BufferedReader reader = new BufferedReader(new FileReader(fr));
     String str;
     ArrayList<String []> lines = new ArrayList<>();
@@ -74,34 +74,12 @@ public class DatabaseTest {
       lines.add(str.split(" "));
     }
     assertEquals(lines.get(0)[0], "t1");
-//    assertEquals(lines.get(1)[0], "db1");
-//    assertEquals(lines.get(2)[0], "0");
-//    assertEquals(lines.get(3)[0], "c1");
-//    assertEquals(lines.get(3)[1], "INT");
     reader.close();
+    database.drop("t1");
   }
 
-  @Test
-  public void testRecover() throws IOException, ClassNotFoundException {
-    File d = new File("data\\db1");
-    if (!d.exists()) {
-      d.mkdir();
-    }
-    File f = new File("data\\db1\\db1.meta");
-    FileWriter fw = new FileWriter(f);
-    fw.write("t1");
-    fw.close();
-    File d2 = new File("data\\db1\\t1");
-    if (!d2.exists()) {
-      d2.mkdir();
-    }
-    File f2 = new File("data\\db1\\t1\\t1.meta");
-    FileWriter fw2 = new FileWriter(f2);
-    fw2.write("DATABASE_NAME db1\nTABLE_NAME t1\nPRIMARY_KEY_INDEX 0\nc1 INT true true 100\nc2 STRING false true 100");
-    fw2.close();
-    tables.put("t1", new Table("db1", "t1"));
-    database.recover();
-    assertEquals(tables.get("t1").getColumns().get(0).toString(' '), "c1 INT true true 100");
-    assertEquals(tables.get("t1").getColumns().get(1).toString(' '), "c2 STRING false true 100");
+  @After
+  public void clean() {
+    database.wipeData();
   }
 }

@@ -4,6 +4,7 @@ import cn.edu.thssdb.exception.CustomIOException;
 import cn.edu.thssdb.exception.MetaFileNotFoundException;
 
 import java.io.*;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,7 +19,7 @@ public class Logger {
   public Logger(String folder_name, String file_name) {
     this.folder_name = folder_name;
     this.file_name = file_name;
-    this.full_path = folder_name + "\\" + file_name;
+    this.full_path = Paths.get(folder_name, file_name).toString();
 
     File d = new File(this.folder_name);
     if (!d.isDirectory()) {
@@ -81,11 +82,8 @@ public class Logger {
     }
   }
 
-  public void writeSQL(String sql) throws CustomIOException {
-    appendToFile(sql + "\n");
-  }
-
-  public void writeCommit() throws CustomIOException {
-    appendToFile("COMMIT\n");
+  public void deleteFile() {
+    File f = new File(this.full_path);
+    f.delete();
   }
 }

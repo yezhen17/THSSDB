@@ -3,14 +3,10 @@ package cn.edu.thssdb.query;
 import cn.edu.thssdb.exception.UnknownColumnException;
 import cn.edu.thssdb.exception.WrongTableNameException;
 import cn.edu.thssdb.parser.item.*;
-import cn.edu.thssdb.schema.Column;
-import cn.edu.thssdb.schema.Entry;
 import cn.edu.thssdb.schema.Row;
 import cn.edu.thssdb.schema.Table;
-import cn.edu.thssdb.tree.Node;
-import javafx.util.Pair;
+import cn.edu.thssdb.parser.item.tree.Node;
 
-import javax.management.Query;
 import java.util.*;
 
 

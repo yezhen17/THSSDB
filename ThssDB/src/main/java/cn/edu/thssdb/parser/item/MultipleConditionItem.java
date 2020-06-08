@@ -2,8 +2,8 @@ package cn.edu.thssdb.parser.item;
 
 import cn.edu.thssdb.query.QueryColumn;
 import cn.edu.thssdb.schema.Row;
-import cn.edu.thssdb.tree.BaseTree;
-import cn.edu.thssdb.tree.Node;
+import cn.edu.thssdb.parser.item.tree.BaseTree;
+import cn.edu.thssdb.parser.item.tree.Node;
 
 import java.util.ArrayList;
 

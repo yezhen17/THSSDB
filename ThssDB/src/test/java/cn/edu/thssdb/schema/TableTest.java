@@ -3,6 +3,7 @@ package cn.edu.thssdb.schema;
 import cn.edu.thssdb.exception.KeyNotExistException;
 import cn.edu.thssdb.index.BPlusTree;
 import cn.edu.thssdb.type.ColumnType;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -23,6 +24,7 @@ import static org.junit.Assert.assertSame;
 
 
 public class TableTest {
+  private Database database;
   private Table table;
   private ArrayList<Entry> entries;
   private ArrayList<Row> rows;
@@ -30,7 +32,7 @@ public class TableTest {
   private int primaryIndex=0;
 
   @Before
-  public void setUp() throws IOException {
+  public void setUp() {
     Column c0 = new Column("c0", ColumnType.INT,true,true,0);
     Column c1 = new Column("c1", ColumnType.LONG,false,false,0);
     Column c2 = new Column("c2", ColumnType.DOUBLE,false,false,0);
@@ -42,7 +44,10 @@ public class TableTest {
     columns[2] = c2;
     columns[3] = c3;
     columns[4] = c4;
-    table = new Table("testdb","test", columns, primaryIndex);
+    database = new Database("testdb");
+    database.create("test", columns, primaryIndex);
+    table = database.get("test");
+    // table = new Table("testdb","test", columns, primaryIndex);
 
     entries = new ArrayList<>();
     rows = new ArrayList<>();
@@ -207,5 +212,10 @@ public class TableTest {
       Row row = iterator.next();
       assertEquals(row.getEntries(),map.get(row.getEntries().get(primaryIndex)).getEntries());
     }
+  }
+
+  @After
+  public void clean() {
+    database.wipeData();
   }
 }

@@ -5,6 +5,7 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
 import static org.junit.Assert.assertEquals;
@@ -16,7 +17,7 @@ public class PersistentStorageTest {
 
   @Before
   public void setUp() {
-    persistentStorage = new PersistentStorage<>("test", "tmp.data", true);
+    persistentStorage = new PersistentStorage<>("test", "tmp.data");
     test = new ArrayList<>();
     entries = new Entry[3][3];
     for (int i = 0; i < 3; i++) {
@@ -33,12 +34,12 @@ public class PersistentStorageTest {
   }
 
   @Test
-  public void testSerialize() throws IOException {
+  public void testSerialize() {
     persistentStorage.serialize(test);
   }
 
   @Test
-  public void testDeserialize() throws ClassNotFoundException {
+  public void testDeserialize() {
     ArrayList<Row> res = persistentStorage.deserialize();
     int i = 0;
     for (Row row : res) {
@@ -49,12 +50,11 @@ public class PersistentStorageTest {
       }
       i++;
     }
-    File f = new File("test\\tmp.data");
-    f.delete();
+    Paths.get("test", "tmp.data").toFile().delete();
   }
 
   @Test
-  public void testSerializeIter() throws IOException {
+  public void testSerializeIter() {
     persistentStorage.serialize(test.iterator());
   }
 }

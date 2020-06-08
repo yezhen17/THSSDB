@@ -5,6 +5,7 @@ import cn.edu.thssdb.exception.CustomIOException;
 import cn.edu.thssdb.exception.MetaFileNotFoundException;
 
 import java.io.*;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Set;
@@ -14,10 +15,10 @@ public class Meta {
   private String file_name;
   private String full_path;
 
-  public Meta(String folder_name, String file_name, boolean just_created) {
+  public Meta(String folder_name, String file_name) {
     this.folder_name = folder_name;
     this.file_name = file_name;
-    this.full_path = folder_name + "\\" + file_name;
+    this.full_path = Paths.get(folder_name, file_name).toString();
 
     File d = new File(this.folder_name);
     if (!d.isDirectory()) {
@@ -31,14 +32,6 @@ public class Meta {
         throw new CustomIOException();
       }
     }
-//    if (!exists(this.full_path)) {
-//
-//
-//    }
-//    if (just_created) {
-//
-//    }
-
   }
 
   /**
@@ -47,7 +40,7 @@ public class Meta {
    * @exception MetaFileNotFoundException, CustomIOException
    * @return 元数据
    */
-  public ArrayList<String[]> readFromFile() throws MetaFileNotFoundException, CustomIOException {
+  public ArrayList<String[]> readFromFile() {
     ArrayList<String []> lines = new ArrayList<>();
     String str;
     try {

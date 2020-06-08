@@ -4,14 +4,11 @@ import cn.edu.thssdb.exception.*;
 import cn.edu.thssdb.log.Logger;
 import cn.edu.thssdb.operation.BaseOperation;
 import cn.edu.thssdb.parser.MyParser;
-import cn.edu.thssdb.query.QueryResult;
 import cn.edu.thssdb.query.QueryTable;
-import cn.edu.thssdb.type.ColumnType;
 import cn.edu.thssdb.utils.Global;
 
-import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -35,9 +32,9 @@ public class Database {
     this.name = name;
     this.tables = new HashMap<>();
     this.lock = new ReentrantReadWriteLock();
-    String folder = Global.DATA_ROOT_FOLDER + "\\" + name;
+    String folder = Paths.get(Global.DATA_ROOT_FOLDER, name).toString();
     String meta_name = name + ".meta";
-    this.meta = new Meta(folder, meta_name, true); // 暂时不加载表到内存
+    this.meta = new Meta(folder, meta_name); // 暂时不加载表到内存
     String logger_name = name + ".log";
     this.logger = new Logger(folder, logger_name);
   }
@@ -159,7 +156,7 @@ public class Database {
    * [method] 恢复数据库
    * [note] 从持久化数据中恢复数据库
    */
-  public synchronized void recover() throws WrongMetaFormatException, MetaFileNotFoundException, CustomIOException, ClassNotFoundException {
+  public synchronized void recover() {
     ArrayList<String[]> table_list = this.meta.readFromFile();
     // 目前 一行一个table名
     for (String [] table_info: table_list) {
@@ -242,12 +239,12 @@ public class Database {
    * [method] 删除数据库
    */
   public void wipeData() {
-    this.meta.deleteFile();
     for (Table table: tables.values()) {
       table.drop();
     }
     tables.clear();
+    this.logger.deleteFile();
+    this.meta.deleteFile();
+    Paths.get(Global.DATA_ROOT_FOLDER, name).toFile().delete();
   }
-
-
 }
