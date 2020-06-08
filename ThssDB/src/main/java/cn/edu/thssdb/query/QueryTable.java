@@ -92,15 +92,6 @@ public class QueryTable implements Iterator<Row> {
     }
   }
 
-  public void setSingleCondition(ConditionItem cond, int c1Len) {
-    int type = cond.getType();
-    if (type == 1) {
-      boolean is_t1 = true;
-      if (cond.getIdx1() >= c1Len) is_t1 = false;
-
-    }
-  }
-
   @Override
   public boolean hasNext() {
     if (tableNum == 1) {
@@ -126,6 +117,7 @@ public class QueryTable implements Iterator<Row> {
   public ArrayList<Row> traverseSmart(MultipleConditionItem cond, boolean table1, int idx) {
     if (idx == -1) return traverse(cond, false, false);
     ArrayList<Row> res = new ArrayList<>();
+    if (n1 == 0 || n2 == 0) return res;
     Iterator<Row> notPrim;
     Table primTable;
     if (table1) {
@@ -179,8 +171,6 @@ public class QueryTable implements Iterator<Row> {
         }
       }
     }
-
-
     return res;
   }
 
@@ -190,6 +180,7 @@ public class QueryTable implements Iterator<Row> {
 
   public ArrayList<Row> traverse(MultipleConditionItem cond, boolean retain_left, boolean retain_right) {
     ArrayList<Row> res = new ArrayList<>();
+    if (n1 == 0 || tableNum == 2 && n2 == 0) return res;
     if (cond != null) {
       // 接下来筛选符合条件的Row
       if (getTableNum() == 1) {

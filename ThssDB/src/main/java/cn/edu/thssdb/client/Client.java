@@ -233,6 +233,8 @@ public class Client {
       Status status = resp.getStatus();
       if (status.code == Global.SUCCESS_CODE) {
         // 成功
+        long endTime = System.currentTimeMillis();
+        println("It costs " + (endTime - startTime) + " ms.");
         println(resp.getInformation());
         if (resp.getTableList() != null) {
           Iterator<List<List<String>>> data_all = resp.getRowListIterator();
@@ -249,13 +251,14 @@ public class Client {
 
       } else if (status.code == Global.FAILURE_CODE){
         // 失败
+        long endTime = System.currentTimeMillis();
+        println("It costs " + (endTime - startTime) + " ms.");
         println(resp.getInformation());
       }
     } catch (TException e) {
       logger.error(e.getMessage());
     }
-    long endTime = System.currentTimeMillis();
-    println("It costs " + (endTime - startTime) + " ms.");
+
   }
 
   /**

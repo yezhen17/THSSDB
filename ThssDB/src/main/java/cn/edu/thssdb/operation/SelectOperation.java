@@ -1,5 +1,6 @@
 package cn.edu.thssdb.operation;
 
+import cn.edu.thssdb.exception.DatabaseNotExistException;
 import cn.edu.thssdb.exception.TableNotExistException;
 import cn.edu.thssdb.parser.SQLParser;
 import cn.edu.thssdb.parser.item.*;
@@ -42,7 +43,9 @@ public class SelectOperation extends BaseOperation {
   public void exec() {
 //    Manager manager = Manager.getInstance();
 //    Database database = manager.getDatabaseByName(manager.getCurrentDatabaseName());
-
+    if (database==null){
+      throw new DatabaseNotExistException();
+    }
     ArrayList<Table> tables = new ArrayList<>();
     Table table1 = database.get(fromItem.getTableNameA());
     if (table1 == null){
