@@ -71,7 +71,9 @@ public class Client {
       String msg, username, password, statement;
       while (isRunning) {
         print(Global.CLI_PREFIX);
-        msg = SCANNER.nextLine().trim();
+        do {
+          msg = SCANNER.nextLine().trim();
+        } while (msg.length() <= 0);
         // *** MAIN SWITCH ***
         switch (msg) {
           case Global.SHOW_TIME:
