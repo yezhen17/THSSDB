@@ -49,17 +49,17 @@ public class IServiceHandler implements IService.Iface {
       // 成功
       resp.setSessionId(sessionId);
       resp.setStatus(new Status(Global.SUCCESS_CODE));
-      resp.setInformation(Global.SUCCESS_CONNECT);
+      // resp.setInformation(Global.SUCCESS_CONNECT);
     } catch (UserNotExistException e) {
       // 失败
       resp.setSessionId(-1);
       resp.setStatus(new Status(Global.FAILURE_CODE));
-      resp.setInformation(Global.FAILURE_CONNECT_1);
+      // resp.setInformation(Global.FAILURE_CONNECT_1);
     } catch (WrongPasswordException e) {
       // 失败
       resp.setSessionId(-1);
       resp.setStatus(new Status(Global.FAILURE_CODE));
-      resp.setInformation(Global.FAILURE_CONNECT_2);
+      // resp.setInformation(Global.FAILURE_CONNECT_2);
     }
     // 响应回复
     return resp;
@@ -79,11 +79,11 @@ public class IServiceHandler implements IService.Iface {
     if (userManager.logout(sessionId)) {
       // 成功
       resp.setStatus(new Status(Global.SUCCESS_CODE));
-      resp.setInformation(Global.SUCCESS_DISCONNECT);
+      // resp.setInformation(Global.SUCCESS_DISCONNECT);
     } else {
       // 失败
       resp.setStatus(new Status(Global.FAILURE_CODE));
-      resp.setInformation(Global.FAILURE_DISCONNECT);
+      // resp.setInformation(Global.FAILURE_DISCONNECT);
     }
     // 响应回复
     return resp;
@@ -106,7 +106,7 @@ public class IServiceHandler implements IService.Iface {
       return userService.handle(statement);
     } else {
       resp.setStatus(new Status(Global.FAILURE_CODE));
-      resp.setInformation(Global.FAILURE_FORBIDDEN);
+      // resp.setInformation(Global.FAILURE_FORBIDDEN);
       resp.setIsAbort(true);
       resp.setHasResult(false);
     }

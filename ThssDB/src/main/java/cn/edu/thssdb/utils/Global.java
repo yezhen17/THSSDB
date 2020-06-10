@@ -12,8 +12,8 @@ public class Global {
   }
   public static ISOLATION_LEVEL DATABASE_ISOLATION_LEVEL = ISOLATION_LEVEL.READ_COMMITTED;
 
-  public static final String ROOT_USERNAME = "THU";
-  public static final String ROOT_PASSWORD = "THU";
+  public static final String ROOT_USERNAME = "username";
+  public static final String ROOT_PASSWORD = "password";
 
   public static final String CLI_PREFIX = "ThssDB>";
   public static final String INPUT_USERNAME = "Username:";
