@@ -278,41 +278,6 @@ public class Table implements Iterable<Row> {
   }
 
   /**
-   * [method] 更通用地，由column名和值查找行，这类函数还需根据查询模块的设计再调整和优化
-   * @exception IllegalArgumentException
-   */
-  public ArrayList<Row> search(String column_name, Comparable value, ComparisonType type) {
-    ArrayList<Row> res = new ArrayList<>();
-//    int i = 0;
-//    boolean has_column = false;
-//    for (Column c : columns) {
-//      if (c.getName() == column_name) {
-//        has_column = true;
-//        break;
-//      }
-//      i++;
-//    }
-//    assert has_column; // 参数检查打算在解析时进行，这里只是示意，由name找column index也可以封装
-    if (type == ComparisonType.EQ) {
-      res.add(index.get(new Entry(value)));
-    }
-
-//    if (i == primaryIndex) {
-//
-//      // TODO
-//    } else {
-//      for (Iterator<Row> it = iterator(); it.hasNext(); ) {
-//        Row r = it.next();
-//        // 兼容 > == < 后续可以根据查询模块设计调整
-//        if (cond.getTreeValue(r).getValue()) {
-//          res.add(r);
-//        }
-//      }
-//    }
-    return res;
-  }
-
-  /**
    * [method] 序列化
    */
   private void serialize() {

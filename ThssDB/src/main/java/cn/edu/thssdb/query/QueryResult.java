@@ -103,7 +103,7 @@ public class QueryResult {
       case NATURAL_INNER_JOIN: {
         for (QueryColumn c1: metaInfos.get(0).getColumns()) {
           for (QueryColumn c2: metaInfos.get(1).getColumns()) {
-            if (c1.getColumnName().equalsIgnoreCase(c2.getColumnName())) {
+            if (c1.getColumnName().equals(c2.getColumnName())) {
               ConditionItem conditionItem = new ConditionItem(new ComparerItem(c1.getColumn()),
                       new ComparerItem(c2.getColumn()), "=");
               if (whereItem != null) {
@@ -166,9 +166,7 @@ public class QueryResult {
           }
           res = queryTable.traverseSmart(null, t1, idx);
         }
-
       }
-
     } else {
       if (whereItem != null) {
         whereItem.setColumn(this.columns);
@@ -294,7 +292,7 @@ public class QueryResult {
               }
             } else {
               if (this.tableNum == 1) {
-                if (!tableName.equalsIgnoreCase(fromItem.getTableNameA())) {
+                if (!tableName.equals(fromItem.getTableNameA())) {
                   throw new WrongTableNameException();
                 }
                 int i = 0;
@@ -303,13 +301,13 @@ public class QueryResult {
                   i++;
                 }
               } else {
-                if (tableName.equalsIgnoreCase(fromItem.getTableNameA())) {
+                if (tableName.equals(fromItem.getTableNameA())) {
                   int t1_column_count = metaInfos.get(0).getColumnNum();
                   for (int i = 0; i < t1_column_count; i++) {
                     QueryColumn tmp = this.columns.get(i);
                     res.add(new QueryColumnPlusData(tmp.getFullColumnName(), i, tmp.getType()));
                   }
-                } else if (tableName.equalsIgnoreCase(fromItem.getTableNameB())) {
+                } else if (tableName.equals(fromItem.getTableNameB())) {
                   int t1_column_count = metaInfos.get(0).getColumnNum();
                   int total_count = this.columns.size();
                   for (int i = t1_column_count; i < total_count; i++) {
@@ -323,8 +321,7 @@ public class QueryResult {
             }
           } else {
             int idx = findIndex(tableName, columnName);
-            res.add(new QueryColumnPlusData(getFullColumnName(tableName, columnName),
-                    idx, this.columns.get(idx).getType()));
+            res.add(new QueryColumnPlusData(columnName, idx, this.columns.get(idx).getType()));
           }
           break;
         }
@@ -332,16 +329,14 @@ public class QueryResult {
           String tableName = c.getTableName();
           String columnName = c.getColumnName();
           int idx = findIndex(tableName, columnName);
-          res.add(new QueryColumnPlusData(c.getConstNum1(), getFullColumnName(tableName, columnName),
-                  c.getOp(), idx, this.columns.get(idx).getType()));
+          res.add(new QueryColumnPlusData(c.getConstNum1(), columnName, c.getOp(), idx, this.columns.get(idx).getType()));
           break;
         }
         case 3: {
           String tableName = c.getTableName();
           String columnName = c.getColumnName();
           int idx = findIndex(tableName, columnName);
-          res.add(new QueryColumnPlusData(getFullColumnName(tableName, columnName), c.getConstNum2(),
-                  c.getOp(), idx, this.columns.get(idx).getType()));
+          res.add(new QueryColumnPlusData(columnName, c.getConstNum2(), c.getOp(), idx, this.columns.get(idx).getType()));
           break;
         }
         case 4: {
@@ -352,8 +347,7 @@ public class QueryResult {
           String tableName = c.getTableName();
           String columnName = c.getColumnName();
           int idx = findIndex(tableName, columnName);
-          res.add(new QueryColumnPlusData(getFullColumnName(tableName, columnName), c.getAggregateFun(),
-                  idx, this.columns.get(idx).getType()));
+          res.add(new QueryColumnPlusData(columnName, c.getAggregateFun(), idx, this.columns.get(idx).getType()));
           break;
         }
       }

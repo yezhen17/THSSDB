@@ -150,7 +150,7 @@ public class InsertOperation extends BaseOperation {
 
         Row newRow = new Row(entries);
         // 主键检查
-        if (table.index.contains(newRow.getEntries().get(table.primaryIndex))) {
+        if (table.index.contains(newRow.getEntries().get(primaryKeyIndex))) {
           throw new WrongInsertException(duplicateKey);
         } else {
           rowsToInsert.add(newRow);

@@ -375,7 +375,7 @@ public class MyVisitor extends SQLBaseVisitor{
     if (ctx.getChildCount() == 1) {
       return new MultipleConditionItem((ConditionItem) visit(ctx.getChild(0)));
     } else {
-      if (ctx.getChild(0).getText().equalsIgnoreCase("(")) {
+      if (ctx.getChild(0).getText().equals("(")) {
         return (MultipleConditionItem) visit(ctx.getChild(1));
       } else {
         // System.out.println(visit(ctx.getChild(0)));
@@ -442,7 +442,7 @@ public class MyVisitor extends SQLBaseVisitor{
   @Override
   public Object visitSelect_item_2(SQLParser.Select_item_2Context ctx) {
     // SUM/...(*) or SUM/...(A)
-    if (ctx.getChild(2).getText().equalsIgnoreCase("*")) {
+    if (ctx.getChild(2).getText().equals("*")) {
       return new SelectItem(new ColumnFullNameItem(null, "*"),
               ctx.getChild(0).getText().toUpperCase());
     } else {
@@ -563,8 +563,8 @@ public class MyVisitor extends SQLBaseVisitor{
       for(i=4;i<n;i++){
         if(ctx.getChild(i).getText().equalsIgnoreCase("VALUES"))
           break;
-        if(ctx.getChild(i).getText().equalsIgnoreCase(",")||
-                ctx.getChild(i).getText().equalsIgnoreCase(")"))
+        if(ctx.getChild(i).getText().equals(",")||
+                ctx.getChild(i).getText().equals(")"))
           continue;
         columnNames.add((String) visit(ctx.getChild(i)));
       }

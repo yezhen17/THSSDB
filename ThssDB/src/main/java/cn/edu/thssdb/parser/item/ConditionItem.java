@@ -68,7 +68,7 @@ public class ConditionItem {
       case 1: {
         Entry tmp = row.getEntries().get(idx1);
         try {
-          cmp_res = tmp.compareTo(e2);
+          cmp_res = tmp.compareTo(e1);
         } catch (NullPointerException e) {
           return false;
         }
@@ -145,7 +145,7 @@ public class ConditionItem {
         if (c2.getL().getType() != LiteralValueItem.Type.NULL) {
           val = ColumnType.getColumnTypeValue(type, l);
         }
-        e2 = new Entry(val);
+        e1 = new Entry(val);
       }
     } else {
       if (c2.getIsC()) {
@@ -211,5 +211,13 @@ public class ConditionItem {
 
   public int getIdx2() {
     return idx2;
+  }
+
+  public ComparisonType getCmp() {
+    return cmp;
+  }
+
+  public Entry getE1() {
+    return e1;
   }
 }

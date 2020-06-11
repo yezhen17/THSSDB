@@ -6,6 +6,7 @@ import cn.edu.thssdb.parser.item.MultipleConditionItem;
 import cn.edu.thssdb.schema.Entry;
 import cn.edu.thssdb.schema.Row;
 import cn.edu.thssdb.schema.Table;
+import cn.edu.thssdb.type.ComparisonType;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -19,8 +20,6 @@ public class QueryTable implements Iterator<Row> {
   int n1;
   int n2;
   Row cache;
-  boolean t1_primary = false;
-  boolean useSmart = false;
 
   public QueryTable(ArrayList<Table> tables) {
     this.tables = tables;
@@ -37,7 +36,6 @@ public class QueryTable implements Iterator<Row> {
       if (t1.hasNext()) {
         cache = t1.next();
       }
-
     }
   }
 
@@ -58,12 +56,17 @@ public class QueryTable implements Iterator<Row> {
       n2 = 1;
     } else {
       if (t1Cond) {
-        Iterator<Row> tmp = tables.get(0).iterator();
+        Table t = tables.get(0);
+        Iterator<Row> tmp = t.iterator();
         ArrayList<Row> new_rows = new ArrayList<>();
-        while (tmp.hasNext()) {
-          Row row = tmp.next();
-          if (cond.evaluate(row)) {
-            new_rows.add(row);
+        if (cond.getIdx1() == t.primaryIndex && cond.getCmp() == ComparisonType.EQ) {
+          new_rows.add(t.search(cond.getE1()));
+        } else {
+          while (tmp.hasNext()) {
+            Row row = tmp.next();
+            if (cond.evaluate(row)) {
+              new_rows.add(row);
+            }
           }
         }
 
@@ -72,14 +75,20 @@ public class QueryTable implements Iterator<Row> {
         t2 = tables.get(1).iterator();
         n2 = tables.get(1).index.size();
       } else {
-        Iterator<Row> tmp = tables.get(1).iterator();
+        Table t = tables.get(1);
+        Iterator<Row> tmp = t.iterator();
         ArrayList<Row> new_rows = new ArrayList<>();
-        while (tmp.hasNext()) {
-          Row row = tmp.next();
-          if (cond.evaluate(row)) {
-            new_rows.add(row);
+        if (cond.getIdx1() == t.primaryIndex && cond.getCmp() == ComparisonType.EQ) {
+          new_rows.add(t.search(cond.getE1()));
+        } else {
+          while (tmp.hasNext()) {
+            Row row = tmp.next();
+            if (cond.evaluate(row)) {
+              new_rows.add(row);
+            }
           }
         }
+
         t2 = new_rows.iterator();
         n2 = new_rows.size();
         t1 = tables.get(0).iterator();
