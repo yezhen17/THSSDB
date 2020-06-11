@@ -31,7 +31,7 @@ public class PersistentStorage<V> {
     }
   }
 
-  public void serialize(ArrayList<V> input) throws CustomIOException {
+  public void serialize(ArrayList<V> input) {
     try {
       FileOutputStream fos = new FileOutputStream(full_path);
       ObjectOutputStream objectOutputStream = new ObjectOutputStream(fos);
@@ -45,7 +45,7 @@ public class PersistentStorage<V> {
     }
   }
 
-  public void serialize(Iterator<V> iterator) throws CustomIOException {
+  public void serialize(Iterator<V> iterator) {
     try {
       FileOutputStream fos = new FileOutputStream(full_path);
       ObjectOutputStream objectOutputStream = new ObjectOutputStream(fos);

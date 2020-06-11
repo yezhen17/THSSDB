@@ -83,58 +83,63 @@ public class QueryColumnPlusData {
 
   // 不同聚集函数求值
   private Double aggregate(ArrayList<Entry> entries) {
-    Double res = 0.0;
-    switch (aggr) {
-      case "sum": {
-        for (Entry entry: entries) {
-          if (entry.value == null) continue;
-          res += Double.valueOf(entry.toString());
-        }
-        return res;
-      }
-      case "avg": {
-        double count = 0.0;
-        for (Entry entry: entries) {
-          if (entry.value == null) continue;
-          res += Double.valueOf(entry.toString());
-          count++;
-        }
-        if (count == 0.0) return 0.0;
-        return res / count;
-      }
-      case "max": {
-        Double max = -Double.MAX_VALUE;
-        for (Entry entry: entries) {
-          if (entry.value == null) continue;
-          Double tmp = Double.valueOf(entry.toString());
-          if (tmp.compareTo(max) == 1) {
-            max = tmp;
+    try {
+      Double res = 0.0;
+      switch (aggr) {
+        case "sum": {
+          for (Entry entry: entries) {
+            if (entry.value == null) continue;
+            res += Double.valueOf(entry.toString());
           }
+          return res;
         }
-        if (max == -Double.MAX_VALUE) return null;
-        return max;
-      }
-      case "min": {
-        Double min = Double.MAX_VALUE;
-        for (Entry entry: entries) {
-          if (entry.value == null) continue;
-          Double tmp = Double.valueOf(entry.toString());
-          if (tmp.compareTo(min) == -1) {
-            min = tmp;
+        case "avg": {
+          double count = 0.0;
+          for (Entry entry: entries) {
+            if (entry.value == null) continue;
+            res += Double.valueOf(entry.toString());
+            count++;
           }
+          if (count == 0.0) return 0.0;
+          return res / count;
         }
-        if (min == Double.MAX_VALUE) return null;
-        return min;
-      }
-      default: {
-        int count = 0;
-        for (Entry entry: entries) {
-          if (entry.value == null) continue;
-          count++;
+        case "max": {
+          Double max = -Double.MAX_VALUE;
+          for (Entry entry: entries) {
+            if (entry.value == null) continue;
+            Double tmp = Double.valueOf(entry.toString());
+            if (tmp.compareTo(max) == 1) {
+              max = tmp;
+            }
+          }
+          if (max == -Double.MAX_VALUE) return null;
+          return max;
         }
-        return (double) count;
+        case "min": {
+          Double min = Double.MAX_VALUE;
+          for (Entry entry: entries) {
+            if (entry.value == null) continue;
+            Double tmp = Double.valueOf(entry.toString());
+            if (tmp.compareTo(min) == -1) {
+              min = tmp;
+            }
+          }
+          if (min == Double.MAX_VALUE) return null;
+          return min;
+        }
+        default: {
+          int count = 0;
+          for (Entry entry: entries) {
+            if (entry.value == null) continue;
+            count++;
+          }
+          return (double) count;
+        }
       }
+    } catch (Exception e) {
+      throw new CalculationTypeException();
     }
+
   }
 
   // 不同运算求值

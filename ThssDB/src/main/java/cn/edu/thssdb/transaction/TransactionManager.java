@@ -199,7 +199,7 @@ public class TransactionManager {
     try {
       for (int i = operations.size(); i > index; i--) {
         // TODO 在此根据Operation类型去锁即可
-        BaseOperation op = operations.pop();
+        BaseOperation op = operations.removeLast();
         op.undo();
       }
       if (index == 0) underTransaction = false;

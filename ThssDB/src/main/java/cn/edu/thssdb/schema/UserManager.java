@@ -28,7 +28,7 @@ public class UserManager {
         onlineUsers = new HashMap<>();
         lock = new ReentrantReadWriteLock();
         try {
-            meta = new Meta(Global.DATA_ROOT_FOLDER, "user.data");
+            meta = new Meta(Global.DATA_ROOT_FOLDER, "user.meta");
             loadUserData();
         } catch (Exception e) {
             throw new RuntimeException();

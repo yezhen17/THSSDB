@@ -36,7 +36,7 @@ public class Manager {
     databasesList = new ArrayList<>();
     onlineDatabases = new HashMap<>();
     try {
-      meta = new Meta(Global.DATA_ROOT_FOLDER, "manager.data");
+      meta = new Meta(Global.DATA_ROOT_FOLDER, "manager.meta");
       ArrayList<String[]> db_list = this.meta.readFromFile();
       System.out.println(db_list);
       for (String [] db_info: db_list) {

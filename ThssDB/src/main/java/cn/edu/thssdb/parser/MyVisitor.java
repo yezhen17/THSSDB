@@ -520,9 +520,9 @@ public class MyVisitor extends SQLBaseVisitor{
   @Override
   public Object visitDelete_stmt(SQLParser.Delete_stmtContext ctx) {
     if (ctx.getChildCount() == 3) {
-      return new DeleteOperation(ctx.getChild(2).getText());
+      return new DeleteOperation((String) visit(ctx.getChild(2)));
     } else {
-      return new DeleteOperation(ctx.getChild(2).getText(), (MultipleConditionItem) visit(ctx.getChild(4)));
+      return new DeleteOperation((String) visit(ctx.getChild(2)), (MultipleConditionItem) visit(ctx.getChild(4)));
     }
   }
 
