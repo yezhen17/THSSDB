@@ -105,8 +105,8 @@ public class IServiceHandler implements IService.Iface {
     if (userService != null) {
       return userService.handle(statement);
     } else {
-      resp.setStatus(new Status(Global.FAILURE_CODE));
       // resp.setInformation(Global.FAILURE_FORBIDDEN);
+      resp.setStatus(new Status(Global.FAILURE_CODE));
       resp.setIsAbort(true);
       resp.setHasResult(false);
     }

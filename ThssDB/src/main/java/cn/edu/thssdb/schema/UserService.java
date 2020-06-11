@@ -88,9 +88,7 @@ public class UserService {
             for (BaseOperation operation: operations) {
                 // 先设置operation操作的当前数据库
                 operation.setCurrentUser(user.username, user.database);
-
                 if (operation instanceof UseOperation) {
-
                     forceCommit();
                     operation.exec();
                     String databaseName = ((UseOperation) operation).getName();
@@ -115,32 +113,41 @@ public class UserService {
                     }
                 }
             }
+            // TODO
             if (title_all.size() > 0) {
-                resp.setTableList(title_all);
-                resp.setColumnsList(columns_all);
-                resp.setRowList(data_all);
+                System.out.println("11111111111111111");
+                resp.setColumnsList(columns_all.get(0));
+                resp.setRowList(data_all.get(0));
+                System.out.println("22222222222222222");
             }
+
+
             resp.setStatus(new Status(Global.SUCCESS_CODE));
-            resp.setInformation(Global.SUCCESS_EXECUTE);
             resp.setIsAbort(true);
             resp.setHasResult(false);
             return resp;
+//            if (title_all.size() > 0) {
+//                resp.setTableList(title_all);
+//                resp.setColumnsList(columns_all);
+//                resp.setRowList(data_all);
+//            }
+//            resp.setStatus(new Status(Global.SUCCESS_CODE));
+//            resp.setInformation(Global.SUCCESS_EXECUTE);
+//            resp.setIsAbort(true);
+//            resp.setHasResult(false);
+//            return resp;
         } catch (Exception e) {
             e.printStackTrace();
-            resp.setStatus(new Status(Global.FAILURE_CODE));
-            if (e.getMessage() == null) {
-                resp.setInformation(e.toString());
-            } else {
-                resp.setInformation(e.getMessage());
-            }
 
+//            if (e.getMessage() == null) {
+//                resp.setInformation(e.toString());
+//            } else {
+//                resp.setInformation(e.getMessage());
+//            }
+            resp.setStatus(new Status(Global.FAILURE_CODE));
             resp.setIsAbort(true);
             resp.setHasResult(false);
             return resp;
         }
-
-
-
-        // TODO 可根据类变量判断是否为完整事务，返回何值
     }
 }
