@@ -186,13 +186,16 @@ public class InsertOperation extends BaseOperation {
    * [method] 确认无异常后插入
    */
   private void insert() {
-    ArrayList<Entry> entries = new ArrayList<>();
-    for (Row row : rowsToInsert) {
-      entries.add(row.getEntries().get(table.primaryIndex));
-    }
-    HashSet<Entry> set = new HashSet<>(entries);
-    if (set.size() != entries.size()) {
-      throw new WrongInsertException(duplicateKey);
+    if (rowsToInsert.size() > 1) {
+      ArrayList<Entry> entries = new ArrayList<>();
+      for (Row row : rowsToInsert) {
+        entries.add(row.getEntries().get(table.primaryIndex));
+      }
+
+      HashSet<Entry> set = new HashSet<>(entries);
+      if (set.size() != entries.size()) {
+        throw new WrongInsertException(duplicateKey);
+      }
     }
 
     for (Row row : rowsToInsert) {
