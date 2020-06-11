@@ -237,7 +237,6 @@ public class IClient {
         // 成功
         long endTime = System.currentTimeMillis();
         println("It costs " + (endTime - startTime) + " ms.");
-
 //        println(resp.getInformation());
 //        if (resp.getTableList() != null) {
 //          Iterator<List<List<String>>> data_all = resp.getRowListIterator();
