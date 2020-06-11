@@ -7,7 +7,7 @@ public class ColumnDefItem {
   private boolean isNotNull;
 
   public ColumnDefItem(String columnName, TypeItem typeItem, boolean isPrimaryKey, boolean isNotNull) {
-    this.columnName = columnName;
+    this.columnName = columnName.toUpperCase();
     this.typeItem = typeItem;
     this.isPrimaryKey = isPrimaryKey;
     this.isNotNull = isNotNull;

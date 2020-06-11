@@ -72,7 +72,7 @@ public class MyVisitor extends SQLBaseVisitor{
   @Override
   public Object visitDrop_db_stmt(SQLParser.Drop_db_stmtContext ctx) {
     String dbName;
-    if(ctx.getChildCount()>3){
+    if(ctx.getChildCount() > 3){
       dbName = (String) visit(ctx.getChild(4));
     }
     else {
@@ -115,17 +115,18 @@ public class MyVisitor extends SQLBaseVisitor{
       }
 
 
-      Column column = new Column(c.getColumnName(),c.getTypeItem().getColumnType(),c.isPrimaryKey(),c.isNotNull(),c.getTypeItem().getStrLen());
+      Column column = new Column(c.getColumnName(), c.getTypeItem().getColumnType(),
+              c.isPrimaryKey(), c.isNotNull(), c.getTypeItem().getStrLen());
 
       columns.add(column);
 
     }
 
     Column[] pColumns = new Column[columns.size()] ;
-    for(int i=0;i<columns.size();i++){
-      pColumns[i]=columns.get(i);
+    for(int i = 0; i < columns.size(); i++){
+      pColumns[i] = columns.get(i);
     }
-    return new CreateTableOperation(tableName,pColumns,primaryKeyIndex, getFullText(ctx));
+    return new CreateTableOperation(tableName, pColumns,primaryKeyIndex, getFullText(ctx));
   }
 
   @Override
@@ -148,7 +149,7 @@ public class MyVisitor extends SQLBaseVisitor{
 
   @Override
   public Object visitColumn_name(SQLParser.Column_nameContext ctx) {
-    return ctx.getChild(0).getText();
+    return ctx.getChild(0).getText().toUpperCase();
   }
 
   @Override
@@ -203,7 +204,7 @@ public class MyVisitor extends SQLBaseVisitor{
 
   @Override
   public Object visitTable_name(SQLParser.Table_nameContext ctx) {
-    return ctx.getChild(0).getText();
+    return ctx.getChild(0).getText().toUpperCase();
   }
 
   @Override

@@ -6,8 +6,8 @@ import java.util.ArrayList;
 
 public class FromItem {
 
-  private String tableNameA;
-  private String tableNameB;
+  private String tableNameA = null;
+  private String tableNameB = null;
   private JoinType joinType;
   private ArrayList<OnItem> onItems;
 
@@ -33,8 +33,8 @@ public class FromItem {
   }
 
   public FromItem(String tableNameA, String tableNameB, JoinType joinType, ArrayList<OnItem> onItems){
-    this.tableNameA = tableNameA;
-    this.tableNameB = tableNameB;
+    if (tableNameA != null) this.tableNameA = tableNameA.toUpperCase();
+    if (tableNameB != null) this.tableNameB = tableNameB.toUpperCase();
     this.joinType = joinType;
     this.onItems = onItems;
   }

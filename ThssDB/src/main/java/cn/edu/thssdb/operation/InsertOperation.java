@@ -83,7 +83,7 @@ public class InsertOperation extends BaseOperation {
         Iterator<Column> column_it = columns.iterator();
         Iterator<LiteralValueItem> value_it = value.iterator();
         while(column_it.hasNext()) {
-          entries = matchType(column_it.next(), value_it.next(), primaryKey, entries);
+          matchType(column_it.next(), value_it.next(), primaryKey, entries);
         }
 
         // 主键检查
@@ -137,7 +137,7 @@ public class InsertOperation extends BaseOperation {
 
           // 将没匹配到的列的值置为null
           if (match != -1) {
-            entries = matchType(c, value.get(match), primaryKey, entries);
+            matchType(c, value.get(match), primaryKey, entries);
           } else {
             if (c.isNotNull()) {
               throw new WrongInsertException("Exception: wrong insert operation ( column " + c.getName() + " cannot be null )");
@@ -208,7 +208,7 @@ public class InsertOperation extends BaseOperation {
     return new ArrayList<>(Arrays.asList(this.tableName));
   }
 
-  private ArrayList<Entry> matchType(Column column, LiteralValueItem value, String primaryKey, ArrayList<Entry> entries) {
+  private void matchType(Column column, LiteralValueItem value, String primaryKey, ArrayList<Entry> entries) {
     LiteralValueItem.Type value_type = value.getType();
     switch (column.getType()) {
       case INT:
@@ -310,7 +310,6 @@ public class InsertOperation extends BaseOperation {
         }
         break;
     }
-    return entries;
   }
 
 }

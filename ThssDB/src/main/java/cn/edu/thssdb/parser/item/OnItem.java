@@ -6,12 +6,12 @@ public class OnItem {
   private String tableNameB;
   private String columnNameB;
 
-  public OnItem(String tableNameA, String columnNameA, String tableNameB, String columnNameB){
-    this.tableNameA = tableNameA;
-    this.columnNameA = columnNameA;
-    this.tableNameB = tableNameB;
-    this.columnNameB = columnNameB;
-  }
+//  public OnItem(String tableNameA, String columnNameA, String tableNameB, String columnNameB){
+//    this.tableNameA = tableNameA;
+//    this.columnNameA = columnNameA;
+//    this.tableNameB = tableNameB;
+//    this.columnNameB = columnNameB;
+//  }
 
   public OnItem(ColumnFullNameItem A, ColumnFullNameItem B){
     this.tableNameA = A.getTableName();
