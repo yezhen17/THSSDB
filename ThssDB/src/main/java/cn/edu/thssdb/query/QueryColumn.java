@@ -51,10 +51,11 @@ public class QueryColumn {
 
   // 获取显示的全名
   public String getFullColumnName() {
-    if (this.tableName == null) {
-      return this.columnName;
-    } else {
-      return this.tableName + "." + this.columnName;
-    }
+//    if (this.tableName == null) {
+//      return this.columnName;
+//    } else {
+//      return this.tableName + "." + this.columnName;
+//    }
+    return this.columnName;
   }
 }
