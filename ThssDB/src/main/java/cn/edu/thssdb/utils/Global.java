@@ -11,6 +11,7 @@ public class Global {
     READ_UNCOMMITTED, READ_COMMITTED, REPEATABLE_READ, SERIALIZATION
   }
   public static ISOLATION_LEVEL DATABASE_ISOLATION_LEVEL = ISOLATION_LEVEL.READ_COMMITTED;
+  public static final boolean ISOLATION_STATUS = true;
 
   public static final String ROOT_USERNAME = "username";
   public static final String ROOT_PASSWORD = "password";

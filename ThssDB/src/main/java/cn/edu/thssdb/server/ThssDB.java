@@ -53,8 +53,10 @@ public class ThssDB {
           break;
         case "R":
           Global.DATABASE_ISOLATION_LEVEL = Global.ISOLATION_LEVEL.REPEATABLE_READ;
+          break;
         case "S":
           Global.DATABASE_ISOLATION_LEVEL = Global.ISOLATION_LEVEL.SERIALIZATION;
+          break;
       }
     }
     System.out.println("[ISOLATION LEVEL]: " + Global.DATABASE_ISOLATION_LEVEL);

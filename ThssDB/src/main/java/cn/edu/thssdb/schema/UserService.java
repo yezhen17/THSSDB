@@ -120,10 +120,8 @@ public class UserService {
             }
             // TODO
             if (has_select) {
-                System.out.println("11111111111111111");
                 resp.setColumnsList(columns_all);
                 resp.setRowList(data_all);
-                System.out.println("22222222222222222");
             }
 
 

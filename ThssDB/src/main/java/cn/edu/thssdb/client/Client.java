@@ -120,13 +120,9 @@ public class Client {
       println("Query Data Successfully!");
     }
     println("It costs " + (System.currentTimeMillis() - startTime) + "ms.");
-    println("B**************");
     if (resp.getColumnsList().equals(columnsList) && resp.getRowList().equals(rowList)) {
       println("The Result Set is Correct!");
     }
-
-    println("E**************");
-
   }
 
   private static void disconnect(long sessionId) throws TException {

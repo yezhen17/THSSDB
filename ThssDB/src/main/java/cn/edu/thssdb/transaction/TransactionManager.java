@@ -24,9 +24,6 @@ public class TransactionManager {
   private boolean underTransaction = false;                             // 是否在transaction过程
 
 
-  // TODO 锁，应该需要记录每个operation用了什么锁
-  // TODO 注意，两段锁，需得到事务的所有操作后，统一进行加锁后才可执行
-
   public TransactionManager(String databaseName, Logger logger) {
 //    this.loggerBuffer = loggerBuffer;
     this.databaseName = databaseName;
@@ -90,16 +87,17 @@ public class TransactionManager {
 
   // 增删改操作
   private TransactionStatus readTransaction(BaseOperation operation) {
-
     // *** READ_UNCOMMITTED ***
     if (Global.DATABASE_ISOLATION_LEVEL == Global.ISOLATION_LEVEL.READ_UNCOMMITTED) {
-      // 执行 TODO
+      // 执行
       try {
         operation.exec();
+        underTransaction = true;
       } catch (Exception e) {
         return new TransactionStatus(false, e.getMessage());
       }
-      return new TransactionStatus(true, "");
+      return new TransactionStatus(true, "", operation.getData(),
+              operation.getColumns(), operation.getStmt());
     }
     // *** READ_COMMITTED ***
     if (Global.DATABASE_ISOLATION_LEVEL == Global.ISOLATION_LEVEL.READ_COMMITTED)  {
@@ -107,7 +105,7 @@ public class TransactionManager {
       ArrayList<String> tableNames = operation.getTableName();
       if (tableNames != null)
         for (String tableName : tableNames) { this.getTransactionReadLock(tableName); }
-      // 执行 TODO
+      // 执行
       try {
         operation.exec();
         underTransaction = true;
@@ -127,13 +125,15 @@ public class TransactionManager {
       ArrayList<String> tableNames = operation.getTableName();
       if (tableNames != null)
         for (String tableName : tableNames) { this.getTransactionReadLock(tableName); }
-      // 执行 TODO
+      // 执行
       try {
         operation.exec();
+        underTransaction = true;
       } catch (Exception e) {
         return new TransactionStatus(false, e.getMessage());
       }
-      return new TransactionStatus(true, "Success");
+      return new TransactionStatus(true, "", operation.getData(),
+              operation.getColumns(), operation.getStmt());
     }
     return new TransactionStatus(false, "Unknown isolation level!");
   }
@@ -150,7 +150,7 @@ public class TransactionManager {
       ArrayList<String> tableNames = operation.getTableName();
       if (tableNames != null)
         for (String tableName : tableNames) { this.getTransactionWriteLock(tableName); }
-      // 执行 TODO
+      // 执行
       try {
         operation.exec();
         operations.add(operation);
@@ -212,6 +212,7 @@ public class TransactionManager {
   // *****************************************************************
   // [method] 获取事务读锁（READ_UNCOMMITTED | READ_COMMITTED | REPEATABLE_READ）
   private boolean getTransactionReadLock(String tableName) {
+    if (!Global.ISOLATION_STATUS) return true;
     // 获取锁对象
     Table table = manager.getTableByName(this.databaseName, tableName);
     if (table == null)
@@ -225,6 +226,7 @@ public class TransactionManager {
 
   // [method] 获取事务写锁（READ_UNCOMMITTED | READ_COMMITTED | REPEATABLE_READ）
   private boolean getTransactionWriteLock(String tableName) {
+    if (!Global.ISOLATION_STATUS) return true;
     // 获取锁对象
     Table table = manager.getTableByName(this.databaseName, tableName);
     if (table == null)
@@ -247,6 +249,7 @@ public class TransactionManager {
   // [method] 获取事务读写锁（SERIALIZATION）（一次加锁法）
   // 引用 this.operations
   private boolean getTransactionReadWriteLock() {
+    if (!Global.ISOLATION_STATUS) return true;
     try {
       TransactionManager.lock.lock();
       // 一次加锁 - 先加写锁，再加读锁
@@ -259,6 +262,7 @@ public class TransactionManager {
 
   // [method] 释放事务读锁（READ_COMMITTED）
   private boolean releaseTransactionReadLock(String tableName) {
+    if (!Global.ISOLATION_STATUS) return true;
     // 获取锁对象
     Table table = manager.getTableByName(this.databaseName, tableName);
     if (table == null)
@@ -274,6 +278,7 @@ public class TransactionManager {
 
   // [method] 释放事务写锁（NONE）
   private boolean releaseTransactionWriteLock(String tableName) {
+    if (!Global.ISOLATION_STATUS) return true;
     // 获取锁对象
     Table table = manager.getTableByName(this.databaseName, tableName);
     if (table == null)
@@ -289,6 +294,7 @@ public class TransactionManager {
 
   // [method] 释放事务读写锁（READ_UNCOMMITTED | READ_COMMITTED | REPEATABLE_READ | SERIALIZATION）
   private void releaseTransactionReadWriteLock() {
+    if (!Global.ISOLATION_STATUS) return;
     // 释放写锁
     while (!writeLockList.isEmpty()) {
       writeLockList.remove().unlock();
