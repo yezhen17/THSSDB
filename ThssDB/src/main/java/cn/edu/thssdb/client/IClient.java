@@ -171,12 +171,12 @@ public class IClient {
         // 成功
         isConnected = true;
         SessionID = resp.getSessionId();
-//        println(resp.getInformation());
+        println(resp.getInformation());
       } else if (status.code == Global.FAILURE_CODE){
         // 失败
         isConnected = false;
         SessionID = -1;
-//        println(resp.getInformation());
+        println(resp.getInformation());
       }
     } catch (TException e) {
       logger.error(e.getMessage());
@@ -203,12 +203,12 @@ public class IClient {
         // 成功
         isConnected = false;
         SessionID = -1;
-//        println(resp.getInformation());
+        println(resp.getInformation());
       } else if (status.code == Global.FAILURE_CODE){
         // 失败
         isConnected = false;
         SessionID = -1;
-//        println(resp.getInformation());
+        println(resp.getInformation());
       }
     } catch (TException e) {
       logger.error(e.getMessage());
@@ -237,23 +237,15 @@ public class IClient {
         // 成功
         long endTime = System.currentTimeMillis();
         println("It costs " + (endTime - startTime) + " ms.");
-//        println(resp.getInformation());
-//        if (resp.getTableList() != null) {
-//          Iterator<List<List<String>>> data_all = resp.getRowListIterator();
-//          Iterator<List<String>> columns_all = resp.getColumnsListIterator();
-//          Iterator<String> title_all = resp.getTableListIterator();
-//          // 限制窗口数量
-//          int i = 0;
-//          while (i < 3 && title_all.hasNext()) {
-//            new ShowTable(data_all.next(), columns_all.next(), title_all.next());
-//            i++;
-//          }
-//        }
+        println(resp.getInformation());
+        if (resp.getColumnsList() != null) {
+          new ShowTable(resp.getRowList(), resp.getColumnsList(), "RESULT");
+        }
       } else if (status.code == Global.FAILURE_CODE){
         // 失败
         long endTime = System.currentTimeMillis();
         println("It costs " + (endTime - startTime) + " ms.");
-//        println(resp.getInformation());
+        println(resp.getInformation());
       }
     } catch (TException e) {
       logger.error(e.getMessage());

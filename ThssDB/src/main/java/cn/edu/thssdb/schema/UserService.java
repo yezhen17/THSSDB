@@ -128,6 +128,7 @@ public class UserService {
             resp.setStatus(new Status(Global.SUCCESS_CODE));
             resp.setIsAbort(true);
             resp.setHasResult(false);
+            resp.setInformation(Global.SUCCESS_EXECUTE);
             return resp;
 //            if (title_all.size() > 0) {
 //                resp.setTableList(title_all);
@@ -142,11 +143,11 @@ public class UserService {
         } catch (Exception e) {
             e.printStackTrace();
 
-//            if (e.getMessage() == null) {
-//                resp.setInformation(e.toString());
-//            } else {
-//                resp.setInformation(e.getMessage());
-//            }
+            if (e.getMessage() == null) {
+                resp.setInformation(e.toString());
+            } else {
+                resp.setInformation(e.getMessage());
+            }
             resp.setStatus(new Status(Global.FAILURE_CODE));
             resp.setIsAbort(true);
             resp.setHasResult(false);
