@@ -80,9 +80,13 @@ public class UserService {
      */
     public synchronized ExecuteStatementResp handle(String statement) {
         ExecuteStatementResp resp = new ExecuteStatementResp();
-        List<List<List<String>>> data_all = new ArrayList<>();
-        List<List<String>> columns_all = new ArrayList<>();
-        List<String> title_all = new ArrayList<>();
+//        List<List<List<String>>> data_all = new ArrayList<>();
+//        List<List<String>> columns_all = new ArrayList<>();
+//        List<String> title_all = new ArrayList<>();
+        boolean has_select = false;
+        List<List<String>> data_all = new ArrayList<>();
+        List<String> columns_all = new ArrayList<>();
+        String title_all;
         try {
             ArrayList<BaseOperation> operations = MyParser.getOperations(statement);
             for (BaseOperation operation: operations) {
@@ -107,17 +111,18 @@ public class UserService {
                     }
                     TransactionStatus.Table result = status.getRes();
                     if (result != null) {
-                        title_all.add(result.title);
-                        columns_all.add(result.columns);
-                        data_all.add(result.data);
+                        title_all = result.title;
+                        columns_all = result.columns;
+                        data_all = result.data;
+                        has_select = true;
                     }
                 }
             }
             // TODO
-            if (title_all.size() > 0) {
+            if (has_select) {
                 System.out.println("11111111111111111");
-                resp.setColumnsList(columns_all.get(0));
-                resp.setRowList(data_all.get(0));
+                resp.setColumnsList(columns_all);
+                resp.setRowList(data_all);
                 System.out.println("22222222222222222");
             }
 
