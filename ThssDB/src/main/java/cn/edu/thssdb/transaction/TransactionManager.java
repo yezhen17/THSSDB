@@ -141,7 +141,6 @@ public class TransactionManager {
 
   // [method] 增删改操作
   private TransactionStatus writeTransaction(BaseOperation operation) {
-
     // *** READ_UNCOMMITTED | READ_COMMITTED | REPEATABLE_READ | SERIALIZATION ***
     if ((Global.DATABASE_ISOLATION_LEVEL == Global.ISOLATION_LEVEL.READ_COMMITTED) ||
             (Global.DATABASE_ISOLATION_LEVEL == Global.ISOLATION_LEVEL.READ_UNCOMMITTED) ||
@@ -199,8 +198,27 @@ public class TransactionManager {
     }
     try {
       for (int i = operations.size(); i > index; i--) {
-        // TODO 在此根据Operation类型去锁即可
         BaseOperation op = operations.removeLast();
+        if (op instanceof SelectOperation || op instanceof ShowOperation) {
+          // 释放读锁 *** REPEATABLE_READ | SERIALIZATION ***
+          if ((Global.DATABASE_ISOLATION_LEVEL == Global.ISOLATION_LEVEL.REPEATABLE_READ) ||
+                  (Global.DATABASE_ISOLATION_LEVEL == Global.ISOLATION_LEVEL.SERIALIZATION)) {
+            ArrayList<String> tableNames = op.getTableName();
+            if (tableNames != null)
+              for (String tableName : tableNames) { this.releaseTransactionReadLock(tableName); }
+          }
+        }
+        else if (op instanceof UpdateOperation || op instanceof DeleteOperation || op instanceof InsertOperation) {
+          // 释放写锁 *** READ_UNCOMMITTED | READ_COMMITTED | REPEATABLE_READ | SERIALIZATION ***
+          if ((Global.DATABASE_ISOLATION_LEVEL == Global.ISOLATION_LEVEL.READ_COMMITTED) ||
+                  (Global.DATABASE_ISOLATION_LEVEL == Global.ISOLATION_LEVEL.READ_UNCOMMITTED) ||
+                  (Global.DATABASE_ISOLATION_LEVEL == Global.ISOLATION_LEVEL.REPEATABLE_READ) ||
+                  (Global.DATABASE_ISOLATION_LEVEL == Global.ISOLATION_LEVEL.SERIALIZATION)) {
+            ArrayList<String> tableNames = op.getTableName();
+            if (tableNames != null)
+              for (String tableName : tableNames) { this.releaseTransactionWriteLock(tableName); }
+          }
+        }
         op.undo();
       }
       if (index == 0) underTransaction = false;
