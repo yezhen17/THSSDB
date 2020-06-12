@@ -3,6 +3,7 @@ package cn.edu.thssdb.operation;
 import cn.edu.thssdb.exception.DatabaseNotExistException;
 import cn.edu.thssdb.exception.TableNotExistException;
 import cn.edu.thssdb.schema.*;
+import cn.edu.thssdb.type.ColumnType;
 
 import java.util.*;
 
@@ -38,19 +39,42 @@ public class ShowOperation extends BaseOperation {
     columnNames = new ArrayList<>();
     ArrayList<Column> columns = table.getColumns();
 
-    for(int i=0;i<columns.size();i++){
+    for(int i = 0; i < columns.size(); i++){
       columnNames.add(columns.get(i).getName());
     }
-    Iterator<Row> rowIterator = table.iterator();
-    while (rowIterator.hasNext()){
 
-      ArrayList<String> newRow = new ArrayList<>();
-      Row row = rowIterator.next();
-      for(Entry entry:row.getEntries()){
-        newRow.add(entry.toString());
+    ArrayList<String> columnTypes = new ArrayList<>();
+    ArrayList<String> is_null = new ArrayList<>();
+    ArrayList<String> is_primary = new ArrayList<>();
+    for(Column column: columns){
+
+      String type = ColumnType.columnType2String(column.getType());
+      if (column.getType() == ColumnType.STRING) type += " (MAX_LENGTH: "+ column.getMaxLength() + ")";
+      columnTypes.add(type);
+      if (column.isNotNull()) {
+        is_null.add("NOT NULL");
+      } else {
+        is_null.add("");
       }
-      showTable.add(newRow);
+      if (column.isPrimary()) {
+        is_primary.add("PRIMARY KEY");
+      } else {
+        is_primary.add("");
+      }
     }
+    showTable.add(columnTypes);
+    showTable.add(is_null);
+    showTable.add(is_primary);
+//    Iterator<Row> rowIterator = table.iterator();
+//    while (rowIterator.hasNext()){
+//
+//      ArrayList<String> newRow = new ArrayList<>();
+//      Row row = rowIterator.next();
+//      for(Entry entry:row.getEntries()){
+//        newRow.add(entry.toString());
+//      }
+//      showTable.add(newRow);
+//    }
   }
 
   @Override
