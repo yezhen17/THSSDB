@@ -173,11 +173,7 @@ public class Table implements Iterable<Row> {
    * @exception IllegalArgumentException
    */
   public void insert(Row row) {
-    try {
-      index.put(row.getEntries().get(primaryIndex), row);
-    } catch (DuplicateKeyException e){
-      throw e;
-    }
+    index.put(row.getEntries().get(primaryIndex), row);
   }
 
   /**
@@ -207,8 +203,6 @@ public class Table implements Iterable<Row> {
   public void delete(Row row) {
     index.remove(row.getEntries().get(primaryIndex));
   }
-
-
 
   /**
    * [method] 由Entry（主键的）删除行

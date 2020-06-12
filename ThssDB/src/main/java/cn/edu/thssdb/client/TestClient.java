@@ -45,7 +45,7 @@ public class TestClient {
       createTable(sessionId);
       insertData(sessionId);
       // queryData(sessionId);
-      queryDataJoin(sessionId);
+      // queryDataJoin(sessionId);
       // transaction(sessionId);
       dropDatabase(sessionId);
       disconnect(sessionId);
@@ -94,6 +94,8 @@ public class TestClient {
     ExecuteStatementResp resp = client.executeStatement(req);
     if (resp.getStatus().code == Global.SUCCESS_CODE) {
       println("Create Table Successfully!");
+    } else {
+      println(resp.getInformation());
     }
   }
 
@@ -118,6 +120,8 @@ public class TestClient {
       ExecuteStatementResp resp = client.executeStatement(req);
       if (resp.getStatus().code == Global.SUCCESS_CODE) {
         println("Insert Data Successfully!");
+      } else {
+        println(resp.getInformation());
       }
     }
     println("It costs " + (System.currentTimeMillis() - startTime) + "ms.");
@@ -211,7 +215,7 @@ public class TestClient {
   }
 
   private static void dropDatabase(long sessionId) throws TException {
-    String statement = "show table r;drop database test;";
+    String statement = "drop database test;";
     ExecuteStatementReq req = new ExecuteStatementReq(sessionId, statement);
     ExecuteStatementResp resp = client.executeStatement(req);
     if (resp.getStatus().code == Global.SUCCESS_CODE) {

@@ -86,13 +86,16 @@ public class InsertOperation extends BaseOperation {
           matchType(column_it.next(), value_it.next(), primaryKey, entries);
         }
 
-        // 主键检查
-        if (table.index.contains(entries.get(primaryKeyIndex))) {
-          throw new WrongInsertException(duplicateKey);
-        } else {
-          Row newRow = new Row(entries);
-          rowsToInsert.add(newRow);
-        }
+//        // 主键检查
+//        if (table.index.contains(entries.get(primaryKeyIndex))) {
+//          throw new WrongInsertException(duplicateKey);
+//        } else {
+//          Row newRow = new Row(entries);
+//          rowsToInsert.add(newRow);
+//        }
+
+        Row newRow = new Row(entries);
+        rowsToInsert.add(newRow);
       }
     } else {
       if (columnNames.size() > columns.size()) {
@@ -150,11 +153,13 @@ public class InsertOperation extends BaseOperation {
 
         Row newRow = new Row(entries);
         // 主键检查
-        if (table.index.contains(newRow.getEntries().get(primaryKeyIndex))) {
-          throw new WrongInsertException(duplicateKey);
-        } else {
-          rowsToInsert.add(newRow);
-        }
+//        if (table.index.contains(newRow.getEntries().get(primaryKeyIndex))) {
+//          throw new WrongInsertException(duplicateKey);
+//        } else {
+//          rowsToInsert.add(newRow);
+//        }
+
+        rowsToInsert.add(newRow);
       }
     }
     insert();
@@ -186,22 +191,27 @@ public class InsertOperation extends BaseOperation {
    * [method] 确认无异常后插入
    */
   private void insert() {
-    if (rowsToInsert.size() > 1) {
-      ArrayList<Entry> entries = new ArrayList<>();
+//    if (rowsToInsert.size() > 1) {
+//      ArrayList<Entry> entries = new ArrayList<>();
+//      for (Row row : rowsToInsert) {
+//        entries.add(row.getEntries().get(table.primaryIndex));
+//      }
+//
+//      HashSet<Entry> set = new HashSet<>(entries);
+//      if (set.size() != entries.size()) {
+//        throw new WrongInsertException(duplicateKey);
+//      }
+//    }
+    try {
       for (Row row : rowsToInsert) {
-        entries.add(row.getEntries().get(table.primaryIndex));
+        table.insert(row);
+        rowsHasInsert.add(row);
       }
-
-      HashSet<Entry> set = new HashSet<>(entries);
-      if (set.size() != entries.size()) {
-        throw new WrongInsertException(duplicateKey);
-      }
+    } catch (Exception e) {
+      undo();
+      throw new WrongInsertException(duplicateKey);
     }
 
-    for (Row row : rowsToInsert) {
-      table.insert(row);
-      rowsHasInsert.add(row);
-    }
     rowsToInsert.clear();
 
   }

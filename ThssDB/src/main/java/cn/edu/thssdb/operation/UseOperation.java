@@ -22,7 +22,6 @@ public class UseOperation extends BaseOperation {
     Manager manager = Manager.getInstance();
     if (databaseName != null) manager.quitDatabase(databaseName);
     manager.switchDatabase(newDatabaseName);
-    System.out.println("use database" + newDatabaseName);
   }
 
   public String getName() {
