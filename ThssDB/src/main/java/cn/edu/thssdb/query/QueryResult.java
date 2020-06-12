@@ -61,7 +61,7 @@ public class QueryResult {
     ArrayList<Row> res;
 
     boolean no_where_left = false;
-    if (whereItem != null) {
+    if (whereItem != null && tableNum == 2) {
       Node<ConditionItem> root = whereItem.getRoot();
       if (root.isLeaf()) {
         ConditionItem tmp = root.getValue();
@@ -71,14 +71,37 @@ public class QueryResult {
           boolean isFirst = tmp.setSingleTableIdx(firstTableColumnNum);
           queryTable = new QueryTable(tables, tmp, isFirst);
           whereItem = null;
+          no_where_left = true;
+        } else {
+          queryTable = new QueryTable(tables);
         }
       } else if (root.getLeft().isLeaf() && root.getRight().isLeaf() && root.getOp().equals("and")) {
+        ConditionItem left = (ConditionItem) root.getLeft().getValue();
+        ConditionItem right = (ConditionItem) root.getRight().getValue();
+        int left_type = left.getType();
+        int right_type = right.getType();
         queryTable = new QueryTable(tables);
+        if (left_type == 1 || left_type == 2 || left_type == 4) {
+          left.convertConditionToIndex(this.columns);
+          boolean isFirst = left.setSingleTableIdx(firstTableColumnNum);
+          queryTable.setTable(left, isFirst);
+          whereItem = new MultipleConditionItem(right);
+        }
+        if (right_type == 1 || right_type == 2 || right_type == 4) {
+          right.convertConditionToIndex(this.columns);
+          boolean isFirst = right.setSingleTableIdx(firstTableColumnNum);
+          queryTable.setTable(right, isFirst);
+          if (whereItem.getRoot().isLeaf()) {
+            whereItem = null;
+            no_where_left = true;
+          }
+          else whereItem = new MultipleConditionItem(left);
+        }
       } else {
         queryTable = new QueryTable(tables);
       }
     } else {
-      no_where_left = true;
+      if (tableNum == 2) no_where_left = true;
       queryTable = new QueryTable(tables);
     }
 

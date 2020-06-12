@@ -45,8 +45,8 @@ public class TestClient {
       createTable(sessionId);
       insertData(sessionId);
       // queryData(sessionId);
-      // queryDataJoin(sessionId);
-      transaction(sessionId);
+      queryDataJoin(sessionId);
+      // transaction(sessionId);
       dropDatabase(sessionId);
       disconnect(sessionId);
 
@@ -129,7 +129,7 @@ public class TestClient {
             "select * from t, r",
             "select * from t natural join r",
             "select * from t inner join r on t.a = r.a;",
-            "select * from t join r on t.a = r.a;",
+            "select * from t join r on t.a = r.x;",
             "select * from t join r on t.a = r.a and t.a = r.b;",
             "select * from t full outer join r on t.a = r.a;",
             "select * from t left outer join r on t.a = r.a;",
@@ -159,11 +159,14 @@ public class TestClient {
             "select * from t, r where t.a = 2 and r.a = 2 or t.b = 4 and r.b = 5;",
             "select * from t, r where (t.a = 0 or r.a = 1) and (t.b = 4 or r.b = 5);",
             "select a from r order by a desc;",
-    "select * from r where b <> 2 and a >= 3;",};
+            "select * from r where b <> 2 and a >= 3;",
+            "select * from r, t where r.b <> 2 and r.a >= 3;",
+            "select * from r, t where r.b < 3 and t.a >= 3;",
+            "select * from r, t where r.b < 3 and t.a = r.a;",};
     for (String statement : statements) {
       ExecuteStatementReq req = new ExecuteStatementReq(sessionId, statement);
       ExecuteStatementResp resp = client.executeStatement(req);
-
+      println(resp.getInformation());
       if (resp.getStatus().code == Global.SUCCESS_CODE) {
         new ShowTable(resp.getRowList(), resp.getColumnsList(), statement);
         println("Query Data Successfully!");

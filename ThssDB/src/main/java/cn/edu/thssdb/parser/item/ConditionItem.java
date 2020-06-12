@@ -1,4 +1,5 @@
 package cn.edu.thssdb.parser.item;
+import cn.edu.thssdb.exception.UnknownColumnException;
 import cn.edu.thssdb.parser.item.ColumnFullNameItem;
 import cn.edu.thssdb.query.QueryColumn;
 import cn.edu.thssdb.schema.Column;
@@ -15,8 +16,8 @@ public class ConditionItem {
   ComparerItem c1 = null;
   ComparerItem c2 = null;
 
-  int idx1;
-  int idx2;
+  int idx1 = -1;
+  int idx2 = -1;
   Entry e1;
   Entry e2;
   int type;
@@ -123,6 +124,7 @@ public class ConditionItem {
         }
         i++;
       }
+      if (idx1 == -1) throw new UnknownColumnException();
       if (c2.getIsNull()) {
         type = 4;
         return;
@@ -137,6 +139,7 @@ public class ConditionItem {
           }
           i++;
         }
+        if (idx2 == -1) throw new UnknownColumnException();
       } else {
         type = 1;
         ColumnType type = columns.get(idx1).getType();
@@ -158,6 +161,7 @@ public class ConditionItem {
           }
           i++;
         }
+        if (idx1 == -1) throw new UnknownColumnException();
         ColumnType type = columns.get(idx1).getType();
         String l = c1.getL().getString();
         Comparable val = null;

@@ -20,6 +20,7 @@ public class QueryTable implements Iterator<Row> {
   int n1;
   int n2;
   Row cache;
+  Iterable i2;
 
   public QueryTable(ArrayList<Table> tables) {
     this.tables = tables;
@@ -31,11 +32,12 @@ public class QueryTable implements Iterator<Row> {
     } else {
       t1 = tables.get(0).iterator();
       t2 = tables.get(1).iterator();
+      i2 = tables.get(1);
       n1 = tables.get(0).index.size();
       n2 = tables.get(1).index.size();
-      if (t1.hasNext()) {
-        cache = t1.next();
-      }
+//      if (t1.hasNext()) {
+//        cache = t1.next();
+//      }
     }
   }
 
@@ -69,10 +71,10 @@ public class QueryTable implements Iterator<Row> {
             }
           }
         }
-
         t1 = new_rows.iterator();
         n1 = new_rows.size();
         t2 = tables.get(1).iterator();
+        i2 = tables.get(1);
         n2 = tables.get(1).index.size();
       } else {
         Table t = tables.get(1);
@@ -91,13 +93,54 @@ public class QueryTable implements Iterator<Row> {
 
         t2 = new_rows.iterator();
         n2 = new_rows.size();
+        i2 = new_rows;
         t1 = tables.get(0).iterator();
         n1 = tables.get(0).index.size();
       }
-      if (t1.hasNext()) {
-        cache = t1.next();
-      }
+//      if (t1.hasNext()) {
+//        cache = t1.next();
+//      }
 
+    }
+  }
+
+  public void setTable(ConditionItem cond, boolean t1Cond) {
+    if (t1Cond) {
+      Table t = tables.get(0);
+      Iterator<Row> tmp = t1;
+      ArrayList<Row> new_rows = new ArrayList<>();
+      if (cond.getIdx1() == t.primaryIndex && cond.getCmp() == ComparisonType.EQ) {
+        new_rows.add(t.search(cond.getE1()));
+      } else {
+        while (tmp.hasNext()) {
+          Row row = tmp.next();
+          if (cond.evaluate(row)) {
+            new_rows.add(row);
+          }
+        }
+      }
+      t1 = new_rows.iterator();
+      n1 = new_rows.size();
+//      if (t1.hasNext()) {
+//        cache = t1.next();
+//      }
+    } else {
+      Table t = tables.get(1);
+      Iterator<Row> tmp = t2;
+      ArrayList<Row> new_rows = new ArrayList<>();
+      if (cond.getIdx1() == t.primaryIndex && cond.getCmp() == ComparisonType.EQ) {
+        new_rows.add(t.search(cond.getE1()));
+      } else {
+        while (tmp.hasNext()) {
+          Row row = tmp.next();
+          if (cond.evaluate(row)) {
+            new_rows.add(row);
+          }
+        }
+      }
+      t2 = new_rows.iterator();
+      n2 = new_rows.size();
+      i2 = new_rows;
     }
   }
 
@@ -117,7 +160,7 @@ public class QueryTable implements Iterator<Row> {
     } else {
       if (!t2.hasNext()) {
         cache = t1.next();
-        t2 = tables.get(1).iterator();
+        t2 = i2.iterator();
       }
       return combineRow(cache, t2.next());
     }
@@ -190,6 +233,11 @@ public class QueryTable implements Iterator<Row> {
   public ArrayList<Row> traverse(MultipleConditionItem cond, boolean retain_left, boolean retain_right) {
     ArrayList<Row> res = new ArrayList<>();
     if (n1 == 0 || tableNum == 2 && n2 == 0) return res;
+    if (getTableNum() == 2) {
+      if (t1.hasNext()) {
+        cache = t1.next();
+      }
+    }
     if (cond != null) {
       // 接下来筛选符合条件的Row
       if (getTableNum() == 1) {
