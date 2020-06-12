@@ -1,7 +1,7 @@
 package cn.edu.thssdb.exception;
 
 /***************
- * [Exception] 未知列
+ * [Exception] 排序时未知列
  ***************/
 public class WrongOrderByColumnException extends RuntimeException {
   @Override
