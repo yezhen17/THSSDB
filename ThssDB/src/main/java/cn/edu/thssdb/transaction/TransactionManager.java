@@ -58,7 +58,8 @@ public class TransactionManager {
     }
     try {
       operation.exec();
-      if (operation instanceof CreateTableOperation || operation instanceof DropTableOperation) {
+      if (operation instanceof CreateTableOperation ||
+              operation instanceof DropTableOperation || operation instanceof AlterTableOperation) {
         logger.writeLines(operation.getLog());
       }
     } catch (Exception e) {

@@ -195,7 +195,6 @@ public class Database {
         }
       }
     } catch (Exception e) {
-      e.printStackTrace();
       throw new CustomIOException();
     }
   }

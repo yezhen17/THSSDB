@@ -1,5 +1,6 @@
 package cn.edu.thssdb.parser;
 
+import cn.edu.thssdb.exception.IllegalTypeException;
 import cn.edu.thssdb.operation.*;
 import cn.edu.thssdb.parser.item.*;
 import cn.edu.thssdb.schema.Column;
@@ -114,19 +115,31 @@ public class MyVisitor extends SQLBaseVisitor{
         }
       }
 
-
       Column column = new Column(c.getColumnName(), c.getTypeItem().getColumnType(),
               c.isPrimaryKey(), c.isNotNull(), c.getTypeItem().getStrLen());
-
       columns.add(column);
-
     }
-
     Column[] pColumns = new Column[columns.size()] ;
     for(int i = 0; i < columns.size(); i++){
       pColumns[i] = columns.get(i);
     }
     return new CreateTableOperation(tableName, pColumns,primaryKeyIndex, getFullText(ctx));
+  }
+
+  @Override
+  public Object visitAlter_table_stmt(SQLParser.Alter_table_stmtContext ctx) {
+    String table_name = (String) visit(ctx.getChild(2));
+    String op = ctx.getChild(3).getText();
+    if (op.equalsIgnoreCase("ADD")) {
+      return new AlterTableOperation(table_name, (String) visit(ctx.getChild(4)),
+              0, (TypeItem) visit(ctx.getChild(5)), getFullText(ctx));
+    } else if (op.equalsIgnoreCase("DROP")) {
+      return new AlterTableOperation(table_name, (String) visit(ctx.getChild(5)),
+              1, null, getFullText(ctx));
+    } else {
+      return new AlterTableOperation(table_name, (String) visit(ctx.getChild(5)),
+              2, (TypeItem) visit(ctx.getChild(6)), getFullText(ctx));
+    }
   }
 
   @Override
@@ -158,7 +171,7 @@ public class MyVisitor extends SQLBaseVisitor{
       try {
         return new TypeItem(ColumnType.string2ColumnType(ctx.getChild(0).getText().toUpperCase()));
       } catch (Exception e) {
-        e.printStackTrace();
+        throw new IllegalTypeException();
       }
     }
     else {
@@ -166,17 +179,14 @@ public class MyVisitor extends SQLBaseVisitor{
         int strLen = Integer.parseInt(ctx.getChild(2).getText());
         return new TypeItem(ColumnType.string2ColumnType(ctx.getChild(0).getText().toUpperCase()),strLen);
       } catch (Exception e) {
-        e.printStackTrace();
+        throw new IllegalTypeException();
       }
     }
-    return null;
   }
 
   @Override
   public Object visitTable_constraint(SQLParser.Table_constraintContext ctx) {
-    //todo 目前单主键
-    String primaryKey = ctx.getChild(3).getText();
-    return primaryKey;
+    return ctx.getChild(3).getText();
   }
 
   @Override
@@ -331,9 +341,9 @@ public class MyVisitor extends SQLBaseVisitor{
   public ColumnFullNameItem visitColumn_full_name(SQLParser.Column_full_nameContext ctx) {
     // T.C or C
     if (ctx.getChildCount() > 1) {
-      return new ColumnFullNameItem(ctx.getChild(0).getText(), ctx.getChild(2).getText());
+      return new ColumnFullNameItem((String) visit(ctx.getChild(0)), (String) visit(ctx.getChild(2)));
     } else {
-      return new ColumnFullNameItem(null, ctx.getChild(0).getText());
+      return new ColumnFullNameItem(null, (String) visit(ctx.getChild(0)));
     }
   }
 
@@ -468,14 +478,14 @@ public class MyVisitor extends SQLBaseVisitor{
 
   @Override
   public Object visitDrop_user_stmt(SQLParser.Drop_user_stmtContext ctx) {
-    int child_count = ctx.getChildCount();
-    String user = null;
-    if (child_count == 3) {
-      user = (String) visit(ctx.getChild(2));
-    } else if (child_count == 5) {
-      user = (String) visit(ctx.getChild(4));
-    }
-    //todo
+//    int child_count = ctx.getChildCount();
+//    String user = null;
+//    if (child_count == 3) {
+//      user = (String) visit(ctx.getChild(2));
+//    } else if (child_count == 5) {
+//      user = (String) visit(ctx.getChild(4));
+//    }
+//    //todo
     return null;
   }
 
@@ -553,23 +563,22 @@ public class MyVisitor extends SQLBaseVisitor{
     String text = ctx.getChild(3).getText();
 
     if(text.equalsIgnoreCase("VALUES")){
-      for(int i=4;i<n;i+=2){
+      for(int i = 4; i < n; i += 2){
         values.add((ArrayList<LiteralValueItem>) visit(ctx.getChild(i)));
       }
       return new InsertOperation(tableName,values);
     }
     else{
       int i;
-      for(i=4;i<n;i++){
+      for(i = 4; i < n; i++){
         if(ctx.getChild(i).getText().equalsIgnoreCase("VALUES"))
           break;
-        if(ctx.getChild(i).getText().equals(",")||
-                ctx.getChild(i).getText().equals(")"))
+        if(ctx.getChild(i).getText().equals(",") || ctx.getChild(i).getText().equals(")"))
           continue;
         columnNames.add((String) visit(ctx.getChild(i)));
       }
       i++;
-      for(;i<n;i+=2){
+      for(; i < n; i += 2){
         values.add((ArrayList<LiteralValueItem>) visit(ctx.getChild(i)));
       }
       return new InsertOperation(tableName,columnNames,values);

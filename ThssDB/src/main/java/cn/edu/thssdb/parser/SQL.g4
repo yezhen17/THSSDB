@@ -7,7 +7,8 @@ sql_stmt_list :
     ';'* sql_stmt ( ';'+ sql_stmt )* ';'* ;
 
 sql_stmt :
-    create_table_stmt
+    alter_table_stmt
+    | create_table_stmt
     | create_db_stmt
     | create_user_stmt
     | drop_db_stmt
@@ -48,6 +49,9 @@ commit_stmt:
 begin_transaction_stmt:
     K_BEGIN K_TRANSACTION;
     
+alter_table_stmt:
+    K_ALTER K_TABLE table_name
+        (K_ADD column_name type_name | K_DROP K_COLUMN column_name | K_ALTER K_COLUMN column_name type_name) ;
 
 create_db_stmt :
     K_CREATE K_DATABASE database_name ;
@@ -252,6 +256,7 @@ T_STRING : S T R I N G;
 
 K_ADD : A D D;
 K_ALL : A L L;
+K_ALTER : A L T E R;
 K_AND : A N D;
 K_AS : A S;
 K_ASC : A S C;

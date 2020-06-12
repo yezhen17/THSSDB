@@ -35,17 +35,12 @@ public class Manager {
     lock = new ReentrantReadWriteLock();
     databasesList = new ArrayList<>();
     onlineDatabases = new HashMap<>();
-    try {
-      meta = new Meta(Global.DATA_ROOT_FOLDER, "manager.meta");
-      ArrayList<String[]> db_list = this.meta.readFromFile();
-      System.out.println(db_list);
-      for (String [] db_info: db_list) {
-        databases.put(db_info[0], new Database(db_info[0]));
-        databasesList.add(db_info[0]);
-      }
-    } catch (Exception e) {
-      e.printStackTrace();
-      throw new RuntimeException();
+    meta = new Meta(Global.DATA_ROOT_FOLDER, "manager.meta");
+    ArrayList<String[]> db_list = this.meta.readFromFile();
+    System.out.println(db_list);
+    for (String [] db_info: db_list) {
+      databases.put(db_info[0], new Database(db_info[0]));
+      databasesList.add(db_info[0]);
     }
   }
 

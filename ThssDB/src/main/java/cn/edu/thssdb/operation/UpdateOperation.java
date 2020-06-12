@@ -202,7 +202,8 @@ public class UpdateOperation extends BaseOperation {
       entries.add(new Entry(e.value));
     }
     Entry tmp = new Entry(valueToUpdate);
-    if (old_entries.get(columnIdxToUpdate).compareTo(tmp) == 0) {
+    Entry old = old_entries.get(columnIdxToUpdate);
+    if (old.value != null && old.compareTo(tmp) == 0) {
       return null;
     } else {
       entries.set(columnIdxToUpdate, new Entry(valueToUpdate));

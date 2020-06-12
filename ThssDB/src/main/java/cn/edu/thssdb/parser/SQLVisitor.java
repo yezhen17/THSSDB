@@ -1,4 +1,4 @@
-// Generated from SQL.g4 by ANTLR 4.8
+// Generated from D:/Tongtong/Course/Grade3_Spring/ThssDB/src/main/java/cn/edu/thssdb/parser\SQL.g4 by ANTLR 4.8
 package cn.edu.thssdb.parser;
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
@@ -58,6 +58,12 @@ public interface SQLVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitBegin_transaction_stmt(SQLParser.Begin_transaction_stmtContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link SQLParser#alter_table_stmt}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAlter_table_stmt(SQLParser.Alter_table_stmtContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link SQLParser#create_db_stmt}.
 	 * @param ctx the parse tree

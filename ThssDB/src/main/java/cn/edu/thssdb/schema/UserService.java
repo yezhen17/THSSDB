@@ -118,31 +118,16 @@ public class UserService {
                     }
                 }
             }
-            // TODO
             if (has_select) {
                 resp.setColumnsList(columns_all);
                 resp.setRowList(data_all);
             }
-
-
             resp.setStatus(new Status(Global.SUCCESS_CODE));
-            resp.setIsAbort(true);
+            resp.setIsAbort(false);
             resp.setHasResult(false);
             resp.setInformation(Global.SUCCESS_EXECUTE);
             return resp;
-//            if (title_all.size() > 0) {
-//                resp.setTableList(title_all);
-//                resp.setColumnsList(columns_all);
-//                resp.setRowList(data_all);
-//            }
-//            resp.setStatus(new Status(Global.SUCCESS_CODE));
-//            resp.setInformation(Global.SUCCESS_EXECUTE);
-//            resp.setIsAbort(true);
-//            resp.setHasResult(false);
-//            return resp;
         } catch (Exception e) {
-            e.printStackTrace();
-
             if (e.getMessage() == null) {
                 resp.setInformation(e.toString());
             } else {

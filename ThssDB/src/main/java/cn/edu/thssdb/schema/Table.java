@@ -277,6 +277,76 @@ public class Table implements Iterable<Row> {
     return index.get(entry);
   }
 
+  public void addColumn(String name, ColumnType type, int maxLen) {
+    columns.add(new Column(name, type, false, false, maxLen));
+    Iterator<Row> it = iterator();
+    while (it.hasNext()) {
+      it.next().getEntries().add(new Entry(null));
+    }
+  }
+
+  public void dropColumn(String name) {
+    int i = 0;
+    for (Column column: columns) {
+      if (column.getName().equals(name)) {
+        break;
+      }
+      i++;
+    }
+    if (i == primaryIndex) throw new AlterColumnException("Exception: Cannot drop primary index column!");
+    if (i == columns.size()) throw new UnknownColumnException();
+    else columns.remove(i);
+    Iterator<Row> it = iterator();
+    while (it.hasNext()) {
+      it.next().getEntries().remove(i);
+    }
+  }
+
+  public void alterColumn(String name, ColumnType type, int maxLen) {
+    int old_max_len;
+    int i = 0;
+    for (Column column: columns) {
+      if (column.getName().equals(name)) {
+        break;
+      }
+      i++;
+    }
+    if (i == primaryIndex) throw new AlterColumnException("Exception: Cannot alter primary index column!");
+    if (i == columns.size()) throw new UnknownColumnException();
+    else {
+      ColumnType old_type = columns.get(i).getType();
+      if (old_type == type && type != ColumnType.STRING ||
+              old_type == type && type == ColumnType.STRING && columns.get(i).getMaxLength() == maxLen) return;
+      else {
+        if (old_type != ColumnType.STRING) {
+          if (type == ColumnType.STRING) throw new AlterColumnException("Exception: Column cannot be altered to new type!");
+        } else if (old_type == ColumnType.STRING) {
+          if (type != ColumnType.STRING) throw new AlterColumnException("Exception: Column cannot be altered to new type!");
+        }
+        Column c = columns.remove(i);
+        old_max_len = c.getMaxLength();
+        columns.add(i, new Column(name, type, false, c.isNotNull(), maxLen));
+      }
+
+    }
+    Iterator<Row> it = iterator();
+    while (it.hasNext()) {
+      ArrayList<Entry> entries = it.next().getEntries();
+      Entry entry = entries.get(i);
+      if (entry.value == null) continue;
+      if (type == ColumnType.STRING) {
+        if (((String)entry.value).length() > maxLen) {
+          boolean not_null = columns.remove(i).isNotNull();
+          columns.add(i, new Column(name, type, false, not_null, old_max_len));
+          throw new AlterColumnException("Exception: String exceeds max length!");
+        }
+      } else {
+        entry.value = ColumnType.getColumnTypeValue(type, Double.valueOf(entry.toString()));
+      }
+
+    }
+  }
+
   /**
    * [method] 序列化
    */
