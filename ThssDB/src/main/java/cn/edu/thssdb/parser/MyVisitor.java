@@ -613,7 +613,7 @@ public class MyVisitor extends SQLBaseVisitor{
 
   @Override
   public Object visitRollback_stmt(SQLParser.Rollback_stmtContext ctx) {
-    if (ctx.getChildCount() > 1) return new RollbackOperation(ctx.getChild(1).getText());
+    if (ctx.getChildCount() > 1) return new RollbackOperation(ctx.getChild(3).getText());
     else return new RollbackOperation();
   }
 
