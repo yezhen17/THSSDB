@@ -4,7 +4,6 @@ import cn.edu.thssdb.exception.*;
 import cn.edu.thssdb.log.Logger;
 import cn.edu.thssdb.operation.BaseOperation;
 import cn.edu.thssdb.parser.MyParser;
-import cn.edu.thssdb.query.QueryTable;
 import cn.edu.thssdb.utils.Global;
 
 import java.nio.file.Paths;
@@ -50,12 +49,6 @@ public class Database {
    */
   public boolean contains(String name) {
     return tables.containsKey(name);
-//    try {
-//      lock.readLock().lock();
-//      return tables.containsKey(name);
-//    } finally {
-//      lock.readLock().unlock();
-//    }
   }
 
   /**
@@ -70,21 +63,6 @@ public class Database {
     if (tables.containsKey(name))
       throw new DuplicateTableException();
     tables.put(name, new Table(this.name, name, columns, primaryIndex));
-//    try {
-//      lock.readLock().lock();
-//      if (tables.containsKey(name))
-//        throw new DuplicateTableException();
-//    } finally {
-//      lock.readLock().unlock();
-//    }
-//    try {
-//      lock.writeLock().lock();
-//      tables.put(name, new Table(this.name, name, columns, primaryIndex));
-//    } catch (IOException e) {
-//      e.printStackTrace();
-//    } finally {
-//      lock.writeLock().unlock();
-//    }
   }
 
   /**
@@ -96,19 +74,6 @@ public class Database {
     if (!tables.containsKey(name))
       return null;
     return tables.get(name);
-//    try {
-//      lock.readLock().lock();
-//      if (!tables.containsKey(name))
-//        return null;
-//    } finally {
-//      lock.readLock().unlock();
-//    }
-//    try {
-//      lock.writeLock().lock();
-//      return tables.get(name);
-//    } finally {
-//      lock.writeLock().unlock();
-//    }
   }
 
   /**
@@ -121,35 +86,6 @@ public class Database {
       throw new TableNotExistException();
     tables.remove(name).drop();
     meta.writeToFile(tables.keySet());
-//    try {
-//      lock.readLock().lock();
-//      if (!tables.containsKey(name))
-//        throw new TableNotExistException();
-//    } finally {
-//      lock.readLock().unlock();
-//    }
-//    try {
-//      lock.writeLock().lock();
-//      tables.remove(name);
-//    } finally {
-//      lock.writeLock().unlock();
-//    }
-  }
-
-  /**
-   * [method] 查询表
-   * @param queryTables {QueryTable[]} 查询条件
-   * @return {String} 查询结果
-   */
-  public String select(QueryTable queryTables) {
-    // TODO 查询模块
-    try {
-      lock.readLock().lock();
-      /// QueryResult queryResult = new QueryResult(queryTables);
-      return null;
-    } finally {
-      lock.readLock().unlock();
-    }
   }
 
   /**
@@ -162,18 +98,7 @@ public class Database {
     for (String [] table_info: table_list) {
       tables.put(table_info[0], new Table(this.name, table_info[0]));
     }
-//    try {
-//      lock.writeLock().lock();
-//      ArrayList<String[]> table_list = this.meta.readFromFile();
-//      // 目前 一行一个table名
-//      for (String [] table_info: table_list) {
-//        tables.put(table_info[0], new Table(this.name, table_info[0]));
-//      }
-//    } finally {
-//      lock.writeLock().unlock();
-//    }
     logRecover();
-
   }
 
   public void logRecover() {
@@ -211,27 +136,7 @@ public class Database {
       keys.add(key);
     }
     this.meta.writeToFile(keys); // 目前 一行一个table名
-
     this.logger.eraseFile();
-//    try {
-//      lock.readLock().lock();
-//      ArrayList<String> keys = new ArrayList<>();
-//      for(String key: tables.keySet())
-//      {
-//        tables.get(key).persist();
-//        keys.add(key);
-//      }
-//      this.meta.writeToFile(keys); // 目前 一行一个table名
-//    } finally {
-//      lock.readLock().unlock();
-//    }
-  }
-
-  /**
-   * [method] 退出数据库
-   */
-  public void quit() {
-    this.persist();
   }
 
   /**

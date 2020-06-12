@@ -1,9 +1,6 @@
 package cn.edu.thssdb.utils;
 
-import javafx.embed.swing.JFXPanel;
-
 import javax.swing.*;
-import javax.swing.plaf.TableHeaderUI;
 import javax.swing.table.*;
 import java.awt.*;
 import java.util.Arrays;
@@ -49,79 +46,12 @@ public class ShowTable {
     jframe.setVisible(true);
   }
 
-//  public ShowTable(Object[][] tableData, Object[] columnTitle) {
-//    JFrame jframe = new JFrame("result");
-//    JTable table = new JTable();
-//
-//    // 设置表格不可编辑
-//    DefaultTableModel t = new DefaultTableModel(tableData, columnTitle){
-//      public boolean isCellEditable(int row, int column)
-//      {
-//        return false;
-//      }
-//    };
-//    table.setModel(t);
-//
-//    // 设置格式
-//    setTableStyle(table);
-//
-//    jframe.add(new JScrollPane(table),BorderLayout.CENTER);
-//    jframe.pack();
-//    jframe.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-//
-//    // 屏幕中间显示
-//    double width = Toolkit.getDefaultToolkit().getScreenSize().getWidth();
-//    double height = Toolkit.getDefaultToolkit().getScreenSize().getHeight();
-//    jframe.setLocation( (int) (width - jframe.getWidth()) / 2,(int) (height - jframe.getHeight()) / 2);
-//
-//    jframe.setVisible(true);
-//  }
-
-//  public ShowTable(Object[][] tableData, Object[] columnTitle, String title) {
-//    JFrame jframe = new JFrame(title);
-//    JTable table = new JTable();
-//
-//    // 设置表格不可编辑
-//    DefaultTableModel t = new DefaultTableModel(tableData, columnTitle){
-//      public boolean isCellEditable(int row, int column)
-//      {
-//        return false;
-//      }
-//    };
-//    table.setModel(t);
-//
-//    // 设置格式
-//    setTableStyle(table);
-//
-//    jframe.add(new JScrollPane(table),BorderLayout.CENTER);
-//    jframe.pack();
-//    jframe.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-//    jframe.setVisible(true);
-//
-
   public static void main(String[] args) {
-
-    //定义二维数组作为表格数据
-    Object[][] tableData =
-            {
-                    new Object[]{"李清照", 29, "女","大概防守打法","规范规定","高考宽容","绕宽容","热看完评论","比热容","佛马蜂窝","放假哦跟金融if热积分佛门 "},
-                    new Object[]{"李清照", 29, "女","大概防守打法","规范规定","高考宽容","绕宽容","热看完评论","比热容","佛马蜂窝","放假哦跟金融if热积分佛门 "},
-                    new Object[]{"李清照", 29, "女","大概防守打法","规范规定","高考宽容","绕宽容","热看完评论","比热容","佛马蜂窝","放假哦跟金融if热积分佛门 "},
-                    new Object[]{"李清照", 29, "女","大概防守打法","规范规定","高考宽容","绕宽容","热看完评论","比热容","佛马蜂窝","放假哦跟金融if热积分佛门 "},
-                    new Object[]{"李清照", 29, "女","大概防守打法","规范规定","高考宽容","绕宽容","热看完评论","比热容","佛马蜂窝","放假哦跟金融if热积分佛门 "},
-                    new Object[]{"李清照", 29, "女","大概防守打法","规范规定","高考宽容","绕宽容","热看完评论","比热容","佛马蜂窝","放假哦跟金融if热积分佛门 "},
-                    new Object[]{"李清照", 29, "女","大概防守打法","规范规定","高考宽容","绕宽容","热看完评论","比热容","佛马蜂窝","放假哦跟金融if热积分佛门 "},
-                    new Object[]{"李清照", 29, "女","大概防守打法","规范规定","高考宽容","绕宽容","热看完评论","比热容","佛马蜂窝","放假哦跟金融if热积分佛门 "},
-            };
-    //定义一维数据作为列标题
-    Object[] columnTitle = {"姓名", "年龄", "性别","国家","省","市","县","镇","村子","道路","家"};
 
     List<List<String>> l = new ArrayList<>();
     List<String> k = new ArrayList<>(Arrays.asList("fdafs","fdaf","fdafds"));
     l.add(k);
-
-    ShowTable showTable =  new ShowTable(l, k,"一个表");
-
+    new ShowTable(l, k,"一个表");
   }
 
 

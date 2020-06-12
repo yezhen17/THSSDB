@@ -159,7 +159,6 @@ public class Table implements Iterable<Row> {
   /**
    * [method] 恢复表
    * [note] 从持久化数据中恢复表
-   * @exception IllegalArgumentException
    */
   private synchronized void recover(ArrayList<Row> rows) {
     for(Row row:rows){
@@ -170,7 +169,6 @@ public class Table implements Iterable<Row> {
   /**
    * [method] 插入行
    * @param row {Row} 待插入行
-   * @exception IllegalArgumentException
    */
   public void insert(Row row) {
     index.put(row.getEntries().get(primaryIndex), row);
@@ -179,7 +177,6 @@ public class Table implements Iterable<Row> {
   /**
    * [method] 插入行
    * @param row {String} 待插入行的字符串形式
-   * @exception IllegalArgumentException
    */
   public void insert(String row) {
     try {
@@ -232,11 +229,8 @@ public class Table implements Iterable<Row> {
 
   /**
    * [method] 更新行
-   * TODO 可能利用索引
-   * @exception IllegalArgumentException
    */
   public void update(Row oldRow, Row newRow) {
-    // index.update(newRow.getEntries().get(primaryIndex), newRow);
     if(oldRow.getEntries().get(primaryIndex).compareTo(newRow.getEntries().get(primaryIndex))==0) {
         index.update(newRow.getEntries().get(primaryIndex), newRow);
     }
@@ -251,10 +245,16 @@ public class Table implements Iterable<Row> {
     }
   }
 
+  /**
+   * [method] 更新行，但不是删+增
+   */
   public void updateNoRemove(Row oldRow, Row newRow) {
     index.updateNoRemove(oldRow.getEntries().get(primaryIndex), newRow);
   }
 
+  /**
+   * [method] 快速更新所有行
+   */
   public void updateAll(int idx, Comparable val) {
     BPlusTreeIterator<Entry, Row> it = index.iterator();
     while (it.hasNext()) {
@@ -264,13 +264,14 @@ public class Table implements Iterable<Row> {
 
   /**
    * [method] 由Entry查找行
-   * @exception IllegalArgumentException
    */
   public Row search(Entry entry) {
-    // TODO
     return index.get(entry);
   }
 
+  /**
+   * [method] 添加列
+   */
   public void addColumn(String name, ColumnType type, int maxLen) {
     columns.add(new Column(name, type, false, false, maxLen));
     Iterator<Row> it = iterator();
@@ -279,6 +280,9 @@ public class Table implements Iterable<Row> {
     }
   }
 
+  /**
+   * [method] 删除列
+   */
   public void dropColumn(String name) {
     int i = 0;
     for (Column column: columns) {
@@ -296,6 +300,9 @@ public class Table implements Iterable<Row> {
     }
   }
 
+  /**
+   * [method] 更改列
+   */
   public void alterColumn(String name, ColumnType type, int maxLen) {
     int old_max_len;
     int i = 0;
@@ -309,6 +316,8 @@ public class Table implements Iterable<Row> {
     if (i == columns.size()) throw new UnknownColumnException();
     else {
       ColumnType old_type = columns.get(i).getType();
+
+      // 数字类型可以互相转换，但不可转换为字符串
       if (old_type == type && type != ColumnType.STRING ||
               old_type == type && type == ColumnType.STRING && columns.get(i).getMaxLength() == maxLen) return;
       else {
@@ -329,6 +338,7 @@ public class Table implements Iterable<Row> {
       Entry entry = entries.get(i);
       if (entry.value == null) continue;
       if (type == ColumnType.STRING) {
+        // 如果有超长的字符串，则回退
         if (((String)entry.value).length() > maxLen) {
           boolean not_null = columns.remove(i).isNotNull();
           columns.add(i, new Column(name, type, false, not_null, old_max_len));
@@ -345,21 +355,13 @@ public class Table implements Iterable<Row> {
    * [method] 序列化
    */
   private void serialize() {
-    // TODO
     persistentStorageData.serialize(iterator());
-//    try {
-//      lock.readLock().lock();
-//      persistentStorageData.serialize(iterator());
-//    } finally {
-//      lock.readLock().unlock();
-//    }
   }
 
   /**
    * [method] 反序列化
    */
   private ArrayList<Row> deserialize() {
-    // TODO
     return persistentStorageData.deserialize();
   }
 

@@ -3,9 +3,7 @@ package cn.edu.thssdb.operation;
 import cn.edu.thssdb.exception.DatabaseNotExistException;
 import cn.edu.thssdb.exception.TableNotExistException;
 import cn.edu.thssdb.parser.item.TypeItem;
-import cn.edu.thssdb.schema.Column;
 import cn.edu.thssdb.schema.Table;
-import cn.edu.thssdb.type.ColumnType;
 
 import java.util.ArrayList;
 import java.util.Arrays;

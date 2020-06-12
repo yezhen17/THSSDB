@@ -17,8 +17,6 @@ public class UpdateOperation extends BaseOperation {
   private MultipleConditionItem whereItem = null;
   private ArrayList<Pair<Row,Row>> rowsHasUpdate;
   private int columnIdxToUpdate;
-
-
   private Table table = null;
 
   final static String wrongColumnName = "Exception: wrong update operation ( no such column )!";
@@ -50,7 +48,7 @@ public class UpdateOperation extends BaseOperation {
      * [method] 执行操作
      */
   public void exec() {
-    if (database==null){
+    if (database == null){
       throw new DatabaseNotExistException();
     }
 
@@ -190,7 +188,7 @@ public class UpdateOperation extends BaseOperation {
    * [method] 撤销操作
    */
   public void undo(){
-    for(int i=rowsHasUpdate.size()-1;i>=0;i--){
+    for(int i = rowsHasUpdate.size() - 1; i >= 0; i--){
       table.update(rowsHasUpdate.get(i).getValue(),rowsHasUpdate.get(i).getKey());
     }
   }
@@ -229,9 +227,7 @@ public class UpdateOperation extends BaseOperation {
 
   @Override
   public ArrayList<String> getTableName() {
-    return new ArrayList<String>(Arrays.asList(this.tableName));
+    return new ArrayList<>(Arrays.asList(this.tableName));
   }
-
-
 
 }

@@ -16,7 +16,7 @@ public class CreateDatabaseOperation extends BaseOperation {
     /**
      * [method] 执行操作
      */
-    public void exec() throws CustomIOException {
+    public void exec() {
       Manager manager = Manager.getInstance();
       manager.createDatabaseIfNotExists(name);
     }

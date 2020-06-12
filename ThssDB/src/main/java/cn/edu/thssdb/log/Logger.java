@@ -9,9 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Logger {
-
   // 加锁
-
   private String folder_name;
   private String file_name;
   private String full_path;
@@ -53,16 +51,6 @@ public class Logger {
   public void eraseFile() {
     try {
       FileWriter writer = new FileWriter(full_path, false);
-      writer.close();
-    } catch (IOException e) {
-      throw new CustomIOException();
-    }
-  }
-
-  private void appendToFile(String content) {
-    try {
-      FileWriter writer = new FileWriter(full_path, true);
-      writer.write(content);
       writer.close();
     } catch (IOException e) {
       throw new CustomIOException();

@@ -9,7 +9,7 @@ public class LiteralValueItem {
   private Type type;
   private String string;
 
-  public LiteralValueItem(Type type, String string){
+  public LiteralValueItem(Type type, String string) {
     this.type = type;
     this.string = string;
   }

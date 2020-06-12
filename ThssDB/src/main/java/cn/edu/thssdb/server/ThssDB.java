@@ -27,8 +27,6 @@ public class ThssDB {
 
   public static String test = "AAA";
 
-  private Manager manager;      // 管理器
-
   /**
    * [method] 获取服务端实例
    * @return 服务端实例
@@ -50,9 +48,6 @@ public class ThssDB {
           break;
         case "C":
           Global.DATABASE_ISOLATION_LEVEL = Global.ISOLATION_LEVEL.READ_COMMITTED;
-          break;
-        case "R":
-          Global.DATABASE_ISOLATION_LEVEL = Global.ISOLATION_LEVEL.REPEATABLE_READ;
           break;
         case "S":
           Global.DATABASE_ISOLATION_LEVEL = Global.ISOLATION_LEVEL.SERIALIZATION;

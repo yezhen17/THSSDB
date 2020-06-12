@@ -70,13 +70,10 @@ public class InsertOperation extends BaseOperation {
 
 
     if (columnNames == null) {
-
       for (ArrayList<LiteralValueItem> value : values) {
-
         if (value.size() != columns.size()) {
           throw new WrongInsertException(wrongColumnNum);
         }
-
         ArrayList<Entry> entries = new ArrayList<>();
 
         // 类型检查
@@ -85,7 +82,6 @@ public class InsertOperation extends BaseOperation {
         while(column_it.hasNext()) {
           matchType(column_it.next(), value_it.next(), primaryKey, entries);
         }
-
 //        // 主键检查
 //        if (table.index.contains(entries.get(primaryKeyIndex))) {
 //          throw new WrongInsertException(duplicateKey);
@@ -125,7 +121,6 @@ public class InsertOperation extends BaseOperation {
         if (hasMatched == false) {
           throw new WrongInsertException(wrongColumnName);
         }
-
       }
 
       for (ArrayList<LiteralValueItem> value : values) {
@@ -158,7 +153,6 @@ public class InsertOperation extends BaseOperation {
 //        } else {
 //          rowsToInsert.add(newRow);
 //        }
-
         rowsToInsert.add(newRow);
       }
     }
@@ -221,6 +215,7 @@ public class InsertOperation extends BaseOperation {
     return new ArrayList<>(Arrays.asList(this.tableName));
   }
 
+  // 将字符串转为相应的值加入entries
   private void matchType(Column column, LiteralValueItem value, String primaryKey, ArrayList<Entry> entries) {
     LiteralValueItem.Type value_type = value.getType();
     switch (column.getType()) {

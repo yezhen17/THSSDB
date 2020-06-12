@@ -20,19 +20,19 @@ public class MultipleConditionItem extends BaseTree<ConditionItem> {
     this.root = new Node<>(c);
   }
 
+  // 设置元信息
   public void setColumn(ArrayList<QueryColumn> columns) {
     this.columns = columns;
     convertConditionToIndex(this.root);
   }
 
+  // 计算两个子树and/or后的结果
   @Override
   protected ConditionItem merge(ConditionItem v1, ConditionItem v2, String op, Row row) {
     if (op.equals("and")) {
       return new ConditionItem(v1.evaluate(row) && v2.evaluate(row));
-    } else if (op.equals("or")) {
-      return new ConditionItem(v1.evaluate(row) || v2.evaluate(row));
     } else {
-      return new ConditionItem(true); // 这种情况实际不会发生
+      return new ConditionItem(v1.evaluate(row) || v2.evaluate(row));
     }
   }
 
@@ -48,6 +48,7 @@ public class MultipleConditionItem extends BaseTree<ConditionItem> {
     }
   }
 
+  // 递归地设置元数据
   private void convertConditionToIndex(Node<ConditionItem> cur) {
     Node<ConditionItem> n1 = cur.getLeft();
     Node<ConditionItem> n2 = cur.getRight();

@@ -286,13 +286,13 @@ public class QueryResult {
     throw new UnknownColumnException();
   }
 
-  private String getFullColumnName (String tableName, String columnName) {
-    if (tableName == null) {
-      return columnName.toLowerCase();
-    } else {
-      return tableName.toLowerCase() + "." + columnName.toLowerCase();
-    }
-  }
+//  private String getFullColumnName (String tableName, String columnName) {
+//    if (tableName == null) {
+//      return columnName.toLowerCase();
+//    } else {
+//      return tableName.toLowerCase() + "." + columnName.toLowerCase();
+//    }
+//  }
 
   // 将形如 T.C, C, T.*, *, 1, 1+A, A+1, ... 的列信息转化为QueryColumnPlusData类型，以供后续处理
   private ArrayList<QueryColumnPlusData> columnToData(ArrayList<SelectItem> columns) {

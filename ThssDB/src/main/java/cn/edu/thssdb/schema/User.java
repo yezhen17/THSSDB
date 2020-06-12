@@ -11,7 +11,6 @@ public class User {
         NONE,       // 无
         ADMIN,      // 管理员
         USER,       // 用户
-
     }
 
     public String username;            // 用户名

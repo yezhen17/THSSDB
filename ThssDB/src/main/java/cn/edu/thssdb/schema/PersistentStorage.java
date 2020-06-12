@@ -1,7 +1,6 @@
 package cn.edu.thssdb.schema;
 
 import cn.edu.thssdb.exception.CustomIOException;
-import cn.edu.thssdb.exception.DataFileNotFoundException;
 import cn.edu.thssdb.exception.WrongDataException;
 
 import java.io.*;

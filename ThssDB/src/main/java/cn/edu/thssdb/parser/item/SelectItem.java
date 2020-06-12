@@ -14,7 +14,6 @@ public class SelectItem {
     3     A + 3                               tableName,columnName,constNum1,op
     4     3 + 4                               constNum1,constNum2,op
     5     avg/sum/count/min/max(col)          tableName,columnName,aggregateFun
-    6     distinct c1,c2,...                  tableName,columnName
    */
 
   private int type;

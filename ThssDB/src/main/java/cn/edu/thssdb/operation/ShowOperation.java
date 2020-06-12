@@ -26,12 +26,11 @@ public class ShowOperation extends BaseOperation {
    * [method] 执行操作
    */
   public void exec() {
-    if (database==null){
+    if (database == null){
       throw new DatabaseNotExistException();
     }
-
     Table table = database.get(name);
-    if(table==null){
+    if(table == null){
       throw new TableNotExistException();
     }
 
@@ -65,21 +64,11 @@ public class ShowOperation extends BaseOperation {
     showTable.add(columnTypes);
     showTable.add(is_null);
     showTable.add(is_primary);
-//    Iterator<Row> rowIterator = table.iterator();
-//    while (rowIterator.hasNext()){
-//
-//      ArrayList<String> newRow = new ArrayList<>();
-//      Row row = rowIterator.next();
-//      for(Entry entry:row.getEntries()){
-//        newRow.add(entry.toString());
-//      }
-//      showTable.add(newRow);
-//    }
   }
 
   @Override
   public ArrayList<String> getTableName() {
-    return new ArrayList<String>(Arrays.asList(this.name));
+    return new ArrayList<>(Arrays.asList(this.name));
   }
 
   public String getStmt(){return this.stmt;}

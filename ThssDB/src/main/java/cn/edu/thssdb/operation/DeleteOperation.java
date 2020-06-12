@@ -37,10 +37,9 @@ public class DeleteOperation extends BaseOperation {
    * [method] 执行操作
    */
   public void exec() {
-    if (database==null){
+    if (database == null){
       throw new DatabaseNotExistException();
     }
-
     table = database.get(tableName);
     if (table == null) {
       throw new TableNotExistException();
@@ -68,8 +67,6 @@ public class DeleteOperation extends BaseOperation {
         }
       }
     }
-
-
   }
 
   /**
@@ -95,7 +92,7 @@ public class DeleteOperation extends BaseOperation {
 
   @Override
   public ArrayList<String> getTableName() {
-    return new ArrayList<String>(Arrays.asList(this.tableName));
+    return new ArrayList<>(Arrays.asList(this.tableName));
   }
 
 }

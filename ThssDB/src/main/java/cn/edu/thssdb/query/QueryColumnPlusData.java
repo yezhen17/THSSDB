@@ -207,8 +207,6 @@ public class QueryColumnPlusData {
             String val = tmp.toString();
             data.add(String.valueOf(ColumnType.getColumnTypeValue(columnType, calculate(num1, Double.valueOf(val)))));
           }
-
-          //data.add(String.valueOf(calculate(num1, Double.valueOf(val))));
         }
         break;
       }

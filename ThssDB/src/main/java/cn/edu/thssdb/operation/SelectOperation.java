@@ -36,14 +36,11 @@ public class SelectOperation extends BaseOperation {
     this.stmt = stmt;
   }
 
-
   /**
    * [method] 执行操作
    */
   public void exec() {
-//    Manager manager = Manager.getInstance();
-//    Database database = manager.getDatabaseByName(manager.getCurrentDatabaseName());
-    if (database==null){
+    if (database == null){
       throw new DatabaseNotExistException();
     }
     ArrayList<Table> tables = new ArrayList<>();
@@ -62,13 +59,12 @@ public class SelectOperation extends BaseOperation {
       }
     }
     QueryResult queryResult = new QueryResult(selectContentItem, fromItem, whereItem, orderByItem, tables);
-
     queryResult.process();
 
+    // 结果
     data = queryResult.getFinalTable();
     columns = queryResult.getColumnTitles();
   }
-
 
   @Override
   public ArrayList<String> getTableName() {

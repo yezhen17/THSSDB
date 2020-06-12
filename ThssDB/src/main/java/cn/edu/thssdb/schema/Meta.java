@@ -1,13 +1,11 @@
 package cn.edu.thssdb.schema;
 
-
 import cn.edu.thssdb.exception.CustomIOException;
 import cn.edu.thssdb.exception.MetaFileNotFoundException;
 
 import java.io.*;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Set;
 
 public class Meta {
@@ -36,9 +34,6 @@ public class Meta {
 
   /**
    * [method] 读取元数据
-   * @param
-   * @exception MetaFileNotFoundException, CustomIOException
-   * @return 元数据
    */
   public ArrayList<String[]> readFromFile() {
     ArrayList<String []> lines = new ArrayList<>();
@@ -59,9 +54,6 @@ public class Meta {
 
   /**
    * [method] 写入元数据
-   * @param meta_data
-   * @exception CustomIOException
-   * @return
    */
   public void writeToFile(Set<String> meta_data) {
     try {
@@ -78,9 +70,6 @@ public class Meta {
 
   /**
    * [method] 写入元数据
-   * @param meta_data
-   * @exception CustomIOException
-   * @return
    */
   public void writeToFile(ArrayList<String> meta_data) {
     try {

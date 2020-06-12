@@ -1,7 +1,5 @@
 package cn.edu.thssdb.operation;
 
-
-import cn.edu.thssdb.schema.Manager;
 import cn.edu.thssdb.schema.User;
 import cn.edu.thssdb.schema.UserManager;
 

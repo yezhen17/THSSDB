@@ -49,7 +49,7 @@ public class QueryColumn {
     return new ColumnFullNameItem(this.tableName, this.columnName);
   }
 
-  // 获取显示的全名
+  // 获取显示的全名（现仅为列名）
   public String getFullColumnName() {
 //    if (this.tableName == null) {
 //      return this.columnName;

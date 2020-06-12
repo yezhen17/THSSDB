@@ -12,17 +12,26 @@ import cn.edu.thssdb.utils.Global;
 import java.util.ArrayList;
 
 public class ConditionItem {
-  private boolean value;
-  ComparerItem c1 = null;
-  ComparerItem c2 = null;
+  /*
+    type  meaning
+    0     A op B
+    1     A op const
+    2     const op A
+    3     const op const
+    4     A is null
+   */
 
-  int idx1 = -1;
-  int idx2 = -1;
-  Entry e1;
-  Entry e2;
-  int type;
+  private boolean value;
+  private ComparerItem c1 = null;
+  private ComparerItem c2 = null;
+
+  private int idx1 = -1;
+  private int idx2 = -1;
+  private Entry e1;
+  private Entry e2;
+  private int type;
   private ComparisonType cmp;
-  private boolean is_bool = true;
+  private boolean is_bool;
 
   public ConditionItem(ComparerItem c1, ComparerItem c2, String cmp) {
     this.c1 = c1;
@@ -50,6 +59,7 @@ public class ConditionItem {
     this.is_bool = true;
   }
 
+  // 计算row是否满足条件
   public boolean evaluate(Row row) {
     if (this.is_bool) {
       return this.value;

@@ -120,8 +120,7 @@ public class TransactionManager {
               operation.getColumns(), operation.getStmt());
     }
     // *** REPEATABLE_READ | SERIALIZATION ***
-    if ((Global.DATABASE_ISOLATION_LEVEL == Global.ISOLATION_LEVEL.REPEATABLE_READ) ||
-            (Global.DATABASE_ISOLATION_LEVEL == Global.ISOLATION_LEVEL.SERIALIZATION)) {
+    if (Global.DATABASE_ISOLATION_LEVEL == Global.ISOLATION_LEVEL.SERIALIZATION) {
       // 加非即时读锁
       ArrayList<String> tableNames = operation.getTableName();
       if (tableNames != null)
@@ -144,7 +143,6 @@ public class TransactionManager {
     // *** READ_UNCOMMITTED | READ_COMMITTED | REPEATABLE_READ | SERIALIZATION ***
     if ((Global.DATABASE_ISOLATION_LEVEL == Global.ISOLATION_LEVEL.READ_COMMITTED) ||
             (Global.DATABASE_ISOLATION_LEVEL == Global.ISOLATION_LEVEL.READ_UNCOMMITTED) ||
-            (Global.DATABASE_ISOLATION_LEVEL == Global.ISOLATION_LEVEL.REPEATABLE_READ) ||
             (Global.DATABASE_ISOLATION_LEVEL == Global.ISOLATION_LEVEL.SERIALIZATION)) {
       // 加非即时写锁
       ArrayList<String> tableNames = operation.getTableName();
@@ -200,24 +198,18 @@ public class TransactionManager {
       for (int i = operations.size(); i > index; i--) {
         BaseOperation op = operations.removeLast();
         if (op instanceof SelectOperation || op instanceof ShowOperation) {
-          // 释放读锁 *** REPEATABLE_READ | SERIALIZATION ***
-          if ((Global.DATABASE_ISOLATION_LEVEL == Global.ISOLATION_LEVEL.REPEATABLE_READ) ||
-                  (Global.DATABASE_ISOLATION_LEVEL == Global.ISOLATION_LEVEL.SERIALIZATION)) {
+          // 释放读锁 *** SERIALIZATION ***
+          if (Global.DATABASE_ISOLATION_LEVEL == Global.ISOLATION_LEVEL.SERIALIZATION) {
             ArrayList<String> tableNames = op.getTableName();
             if (tableNames != null)
               for (String tableName : tableNames) { this.releaseTransactionReadLock(tableName); }
           }
         }
         else if (op instanceof UpdateOperation || op instanceof DeleteOperation || op instanceof InsertOperation) {
-          // 释放写锁 *** READ_UNCOMMITTED | READ_COMMITTED | REPEATABLE_READ | SERIALIZATION ***
-          if ((Global.DATABASE_ISOLATION_LEVEL == Global.ISOLATION_LEVEL.READ_COMMITTED) ||
-                  (Global.DATABASE_ISOLATION_LEVEL == Global.ISOLATION_LEVEL.READ_UNCOMMITTED) ||
-                  (Global.DATABASE_ISOLATION_LEVEL == Global.ISOLATION_LEVEL.REPEATABLE_READ) ||
-                  (Global.DATABASE_ISOLATION_LEVEL == Global.ISOLATION_LEVEL.SERIALIZATION)) {
-            ArrayList<String> tableNames = op.getTableName();
-            if (tableNames != null)
-              for (String tableName : tableNames) { this.releaseTransactionWriteLock(tableName); }
-          }
+          // 释放写锁 *** READ_UNCOMMITTED | READ_COMMITTED | SERIALIZATION ***
+          ArrayList<String> tableNames = op.getTableName();
+          if (tableNames != null)
+            for (String tableName : tableNames) { this.releaseTransactionWriteLock(tableName); }
         }
         op.undo();
       }
@@ -229,7 +221,7 @@ public class TransactionManager {
   }
 
   // *****************************************************************
-  // [method] 获取事务读锁（READ_UNCOMMITTED | READ_COMMITTED | REPEATABLE_READ）
+  // [method] 获取事务读锁（READ_UNCOMMITTED | READ_COMMITTED）
   private boolean getTransactionReadLock(String tableName) {
     if (!Global.ISOLATION_STATUS) return true;
     // 获取锁对象
@@ -243,7 +235,7 @@ public class TransactionManager {
     return true;
   }
 
-  // [method] 获取事务写锁（READ_UNCOMMITTED | READ_COMMITTED | REPEATABLE_READ）
+  // [method] 获取事务写锁
   private boolean getTransactionWriteLock(String tableName) {
     if (!Global.ISOLATION_STATUS) return true;
     // 获取锁对象
@@ -265,19 +257,18 @@ public class TransactionManager {
     return true;
   }
 
-  // [method] 获取事务读写锁（SERIALIZATION）（一次加锁法）
-  // 引用 this.operations
-  private boolean getTransactionReadWriteLock() {
-    if (!Global.ISOLATION_STATUS) return true;
-    try {
-      TransactionManager.lock.lock();
-      // 一次加锁 - 先加写锁，再加读锁
-      // TODO 引用 this.operations
-    } finally {
-      TransactionManager.lock.unlock();
-    }
-    return true;
-  }
+//  // [method] 获取事务读写锁（SERIALIZATION）（一次加锁法）
+//  // 引用 this.operations
+//  private boolean getTransactionReadWriteLock() {
+//    if (!Global.ISOLATION_STATUS) return true;
+//    try {
+//      TransactionManager.lock.lock();
+//      // 一次加锁 - 先加写锁，再加读锁
+//    } finally {
+//      TransactionManager.lock.unlock();
+//    }
+//    return true;
+//  }
 
   // [method] 释放事务读锁（READ_COMMITTED）
   private boolean releaseTransactionReadLock(String tableName) {
@@ -311,7 +302,7 @@ public class TransactionManager {
     return false;
   }
 
-  // [method] 释放事务读写锁（READ_UNCOMMITTED | READ_COMMITTED | REPEATABLE_READ | SERIALIZATION）
+  // [method] 释放事务读写锁（READ_UNCOMMITTED | READ_COMMITTED | SERIALIZATION）
   private void releaseTransactionReadWriteLock() {
     if (!Global.ISOLATION_STATUS) return;
     // 释放写锁

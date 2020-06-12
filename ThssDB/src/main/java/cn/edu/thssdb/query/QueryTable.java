@@ -226,10 +226,6 @@ public class QueryTable implements Iterator<Row> {
     return res;
   }
 
-
-
-
-
   public ArrayList<Row> traverse(MultipleConditionItem cond, boolean retain_left, boolean retain_right) {
     ArrayList<Row> res = new ArrayList<>();
     if (n1 == 0 || tableNum == 2 && n2 == 0) return res;
@@ -316,7 +312,6 @@ public class QueryTable implements Iterator<Row> {
     }
     return res;
   }
-
 
   // 将两个表的Row合并为一个
   public static Row combineRow(Row r1, Row r2) {

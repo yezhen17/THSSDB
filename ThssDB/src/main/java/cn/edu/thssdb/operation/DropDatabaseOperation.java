@@ -1,6 +1,5 @@
 package cn.edu.thssdb.operation;
 
-import cn.edu.thssdb.exception.CustomIOException;
 import cn.edu.thssdb.schema.Manager;
 
 public class DropDatabaseOperation extends BaseOperation {

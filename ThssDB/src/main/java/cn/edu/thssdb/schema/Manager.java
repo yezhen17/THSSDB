@@ -16,8 +16,7 @@ public class Manager {
   private static ReentrantReadWriteLock lock;    // 可重入读写锁
   private Meta meta;                             // 元数据管理
   private ArrayList<String> databasesList;       // 数据库名称列表
-  private HashMap<String, Integer> onlineDatabases;
-  // private HashMap<String, Logger> loggers;   // 数据库哈希表
+  private HashMap<String, Integer> onlineDatabases; // 正在使用的数据库哈希表，记录了几个客户端正在使用
 
   /**
    * [method] 获取管理器实例
@@ -51,12 +50,6 @@ public class Manager {
    */
   public boolean contains(String name) {
     return databases.containsKey(name);
-//    try {
-//      lock.readLock().lock();
-//      return databases.containsKey(name);
-//    } finally {
-//      lock.readLock().unlock();
-//    }
   }
 
   /**
@@ -75,33 +68,17 @@ public class Manager {
    * @param name {String} 数据库名称
    * @exception DuplicateDatabaseException 重复数据库
    */
-  public void createDatabaseIfNotExists(String name) throws CustomIOException {
+  public void createDatabaseIfNotExists(String name) {
     if (databases.containsKey(name))
       throw new DuplicateDatabaseException();
     databases.put(name, new Database(name));
     databasesList.add(name);
     writeMeta();
-//    try {
-//      lock.readLock().lock();
-//      if (databases.containsKey(name))
-//        throw new DuplicateDatabaseException();
-//    } finally {
-//      lock.readLock().unlock();
-//    }
-//    try {
-//      lock.writeLock().lock();
-//      databases.put(name, new Database(name));
-//      databasesList.add(name);
-//      writeMeta();
-//    } finally {
-//      lock.writeLock().unlock();
-//    }
   }
 
   /**
    * [method] 删除数据库
    * @param name {String} 数据库名称
-   * @exception DatabaseNotExistException 数据库不存在
    */
   public void deleteDatabase(String name) {
     if (!databases.containsKey(name))
@@ -111,23 +88,12 @@ public class Manager {
     databasesList.remove(name);
     onlineDatabases.remove(name);
     writeMeta();
-//    try {
-//      lock.readLock().lock();
-//      if (!databases.containsKey(name))
-//        throw new DatabaseNotExistException();
-//    } finally {
-//      lock.readLock().unlock();
-//    }
-//    try {
-//      lock.writeLock().lock();
-//      databases.get(name).wipeData();
-//      databases.remove(name);
-//      writeMeta();
-//    } finally {
-//      lock.writeLock().unlock();
-//    }
   }
 
+  /**
+   * [method] 退出数据库
+   * @param name {String} 数据库名称
+   */
   public void quitDatabase(String name) {
     if (onlineDatabases.keySet().contains(name)) {
       int count = onlineDatabases.get(name);
@@ -139,16 +105,11 @@ public class Manager {
     }
   }
 
-
   /**
    * [method] 切换数据库
    * @param name {String} 数据库名称
    */
   public void switchDatabase(String name) {
-//    if (current_database != null) {
-//      databases.get(current_database).quit();
-//
-//    }
     if (databasesList.contains(name)) {
       if (!onlineDatabases.keySet().contains(name)) {
         databases.get(name).recover();
@@ -156,24 +117,9 @@ public class Manager {
       } else {
         onlineDatabases.replace(name, onlineDatabases.get(name) + 1);
       }
-
     } else {
       throw new DatabaseNotExistException();
     }
-//    try {
-//      lock.writeLock().lock();
-//      if (current_database != null) {
-//        databases.get(current_database).quit();
-//      }
-//      if (databasesList.contains(name)) {
-//        databases.get(name).recover();
-//        current_database = name;
-//      } else {
-//        throw new DatabaseNotExistException();
-//      }
-//    } finally {
-//    lock.writeLock().unlock();
-//    }
   }
 
   /**
@@ -207,16 +153,6 @@ public class Manager {
       info.append(name + '\n');
     }
     return info.toString();
-//    try {
-//      lock.readLock().lock();
-//      StringBuffer info = new StringBuffer();
-//      for (String name: databasesList) {
-//        info.append(name + '\n');
-//      }
-//      return info.toString();
-//    } finally {
-//      lock.readLock().unlock();
-//    }
   }
 
   /**

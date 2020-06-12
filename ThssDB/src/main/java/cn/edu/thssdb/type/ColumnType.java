@@ -1,8 +1,6 @@
 package cn.edu.thssdb.type;
 
 import cn.edu.thssdb.exception.IllegalTypeException;
-import cn.edu.thssdb.operation.InsertOperation;
-import cn.edu.thssdb.parser.SQLParser;
 
 public enum ColumnType {
   INT, LONG, FLOAT, DOUBLE, STRING;

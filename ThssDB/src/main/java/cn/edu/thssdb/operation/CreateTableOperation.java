@@ -1,11 +1,8 @@
 package cn.edu.thssdb.operation;
 
-import cn.edu.thssdb.exception.CustomIOException;
 import cn.edu.thssdb.exception.DatabaseNotExistException;
 import cn.edu.thssdb.exception.WrongCreateTableException;
 import cn.edu.thssdb.schema.Column;
-import cn.edu.thssdb.schema.Database;
-import cn.edu.thssdb.schema.Manager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -48,7 +45,7 @@ public class CreateTableOperation extends BaseOperation {
       }
     }
 
-    if(primaryIndex==-1){
+    if(primaryIndex == -1){
       throw new WrongCreateTableException(keyNotDefined);
     }
 
@@ -60,10 +57,9 @@ public class CreateTableOperation extends BaseOperation {
       }
     }
 
-    if(keys!=1){
+    if(keys != 1){
       throw new WrongCreateTableException(moreThanOneKey);
     }
-
 
     database.create(name,columns,primaryIndex);
   }
