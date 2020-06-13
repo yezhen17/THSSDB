@@ -26,7 +26,7 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Client {
+public class TestClient2 {
 
   private static final Logger logger = LoggerFactory.getLogger(Client.class);
 
@@ -51,6 +51,14 @@ public class Client {
       createTable(sessionId);
       insertData(sessionId, insertStatements);
       queryData(sessionId);
+
+//      insertTest(sessionId);
+//      deleteTest(sessionId);
+//      updateTest(sessionId);
+//      showTest(sessionId);
+//      alterTest(sessionId);
+      rollbackTest(sessionId);
+
       dropDatabase(sessionId);
       disconnect(sessionId);
 
@@ -58,6 +66,96 @@ public class Client {
     } catch (TException | IOException e) {
       logger.error(e.getMessage());
     }
+  }
+
+  private static void showResult(String[] statements, Long sessionId) throws TException {
+    for (String statement : statements) {
+      println("\n-----------------------------------------");
+      println(statement);
+      ExecuteStatementReq req = new ExecuteStatementReq(sessionId, statement);
+      ExecuteStatementResp resp = client.executeStatement(req);
+      if (resp.getStatus().code == Global.SUCCESS_CODE) {
+        if (resp.getRowList() != null) new ShowTable(resp.getRowList(), resp.getColumnsList(), statement);
+        println(resp.getInformation());
+      } else {
+        println("Warning! Statement caused the following exception:");
+        println(resp.getInformation());
+      }
+      println("-----------------------------------------");
+    }
+  }
+
+  private static void insertTest(Long sessionId) throws TException {
+    String[] statements = {
+            "insert into student(s_id, dept_name, tot_cred) values ('1', 'Math', 50);",
+            "insert into student values('66008', 'Szczerban', 'Languages', 25);",
+    };
+    showResult(statements, sessionId);
+  }
+
+  private static void deleteTest(Long sessionId) throws TException {
+    String[] statements = {
+            "select s_name from student where s_id = '66008';",
+            "delete from student where s_id = '66008';",
+            "select s_name from student where s_id = '66008';",
+    };
+    showResult(statements, sessionId);
+  }
+
+  private static void updateTest(Long sessionId) throws TException {
+    String[] statements = {
+            "select s_name from student where s_id = '76291';",
+            "update student set s_name = 'Dell' where s_id = '76291';",
+            "select s_name from student where s_id = '76291';",
+    };
+    showResult(statements, sessionId);
+  }
+
+  private static void showTest(Long sessionId) throws TException {
+    String[] statements = {
+            "show table advisor;",
+            "drop table advisor;",
+            "select s_id from advisor;",
+    };
+    showResult(statements, sessionId);
+  }
+
+  private static void alterTest(Long sessionId) throws TException {
+    String[] statements = {
+            "alter table department add id Int;",
+            "select * from department",
+            "alter table department alter column BUdget Int;",
+            "select * from department",
+            "alter table department drop column id;",
+            "select * from department",
+            "alter table department alter column building String(1);",
+            "select * from department",
+    };
+    showResult(statements, sessionId);
+  }
+
+  private static void rollbackTest(Long sessionId) throws TException {
+    String[] statements = {
+            "commit",
+            "begin transaction",
+            "begin transaction",
+            "commit",
+            "INSERT INTO r(a, b) VALUES (6, 6);",
+            "select max(b) from r;",
+            "savepoint test",
+            "INSERT INTO r(a, b) VALUES (7, 7);",
+            "select max(b) from r;",
+            "rollback to savepoint test",
+            "select max(b) from r;",
+            "DELETE FROM r where a = 1;",
+            "UPDATE  r SET A = 111 where a = 2;",
+            "select * from r;",
+            "rollback to savepoint test",
+            "select * from r;",
+            "rollback",
+            "select max(b) from r;",
+    };
+    showResult(statements, sessionId);
   }
 
   private static List<String> loadInsertStatements() throws IOException {
@@ -115,11 +213,13 @@ public class Client {
 
   private static void createTable(long sessionId) throws TException {
     String[] statements = {
-        "create table department (dept_name String(20), building String(15), budget Double, primary key(dept_name));",
-        "create table course (course_id String(8), title String(50), dept_name String(20), credits Int, primary key(course_id));",
-        "create table instructor (i_id String(5), i_name String(20) not null, dept_name String(20), salary Float, primary key(i_id));",
-        "create table student (s_id String(5), s_name String(20) not null, dept_name String(20), tot_cred Int, primary key(s_id));",
-        "create table advisor (s_id String(5), i_id String(5), primary key (s_id));"
+            "create table department (dept_name String(20), building String(15), budget Double, primary key(dept_name));",
+            "create table course (course_id String(8), title String(50), dept_name String(20), credits Int, primary key(course_id));",
+            "create table instructor (i_id String(5), i_name String(20) not null, dept_name String(20), salary Float, primary key(i_id));",
+            "create table student (s_id String(5), s_name String(20) not null, dept_name String(20), tot_cred Int, primary key(s_id));",
+            "create table advisor (s_id String(5), i_id String(5), primary key (s_id));",
+            "CREATE TABLE t(a int primary key, b int, primary key(a));",
+            "CREATE TABLE r(a int primary key, b int, primary key(a));",
     };
     for (String statement : statements) {
       ExecuteStatementReq req = new ExecuteStatementReq(sessionId, statement);
@@ -142,6 +242,25 @@ public class Client {
         success = false;
       }
     }
+    String[] statements2 = {
+            "INSERT INTO t(a, b) VALUES (0, 0);",
+            "INSERT INTO t(a, b) VALUES (1, 2);",
+            "INSERT INTO t(a, b) VALUES (2, 2);",
+            "INSERT INTO t(a, b) VALUES (3, 4);",
+            "INSERT INTO t(a, b) VALUES (4, 4);",
+            "INSERT INTO r(a, b) VALUES (1, 2);",
+            "INSERT INTO r(a, b) VALUES (5, 5);",
+            "INSERT INTO r(a, b) VALUES (2, 2);",
+            "INSERT INTO r(a, b) VALUES (3, 3);",
+            "INSERT INTO r(a, b) VALUES (4, 4);",
+    };
+    for (String statement : statements2) {
+      ExecuteStatementReq req = new ExecuteStatementReq(sessionId, statement);
+      ExecuteStatementResp resp = client.executeStatement(req);
+      if (resp.getStatus().code == Global.FAILURE_CODE) {
+        success = false;
+      }
+    }
     if (success) {
       println("Insert Data Successfully!");
     } else {
@@ -153,11 +272,11 @@ public class Client {
   private static void queryData(long sessionId) throws TException {
     long startTime = System.currentTimeMillis();
     String[] statements = {
-        "select s_id, s_name, dept_name, tot_cred from student;",
-        "select course_id, title from course where credits >= 4;",
-        "select s_id, s_name from student where dept_name = 'Physics';",
-        "select course_id, title from course join department on course.dept_name = department.dept_name where building <> 'Palmer';",
-        "select s_id from instructor join advisor on instructor.i_id = advisor.i_id where i_name = 'Luo';"
+            "select s_id, s_name, dept_name, tot_cred from student;",
+            "select course_id, title from course where credits >= 4;",
+            "select s_id, s_name from student where dept_name = 'Physics';",
+            "select course_id, title from course join department on course.dept_name = department.dept_name where building <> 'Palmer';",
+            "select s_id from instructor join advisor on instructor.i_id = advisor.i_id where i_name = 'Luo';"
     };
     int[] results = {2000, 92, 96, 182, 44};
     for (int i = 0; i < statements.length; i++) {
@@ -168,12 +287,15 @@ public class Client {
       } else {
         println("Query Data Unsuccessfully!");
       }
-      if (resp.getRowList().size() == results[i]) {
-        println("The Result Set is Correct!");
-      } else {
-        new ShowTable(resp.getRowList(), resp.getColumnsList(), statements[i]);
-        println("The Result Set is Wrong!");
+      if (resp.getRowList() != null) {
+        if (resp.getRowList().size() == results[i]) {
+          println("The Result Set is Correct!");
+        } else {
+          new ShowTable(resp.getRowList(), resp.getColumnsList(), statements[i]);
+          println("The Result Set is Wrong!");
+        }
       }
+
     }
     println("It costs " + (System.currentTimeMillis() - startTime) + "ms.");
   }
@@ -201,3 +323,4 @@ public class Client {
     SCREEN_PRINTER.println(msg);
   }
 }
+

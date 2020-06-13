@@ -109,8 +109,8 @@ public class ConditionItem {
 
     boolean res;
     switch (cmp) {
-      case LT: res = cmp_res == -1; break; // <
-      case GT: res = cmp_res == 1; break;// >
+      case LT: res = cmp_res < 0; break; // <
+      case GT: res = cmp_res > 0; break;// >
       case NGT: res = cmp_res <= 0; break; // <=
       case NLT: res = cmp_res >= 0; break; // >=
       case EQ: res = cmp_res == 0; break; // ==

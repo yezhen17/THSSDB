@@ -36,7 +36,8 @@ public class ShowTable {
 
     jframe.add(new JScrollPane(table),BorderLayout.CENTER);
     jframe.pack();
-    jframe.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+    // jframe.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+    jframe.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
     // 屏幕中间显示
     double width = Toolkit.getDefaultToolkit().getScreenSize().getWidth();

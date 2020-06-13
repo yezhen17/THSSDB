@@ -8,6 +8,7 @@ import cn.edu.thssdb.schema.Row;
 import cn.edu.thssdb.schema.Table;
 import cn.edu.thssdb.type.ComparisonType;
 
+import java.security.Key;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -20,7 +21,19 @@ public class QueryTable implements Iterator<Row> {
   int n1;
   int n2;
   Row cache;
+  Iterable i1;
   Iterable i2;
+  int idx1;
+  int idx2;
+
+//  private class RowAndEntry {
+//    ArrayRow row;
+//    Entry entry;
+//    public RowAndEntry(Row row, Entry entry) {
+//      this.row = row;
+//      this.entry = entry;
+//    }
+//  }
 
   public QueryTable(ArrayList<Table> tables) {
     this.tables = tables;
@@ -32,7 +45,10 @@ public class QueryTable implements Iterator<Row> {
     } else {
       t1 = tables.get(0).iterator();
       t2 = tables.get(1).iterator();
+      i1 = tables.get(0);
       i2 = tables.get(1);
+      idx1 = tables.get(0).primaryIndex;
+      idx2 = tables.get(1).primaryIndex;
       n1 = tables.get(0).index.size();
       n2 = tables.get(1).index.size();
 //      if (t1.hasNext()) {
@@ -57,12 +73,15 @@ public class QueryTable implements Iterator<Row> {
       n1 = new_rows.size();
       n2 = 1;
     } else {
+      idx1 = tables.get(0).primaryIndex;
+      idx2 = tables.get(1).primaryIndex;
       if (t1Cond) {
         Table t = tables.get(0);
         Iterator<Row> tmp = t.iterator();
         ArrayList<Row> new_rows = new ArrayList<>();
         if (cond.getIdx1() == t.primaryIndex && cond.getCmp() == ComparisonType.EQ) {
-          new_rows.add(t.search(cond.getE1()));
+          Row r = t.search(cond.getE1());
+          new_rows.add(r);
         } else {
           while (tmp.hasNext()) {
             Row row = tmp.next();
@@ -72,6 +91,7 @@ public class QueryTable implements Iterator<Row> {
           }
         }
         t1 = new_rows.iterator();
+        i1 = new_rows;
         n1 = new_rows.size();
         t2 = tables.get(1).iterator();
         i2 = tables.get(1);
@@ -96,6 +116,7 @@ public class QueryTable implements Iterator<Row> {
         i2 = new_rows;
         t1 = tables.get(0).iterator();
         n1 = tables.get(0).index.size();
+        i1 = tables.get(0);
       }
 //      if (t1.hasNext()) {
 //        cache = t1.next();
@@ -109,7 +130,7 @@ public class QueryTable implements Iterator<Row> {
       Table t = tables.get(0);
       Iterator<Row> tmp = t1;
       ArrayList<Row> new_rows = new ArrayList<>();
-      if (cond.getIdx1() == t.primaryIndex && cond.getCmp() == ComparisonType.EQ) {
+      if (cond.getIdx1() == idx1 && cond.getCmp() == ComparisonType.EQ) {
         new_rows.add(t.search(cond.getE1()));
       } else {
         while (tmp.hasNext()) {
@@ -121,6 +142,7 @@ public class QueryTable implements Iterator<Row> {
       }
       t1 = new_rows.iterator();
       n1 = new_rows.size();
+      i1 = new_rows;
 //      if (t1.hasNext()) {
 //        cache = t1.next();
 //      }
@@ -128,7 +150,7 @@ public class QueryTable implements Iterator<Row> {
       Table t = tables.get(1);
       Iterator<Row> tmp = t2;
       ArrayList<Row> new_rows = new ArrayList<>();
-      if (cond.getIdx1() == t.primaryIndex && cond.getCmp() == ComparisonType.EQ) {
+      if (cond.getIdx1() == idx2 && cond.getCmp() == ComparisonType.EQ) {
         new_rows.add(t.search(cond.getE1()));
       } else {
         while (tmp.hasNext()) {
@@ -166,21 +188,46 @@ public class QueryTable implements Iterator<Row> {
     }
   }
 
+//  private Row search(Iterable it, Entry entry) {
+//    return ((Table) it).search(entry);
+//  }
+
+  private Row search(Iterable it, Entry entry, int idx) {
+    if (it instanceof Table) return ((Table) it).search(entry);
+    ArrayList<Row> rows = (ArrayList<Row>) it;
+    int h = rows.size() - 1;
+    int l = 0;
+    while (true) {
+      if (h < l) throw new KeyNotExistException();
+      int m = (h + l) >> 1;
+      Row row = rows.get(m);
+      int cmp = row.getEntries().get(idx).compareTo(entry);
+      if (cmp == 0) {
+        return row;
+      } else if (cmp > 0) {
+        h = m - 1;
+      } else {
+        l = m + 1;
+      }
+    }
+  }
+
+
   public ArrayList<Row> traverseSmart(MultipleConditionItem cond, boolean table1, int idx) {
     if (idx == -1) return traverse(cond, false, false);
     ArrayList<Row> res = new ArrayList<>();
     if (n1 == 0 || n2 == 0) return res;
     Iterator<Row> notPrim;
-    Table primTable;
+    Iterable primTable;
     if (table1) {
       notPrim = t2;
-      primTable = tables.get(0);
+      primTable = i1;
       if (cond != null) {
         while (notPrim.hasNext()) {
           Row r = notPrim.next();
           Entry v = r.getEntries().get(idx);
           try {
-            Row nr = combineRow(primTable.search(v), r);
+            Row nr = combineRow(search(primTable, v, idx1), r);
             if(cond.getTreeValue(r).getValue()) res.add(nr);
           } catch (KeyNotExistException e) {
 
@@ -191,7 +238,7 @@ public class QueryTable implements Iterator<Row> {
           Row r = notPrim.next();
           Entry v = r.getEntries().get(idx);
           try {
-            res.add(combineRow(primTable.search(v), r));
+            res.add(combineRow(search(primTable, v, idx1), r));
           } catch (KeyNotExistException e) {
 
           }
@@ -199,13 +246,13 @@ public class QueryTable implements Iterator<Row> {
       }
     } else {
       notPrim = t1;
-      primTable = tables.get(1);
+      primTable = i2;
       if (cond != null) {
         while (notPrim.hasNext()) {
           Row r = notPrim.next();
           Entry v = r.getEntries().get(idx);
           try {
-            Row nr = combineRow(r, primTable.search(v));
+            Row nr = combineRow(r, search(primTable, v, idx2));
             if(cond.getTreeValue(r).getValue()) res.add(nr);
           } catch (KeyNotExistException e) {
 
@@ -216,7 +263,7 @@ public class QueryTable implements Iterator<Row> {
           Row r = notPrim.next();
           Entry v = r.getEntries().get(idx);
           try {
-            res.add(combineRow(r, primTable.search(v)));
+            res.add(combineRow(r, search(primTable, v, idx2)));
           } catch (KeyNotExistException e) {
 
           }

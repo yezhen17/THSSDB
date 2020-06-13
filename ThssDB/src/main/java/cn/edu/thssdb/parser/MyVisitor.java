@@ -81,7 +81,7 @@ public class MyVisitor extends SQLBaseVisitor{
     int n = ctx.getChildCount();
     ArrayList<ColumnDefItem> columnDefItems = new ArrayList<>();
     String primaryKey = null;
-    for(int i=4; i< n; i+=2){
+    for(int i = 4; i < n; i += 2){
       if(visit(ctx.getChild(i)) instanceof ColumnDefItem){
         columnDefItems.add((ColumnDefItem) visit(ctx.getChild(i)));
       }
@@ -100,8 +100,8 @@ public class MyVisitor extends SQLBaseVisitor{
         c.setNotNull(true);
       }
 
-      if(primaryKey!=null){
-        if(primaryKey.equals(c.getColumnName())){
+      if(primaryKey != null){
+        if(primaryKey.equalsIgnoreCase(c.getColumnName())){
           primaryKeyIndex = i;
           c.setPrimaryKey(true);
           c.setNotNull(true);
