@@ -51,7 +51,7 @@ public class Client {
       createTable(sessionId);
       insertData(sessionId, insertStatements);
       queryData(sessionId);
-      // dropDatabase(sessionId);
+      dropDatabase(sessionId);
       disconnect(sessionId);
 
       transport.close();
@@ -92,7 +92,7 @@ public class Client {
   }
 
   private static void createDatabase(long sessionId) throws TException {
-    String statement = "create database test2;";
+    String statement = "create database test;";
     ExecuteStatementReq req = new ExecuteStatementReq(sessionId, statement);
     ExecuteStatementResp resp = client.executeStatement(req);
     if (resp.getStatus().code == Global.SUCCESS_CODE) {
@@ -103,7 +103,7 @@ public class Client {
   }
 
   private static void useDatabase(long sessionId) throws TException {
-    String statement = "use test2;";
+    String statement = "use test;";
     ExecuteStatementReq req = new ExecuteStatementReq(sessionId, statement);
     ExecuteStatementResp resp = client.executeStatement(req);
     if (resp.getStatus().code == Global.SUCCESS_CODE) {
@@ -189,7 +189,7 @@ public class Client {
   }
 
   private static void dropDatabase(long sessionId) throws TException {
-    String statement = "drop database test2;";
+    String statement = "drop database test;";
     ExecuteStatementReq req = new ExecuteStatementReq(sessionId, statement);
     ExecuteStatementResp resp = client.executeStatement(req);
     if (resp.getStatus().code == Global.SUCCESS_CODE) {

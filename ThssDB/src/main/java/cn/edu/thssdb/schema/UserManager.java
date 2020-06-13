@@ -141,6 +141,7 @@ public class UserManager {
    * @exception WrongPasswordException 错误密码
    */
   public long login(String username, String password) {
+
     // ROOT 用户检测
     if (username.equals(Global.ROOT_USERNAME) && password.equals(Global.ROOT_PASSWORD)) {
       User user = new User(Global.ROOT_USERNAME, Global.ROOT_PASSWORD, User.Permission.ADMIN);

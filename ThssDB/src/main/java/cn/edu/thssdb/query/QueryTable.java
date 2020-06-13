@@ -214,7 +214,9 @@ public class QueryTable implements Iterator<Row> {
 
 
   public ArrayList<Row> traverseSmart(MultipleConditionItem cond, boolean table1, int idx) {
-    if (idx == -1) return traverse(cond, false, false);
+    if (idx == -1) {
+      return traverse(cond, false, false);
+    }
     ArrayList<Row> res = new ArrayList<>();
     if (n1 == 0 || n2 == 0) return res;
     Iterator<Row> notPrim;

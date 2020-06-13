@@ -61,16 +61,12 @@ public class InsertOperation extends BaseOperation {
     }
 
     ArrayList<Column> columns = table.getColumns();
-    columnMatch = new int[columns.size()];
-    for (int i = 0; i < columns.size(); i++) {
-      columnMatch[i] = -1;
-    }
+
     int primaryKeyIndex = table.primaryIndex;
     String primaryKey = columns.get(primaryKeyIndex).getName();
 
-
     if (columnNames == null) {
-      for (ArrayList<LiteralValueItem> value : values) {
+      for (ArrayList<LiteralValueItem> value: values) {
         if (value.size() != columns.size()) {
           throw new WrongInsertException(wrongColumnNum);
         }
@@ -82,18 +78,14 @@ public class InsertOperation extends BaseOperation {
         while(column_it.hasNext()) {
           matchType(column_it.next(), value_it.next(), primaryKey, entries);
         }
-//        // 主键检查
-//        if (table.index.contains(entries.get(primaryKeyIndex))) {
-//          throw new WrongInsertException(duplicateKey);
-//        } else {
-//          Row newRow = new Row(entries);
-//          rowsToInsert.add(newRow);
-//        }
-
         Row newRow = new Row(entries);
         rowsToInsert.add(newRow);
       }
     } else {
+      columnMatch = new int[columns.size()];
+      for (int i = 0; i < columns.size(); i++) {
+        columnMatch[i] = -1;
+      }
       if (columnNames.size() > columns.size()) {
         throw new WrongInsertException(wrongColumnNum);
       }
@@ -145,14 +137,7 @@ public class InsertOperation extends BaseOperation {
           }
           i++;
         }
-
         Row newRow = new Row(entries);
-        // 主键检查
-//        if (table.index.contains(newRow.getEntries().get(primaryKeyIndex))) {
-//          throw new WrongInsertException(duplicateKey);
-//        } else {
-//          rowsToInsert.add(newRow);
-//        }
         rowsToInsert.add(newRow);
       }
     }
@@ -185,17 +170,6 @@ public class InsertOperation extends BaseOperation {
    * [method] 确认无异常后插入
    */
   private void insert() {
-//    if (rowsToInsert.size() > 1) {
-//      ArrayList<Entry> entries = new ArrayList<>();
-//      for (Row row : rowsToInsert) {
-//        entries.add(row.getEntries().get(table.primaryIndex));
-//      }
-//
-//      HashSet<Entry> set = new HashSet<>(entries);
-//      if (set.size() != entries.size()) {
-//        throw new WrongInsertException(duplicateKey);
-//      }
-//    }
     try {
       for (Row row : rowsToInsert) {
         table.insert(row);
@@ -220,12 +194,9 @@ public class InsertOperation extends BaseOperation {
     LiteralValueItem.Type value_type = value.getType();
     switch (column.getType()) {
       case INT:
-        if (value_type == LiteralValueItem.Type.INT_OR_LONG) {
+        if (value_type == LiteralValueItem.Type.FLOAT_OR_DOUBLE) {
           try {
             int tmp = Integer.parseInt(value.getString());
-            if (column.getName().equals(primaryKey) && table.index.contains(new Entry(tmp))) {
-              throw new DuplicateKeyException();
-            }
             entries.add(new Entry(tmp));
           } catch (NumberFormatException e) {
             throw e;
@@ -240,12 +211,9 @@ public class InsertOperation extends BaseOperation {
         }
         break;
       case LONG:
-        if (value_type == LiteralValueItem.Type.INT_OR_LONG) {
+        if (value_type == LiteralValueItem.Type.FLOAT_OR_DOUBLE) {
           try {
             long tmp = Long.parseLong(value.getString());
-            if (column.getName().equals(primaryKey) && table.index.contains(new Entry(tmp))) {
-              throw new DuplicateKeyException();
-            }
             entries.add(new Entry(tmp));
           } catch (NumberFormatException e) {
             throw e;
@@ -263,9 +231,6 @@ public class InsertOperation extends BaseOperation {
         if (value_type == LiteralValueItem.Type.FLOAT_OR_DOUBLE || value_type == LiteralValueItem.Type.INT_OR_LONG) {
           try {
             double tmp = Double.parseDouble(value.getString());
-            if (column.getName().equals(primaryKey) && table.index.contains(new Entry(tmp))) {
-              throw new DuplicateKeyException();
-            }
             entries.add(new Entry(tmp));
           } catch (NumberFormatException e) {
             throw e;
@@ -283,9 +248,6 @@ public class InsertOperation extends BaseOperation {
         if (value_type == LiteralValueItem.Type.FLOAT_OR_DOUBLE || value_type == LiteralValueItem.Type.INT_OR_LONG) {
           try {
             float tmp = Float.parseFloat(value.getString());
-            if (column.getName().equals(primaryKey) && table.index.contains(new Entry(tmp))) {
-              throw new DuplicateKeyException();
-            }
             entries.add(new Entry(tmp));
           } catch (NumberFormatException e) {
             throw e;
@@ -301,9 +263,6 @@ public class InsertOperation extends BaseOperation {
         break;
       case STRING:
         if (value_type == LiteralValueItem.Type.STRING) {
-          if (column.getName().equals(primaryKey) && table.index.contains(new Entry(value.getString()))) {
-            throw new DuplicateKeyException();
-          }
           if(value.getString().length() > column.getMaxLength()){
             throw new WrongInsertException(wrongStringLength);
           }

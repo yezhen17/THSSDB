@@ -25,6 +25,7 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 public class TestClient2 {
 
@@ -35,6 +36,8 @@ public class TestClient2 {
   private static TTransport transport;
   private static TProtocol protocol;
   private static IService.Client client;
+
+  private static final Scanner SCANNER = new Scanner(System.in);
 
   public static void main(String[] args) {
     try {
@@ -73,15 +76,32 @@ public class TestClient2 {
       logger.error(e.getMessage());
     }
   }
+//
+//  static class Show extends Thread {
+//    ExecuteStatementResp resp;
+//    String s;
+//    public Show(ExecuteStatementResp resp, String s) {
+//      this.resp = resp;
+//      this.s = s;
+//    }
+//    public void run(){
+//      new ShowTable(resp.getRowList(), resp.getColumnsList(), s);
+//    }
+//  }
 
   private static void showResult(String[] statements, Long sessionId) throws TException {
+    println("Continue:");
+    SCANNER.nextLine();
     for (String statement : statements) {
       println("\n-----------------------------------------");
       println(statement);
       ExecuteStatementReq req = new ExecuteStatementReq(sessionId, statement);
       ExecuteStatementResp resp = client.executeStatement(req);
       if (resp.getStatus().code == Global.SUCCESS_CODE) {
-        if (resp.getRowList() != null) new ShowTable(resp.getRowList(), resp.getColumnsList(), statement);
+        if (resp.getRowList() != null) {
+//          new Show(resp, statement).run();
+          new ShowTable(resp.getRowList(), resp.getColumnsList(), statement);
+        }
         println(resp.getInformation());
       } else {
         println("Warning! Statement caused the following exception:");

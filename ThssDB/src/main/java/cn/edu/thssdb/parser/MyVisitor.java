@@ -495,28 +495,30 @@ public class MyVisitor extends SQLBaseVisitor{
   public Object visitLiteral_value(SQLParser.Literal_valueContext ctx) {
     // FLOAT/INT/STRING/NULL
     String str = ctx.getChild(0).getText();
-    if(str.equalsIgnoreCase("NULL")){
-      return new LiteralValueItem(LiteralValueItem.Type.NULL,"null");
-    }
-    else if(str.charAt(0)=='\''){
-      return new LiteralValueItem(LiteralValueItem.Type.STRING,str.substring(1,str.length()-1));
-    }
-    else {
-      try {
-        Long.parseLong(str);
-        //int i = Integer.valueOf(str);
-      }
-      catch (NumberFormatException e){
-        try {
-          Double.valueOf(str);
-        }
-        catch (NumberFormatException r){
-          throw new IllegalArgumentException();
-        }
-        return new LiteralValueItem(LiteralValueItem.Type.FLOAT_OR_DOUBLE,str);
-      }
-      return new LiteralValueItem(LiteralValueItem.Type.INT_OR_LONG,str);
-    }
+    Object child = ctx.getChild(0);
+    if (str.equalsIgnoreCase("NULL")) {
+      return new LiteralValueItem(LiteralValueItem.Type.NULL, "null");
+    } else if (str.charAt(0) == '\'') {
+      return new LiteralValueItem(LiteralValueItem.Type.STRING, str.substring(1, str.length() - 1));
+    } else return new LiteralValueItem(LiteralValueItem.Type.FLOAT_OR_DOUBLE, str);
+//    else {
+//
+////      try {
+////        Long.parseLong(str);
+////        //int i = Integer.valueOf(str);
+////      }
+////      catch (NumberFormatException e){
+////        try {
+////          Double.valueOf(str);
+////        }
+////        catch (NumberFormatException r){
+////          throw new IllegalArgumentException();
+////        }
+////        return new LiteralValueItem(LiteralValueItem.Type.FLOAT_OR_DOUBLE,str);
+////      }
+////      return new LiteralValueItem(LiteralValueItem.Type.INT_OR_LONG,str);
+////    }
+//  }
   }
 
   @Override
@@ -554,13 +556,12 @@ public class MyVisitor extends SQLBaseVisitor{
 //    String text = (String) visit(ctx.getChild(3));
     String text = ctx.getChild(3).getText();
 
-    if(text.equalsIgnoreCase("VALUES")){
+    if (text.equalsIgnoreCase("VALUES")){
       for(int i = 4; i < n; i += 2){
         values.add((ArrayList<LiteralValueItem>) visit(ctx.getChild(i)));
       }
-      return new InsertOperation(tableName,values);
-    }
-    else{
+      return new InsertOperation(tableName, values);
+    } else {
       int i;
       for(i = 4; i < n; i++){
         if(ctx.getChild(i).getText().equalsIgnoreCase("VALUES"))

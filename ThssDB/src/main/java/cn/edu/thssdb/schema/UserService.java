@@ -32,7 +32,7 @@ public class UserService {
   public UserService(User user, Long sessionId) {
     this.user = user;
     this.sessionId = sessionId;
-    transactionManager= new TransactionManager(user.database, null);
+    transactionManager = new TransactionManager(user.database, null);
   }
 
   public void disconnect() {
