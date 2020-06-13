@@ -21,6 +21,7 @@ public class Database {
   private ReentrantReadWriteLock lock;        // 可重入读写锁
   private Meta meta;                          // 元数据管理
   private Logger logger;                      // 日志管理
+  private ArrayList<Table> droppedTables;     // 删除的表
 
   /**
    * [method] 构造方法
@@ -36,6 +37,7 @@ public class Database {
     this.meta = new Meta(folder, meta_name); // 暂时不加载表到内存
     String logger_name = name + ".log";
     this.logger = new Logger(folder, logger_name);
+    this.droppedTables = new ArrayList<>();
   }
 
   public Logger getLogger() {
@@ -84,8 +86,9 @@ public class Database {
   public void drop(String name) {
     if (!tables.containsKey(name))
       throw new TableNotExistException();
-    tables.remove(name).drop();
-    meta.writeToFile(tables.keySet());
+    if (tables.get(name).lock.isWriteLocked()) throw new TableOccupiedException();
+    droppedTables.add(tables.remove(name));// .drop();
+    // meta.writeToFile(tables.keySet());
   }
 
   /**
@@ -114,8 +117,12 @@ public class Database {
         } else if (!type.equals("COMMIT")) {
           ArrayList<BaseOperation> operations = MyParser.getOperations(log);
           for (BaseOperation op: operations) {
-            op.setCurrentUser(null, name);
-            op.exec();
+            try {
+              op.setCurrentUser(null, name);
+              op.exec();
+            } catch (Exception e) {
+
+            }
           }
         }
       }
@@ -135,6 +142,10 @@ public class Database {
       tables.get(key).persist();
       keys.add(key);
     }
+    for (Table table: droppedTables) {
+      table.drop();
+    }
+    droppedTables.clear();
     this.meta.writeToFile(keys); // 目前 一行一个table名
     this.logger.eraseFile();
   }
@@ -150,5 +161,13 @@ public class Database {
     this.logger.deleteFile();
     this.meta.deleteFile();
     Paths.get(Global.DATA_ROOT_FOLDER, name).toFile().delete();
+  }
+
+  public ArrayList<Table> getTables() {
+    ArrayList<Table> res = new ArrayList<>();
+    for (Table table: tables.values()) {
+      res.add(table);
+    }
+    return res;
   }
 }

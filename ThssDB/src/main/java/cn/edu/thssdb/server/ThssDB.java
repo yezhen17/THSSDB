@@ -50,7 +50,7 @@ public class ThssDB {
           Global.DATABASE_ISOLATION_LEVEL = Global.ISOLATION_LEVEL.READ_COMMITTED;
           break;
         case "S":
-          Global.DATABASE_ISOLATION_LEVEL = Global.ISOLATION_LEVEL.SERIALIZATION;
+          Global.DATABASE_ISOLATION_LEVEL = Global.ISOLATION_LEVEL.SERIALIZABLE;
           break;
       }
     }

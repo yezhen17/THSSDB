@@ -52,11 +52,17 @@ public class TestClient2 {
       insertData(sessionId, insertStatements);
       queryData(sessionId);
 
-//      insertTest(sessionId);
-//      deleteTest(sessionId);
-//      updateTest(sessionId);
-//      showTest(sessionId);
-//      alterTest(sessionId);
+      insertTest(sessionId);
+      deleteTest(sessionId);
+      updateTest(sessionId);
+      showTest(sessionId);
+
+      alterTest(sessionId);
+      whereTest(sessionId);
+      joinTest(sessionId);
+      selectTest(sessionId);
+      aggrTest(sessionId);
+      orderByTest(sessionId);
       rollbackTest(sessionId);
 
       dropDatabase(sessionId);
@@ -134,26 +140,85 @@ public class TestClient2 {
     showResult(statements, sessionId);
   }
 
+  private static void joinTest(Long sessionId) throws TException {
+    String[] statements = {
+            "select * from t, r",
+            "select a, b, c from t natural join r",
+            "select * from t inner join r on t.a = r.a;",
+            "select * from t join r on t.a = r.x;",
+            "select * from t join r on t.a = s.a;",
+            "select * from t join r on t.a = r.a and t.b = r.c;",
+            "select * from t full outer join r on t.a = r.a;",
+            "select * from t left outer join r on t.a = r.a;",
+            "select * from t right outer join r on t.a = r.a;",
+            "select course_id, title, building from department natural join course"
+    };
+    showResult(statements, sessionId);
+  }
+
+  private static void orderByTest(Long sessionId) throws TException {
+    String[] statements = {
+            "select * from department order by budget;",
+            "select * from department order by building, budget desc;",
+    };
+    showResult(statements, sessionId);
+  }
+
+  private static void aggrTest(Long sessionId) throws TException {
+    String[] statements = {
+            "select avg(budget) from department;",
+            "select max(budget), min(budget) from department;",
+            "select sum(budget) from department;",
+            "select count(budget) from department;",
+    };
+    showResult(statements, sessionId);
+  }
+
+  private static void whereTest(Long sessionId) throws TException {
+    String[] statements = {
+            "select building, credits from department, course where (building = 'Palmer' or building = 'Lambeau') and credits = 4;",
+            "select building, credits from department, course where building = 'Palmer' or building = 'Lambeau' and credits = 4;",
+            "select building, credits from department natural join course " +
+                    "where building = 'Palmer' or building = 'Lambeau' or building = 'Mercer';",
+            "insert into department(dept_name, building) values('test', 'test')",
+            "select * from department where budget is null",
+            "delete from department where budget is null",
+            "select * from department where budget is null",
+    };
+    showResult(statements, sessionId);
+  }
+
+  private static void selectTest(Long sessionId) throws TException {
+    String[] statements = {
+            "show table q",
+            "select 1 + a, 2/b, c * 10, 100 - d, 2.7 + 2.2, g from q",
+            "select distinct 100 - 1 from q",
+            "select all 100 - 1 from q",
+            "select distinct building, credits from course, department"
+    };
+    showResult(statements, sessionId);
+  }
+
   private static void rollbackTest(Long sessionId) throws TException {
     String[] statements = {
             "commit",
             "begin transaction",
             "begin transaction",
             "commit",
-            "INSERT INTO r(a, b) VALUES (6, 6);",
-            "select max(b) from r;",
+            "INSERT INTO r(a, c) VALUES (6, 6);",
+            "select max(c) from r;",
             "savepoint test",
-            "INSERT INTO r(a, b) VALUES (7, 7);",
-            "select max(b) from r;",
+            "INSERT INTO r(a, c) VALUES (7, 7);",
+            "select max(c) from r;",
             "rollback to savepoint test",
-            "select max(b) from r;",
+            "select max(c) from r;",
             "DELETE FROM r where a = 1;",
-            "UPDATE  r SET A = 111 where a = 2;",
+            "UPDATE  r SET A = 22 where a = 2;",
             "select * from r;",
             "rollback to savepoint test",
             "select * from r;",
             "rollback",
-            "select max(b) from r;",
+            "select max(c) from r;",
     };
     showResult(statements, sessionId);
   }
@@ -219,7 +284,9 @@ public class TestClient2 {
             "create table student (s_id String(5), s_name String(20) not null, dept_name String(20), tot_cred Int, primary key(s_id));",
             "create table advisor (s_id String(5), i_id String(5), primary key (s_id));",
             "CREATE TABLE t(a int primary key, b int, primary key(a));",
-            "CREATE TABLE r(a int primary key, b int, primary key(a));",
+            "CREATE TABLE r(a int primary key, c int, primary key(a));",
+            "CREATE TABLE q(a int primary key, b long, c float, d double, e string(10), " +
+                    "f int not null, g string(100) not null, primary key(a));",
     };
     for (String statement : statements) {
       ExecuteStatementReq req = new ExecuteStatementReq(sessionId, statement);
@@ -243,16 +310,18 @@ public class TestClient2 {
       }
     }
     String[] statements2 = {
-            "INSERT INTO t(a, b) VALUES (0, 0);",
-            "INSERT INTO t(a, b) VALUES (1, 2);",
-            "INSERT INTO t(a, b) VALUES (2, 2);",
-            "INSERT INTO t(a, b) VALUES (3, 4);",
-            "INSERT INTO t(a, b) VALUES (4, 4);",
-            "INSERT INTO r(a, b) VALUES (1, 2);",
-            "INSERT INTO r(a, b) VALUES (5, 5);",
-            "INSERT INTO r(a, b) VALUES (2, 2);",
-            "INSERT INTO r(a, b) VALUES (3, 3);",
-            "INSERT INTO r(a, b) VALUES (4, 4);",
+            "INSERT INTO t(a, b) VALUES (0, 1);",
+            "INSERT INTO t(a, b) VALUES (1, 1);",
+            "INSERT INTO t(a, b) VALUES (2, 1);",
+            "INSERT INTO t(a, b) VALUES (3, 3);",
+            "INSERT INTO t(a, b) VALUES (4, 3);",
+            "INSERT INTO r(a, c) VALUES (1, 1);",
+            "INSERT INTO r(a, c) VALUES (2, 2);",
+            "INSERT INTO r(a, c) VALUES (3, 3);",
+            "INSERT INTO r(a, c) VALUES (4, 4);",
+            "INSERT INTO r(a, c) VALUES (5, 5);",
+            "insert into q(a,b,c,d,e,f,g) values (1,1,1,-1,'x',10,'y');",
+            "insert into q(a,b,c,d,e,f,g) values (2,2,2,-2,'X',20,'Y');",
     };
     for (String statement : statements2) {
       ExecuteStatementReq req = new ExecuteStatementReq(sessionId, statement);

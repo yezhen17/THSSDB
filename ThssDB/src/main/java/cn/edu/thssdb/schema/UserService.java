@@ -75,9 +75,6 @@ public class UserService {
           String databaseName = ((UseOperation) operation).getName();
           user.database = databaseName;
           transactionManager.setDatabase(databaseName);
-        } else if (operation instanceof CreateDatabaseOperation ||
-                operation instanceof DropDatabaseOperation) {
-          operation.exec();
         } else if (operation instanceof CreateUserOperation) {
           ((CreateUserOperation) operation).exec(sessionId);
         }

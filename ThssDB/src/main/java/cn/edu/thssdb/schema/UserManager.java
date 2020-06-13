@@ -40,7 +40,7 @@ public class UserManager {
   public void saveUserData() throws CustomIOException {
     ArrayList<String> meta_data = new ArrayList<>();
     for (User user : users) {
-      meta_data.add(user.toString(','));
+      meta_data.add(user.toString(' '));
     }
     this.meta.writeToFile(meta_data);
   }
@@ -126,6 +126,7 @@ public class UserManager {
     try {
       lock.writeLock().lock();
       users.add(user);
+      saveUserData();
     } finally {
       lock.writeLock().unlock();
     }

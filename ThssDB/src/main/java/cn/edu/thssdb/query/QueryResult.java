@@ -122,7 +122,7 @@ public class QueryResult {
     boolean retain_left = false;
     boolean retain_right = false;
     switch (joinType) {
-      // 自然连接还需要增强条件
+      // 自然连接需要增强条件
       case NATURAL_INNER_JOIN: {
         for (QueryColumn c1: metaInfos.get(0).getColumns()) {
           for (QueryColumn c2: metaInfos.get(1).getColumns()) {
