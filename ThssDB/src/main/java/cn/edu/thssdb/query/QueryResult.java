@@ -11,7 +11,9 @@ import cn.edu.thssdb.parser.item.tree.Node;
 import java.util.*;
 
 
-// 用于处理查询结果，接口仍有问题，后期解决
+/*
+ 这个类直接负责查询结果的计算
+ */
 public class QueryResult {
 
   private SelectContentItem selectContentItem;
@@ -20,19 +22,17 @@ public class QueryResult {
   private OrderByItem orderByItem;
 
   private int tableNum;
-
   private ArrayList<MetaInfo> metaInfos;
-
   private QueryTable queryTable;
   private ArrayList<Table> tables;
+  private ArrayList<QueryColumn> columns;
   private int firstTableColumnNum;
-
   private ArrayList<QueryColumnPlusData> queryRes;
 
+  // 结果
   private List<List<String>> finalTable;
   private List<String> columnTitles;
 
-  private ArrayList<QueryColumn> columns;
 
   public QueryResult(SelectContentItem selectContentItem, FromItem fromItem,
                      MultipleConditionItem whereItem, OrderByItem orderByItem, ArrayList<Table> tables) {
@@ -60,6 +60,7 @@ public class QueryResult {
   public void process() {
     ArrayList<Row> res;
 
+    // 挑出只涉及单表的where条件，提前执行
     boolean no_where_left = false;
     if (whereItem != null && tableNum == 2) {
       Node<ConditionItem> root = whereItem.getRoot();
@@ -157,6 +158,8 @@ public class QueryResult {
         break;
       }
     }
+
+    // 如果可以应用indexed join优化
     if (no_where_left && !retain_left && !retain_right && whereItem != null && whereItem.getRoot().isLeaf()) {
       // Node<ConditionItem> root = whereItem.getRoot();
       ConditionItem tmp = whereItem.getRoot().getValue();
@@ -285,14 +288,6 @@ public class QueryResult {
     }
     throw new UnknownColumnException();
   }
-
-//  private String getFullColumnName (String tableName, String columnName) {
-//    if (tableName == null) {
-//      return columnName.toLowerCase();
-//    } else {
-//      return tableName.toLowerCase() + "." + columnName.toLowerCase();
-//    }
-//  }
 
   // 将形如 T.C, C, T.*, *, 1, 1+A, A+1, ... 的列信息转化为QueryColumnPlusData类型，以供后续处理
   private ArrayList<QueryColumnPlusData> columnToData(ArrayList<SelectItem> columns) {

@@ -8,7 +8,6 @@ import cn.edu.thssdb.schema.Row;
 import cn.edu.thssdb.schema.Table;
 import cn.edu.thssdb.type.ComparisonType;
 
-import java.security.Key;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -25,15 +24,6 @@ public class QueryTable implements Iterator<Row> {
   Iterable i2;
   int idx1;
   int idx2;
-
-//  private class RowAndEntry {
-//    ArrayRow row;
-//    Entry entry;
-//    public RowAndEntry(Row row, Entry entry) {
-//      this.row = row;
-//      this.entry = entry;
-//    }
-//  }
 
   public QueryTable(ArrayList<Table> tables) {
     this.tables = tables;
@@ -188,10 +178,6 @@ public class QueryTable implements Iterator<Row> {
     }
   }
 
-//  private Row search(Iterable it, Entry entry) {
-//    return ((Table) it).search(entry);
-//  }
-
   private Row search(Iterable it, Entry entry, int idx) {
     if (it instanceof Table) return ((Table) it).search(entry);
     ArrayList<Row> rows = (ArrayList<Row>) it;
@@ -212,7 +198,7 @@ public class QueryTable implements Iterator<Row> {
     }
   }
 
-
+  // 求join结果，针对equi-join和natural join的优化
   public ArrayList<Row> traverseSmart(MultipleConditionItem cond, boolean table1, int idx) {
     if (idx == -1) {
       return traverse(cond, false, false);
@@ -275,6 +261,7 @@ public class QueryTable implements Iterator<Row> {
     return res;
   }
 
+  // 求join结果
   public ArrayList<Row> traverse(MultipleConditionItem cond, boolean retain_left, boolean retain_right) {
     ArrayList<Row> res = new ArrayList<>();
     if (n1 == 0 || tableNum == 2 && n2 == 0) return res;

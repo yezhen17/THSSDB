@@ -171,7 +171,6 @@ public class Client {
       if (resp.getRowList().size() == results[i]) {
         println("The Result Set is Correct!");
       } else {
-        new ShowTable(resp.getRowList(), resp.getColumnsList(), statements[i]);
         println("The Result Set is Wrong!");
       }
     }

@@ -37,6 +37,7 @@ public class Global {
   public static final String SUCCESS_EXECUTE = "[Success] Execute succeed.";
   public static final String FAILURE_CONNECT_1 = "[Failure] Connect failed: user doesn't exist!";
   public static final String FAILURE_CONNECT_2 = "[Failure] Connect failed: wrong password!";
+  public static final String FAILURE_CONNECT_3 = "[Failure] Connect failed: User already online!";
   public static final String FAILURE_DISCONNECT = "[Failure] Disconnect failed: user is not online!";
   public static final String FAILURE_EXECUTE = "[Failure] Execute failed!";
   public static final String FAILURE_FORBIDDEN = "[Failure] Forbidden!";

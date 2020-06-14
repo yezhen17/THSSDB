@@ -52,7 +52,7 @@ public class UserManager {
     ArrayList<String []> meta_data = this.meta.readFromFile();
     try {
       for (String [] row: meta_data) {
-        users.add(new User(row[0], row[1], User.stringToPermission(row[2]), row[3]));
+        users.add(new User(row[0], row[1], User.stringToPermission(row[2]), null));
       }
     } catch (Exception e) {
       throw new WrongMetaFormatException();
@@ -158,6 +158,9 @@ public class UserManager {
     User user = getUser(username);
     if (user == null) {
       throw new UserNotExistException();
+    }
+    for (UserService userService: onlineUsers.values()) {
+      if (userService.user == user) throw new DuplicateUserException();
     }
     // 匹配密码
     if (!password.equals(user.password)) {

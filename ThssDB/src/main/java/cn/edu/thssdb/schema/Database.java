@@ -1,7 +1,6 @@
 package cn.edu.thssdb.schema;
 
 import cn.edu.thssdb.exception.*;
-import cn.edu.thssdb.log.Logger;
 import cn.edu.thssdb.operation.BaseOperation;
 import cn.edu.thssdb.parser.MyParser;
 import cn.edu.thssdb.utils.Global;

@@ -2,6 +2,9 @@ package cn.edu.thssdb.transaction;
 
 import java.util.List;
 
+/*
+ 事务状态类
+ */
 public class TransactionStatus {
   public class Table {
     public List<List<String>> data;
@@ -16,9 +19,7 @@ public class TransactionStatus {
   }
   boolean status;
   String message;
-  Table res;
-
-  // TODO select返回表数据
+  Table res; // select 或 show
 
   public TransactionStatus(boolean status, String message) {
     this.status = status;

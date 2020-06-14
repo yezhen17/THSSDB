@@ -1,4 +1,4 @@
-package cn.edu.thssdb.log;
+package cn.edu.thssdb.schema;
 
 import cn.edu.thssdb.exception.CustomIOException;
 import cn.edu.thssdb.exception.MetaFileNotFoundException;

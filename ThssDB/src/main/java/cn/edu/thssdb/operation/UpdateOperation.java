@@ -80,24 +80,21 @@ public class UpdateOperation extends BaseOperation {
     String itemString = literalValueItem.getString();
     Comparable valueToUpdate;
 
-    if (itemType == LiteralValueItem.Type.INT_OR_LONG){
-      if (columnType == ColumnType.INT){
-        valueToUpdate = Integer.valueOf(itemString);
-      } else if (columnType == ColumnType.LONG){
-        valueToUpdate = Long.valueOf(itemString);
-      } else if (columnType == ColumnType.DOUBLE){
-        valueToUpdate = Double.valueOf(itemString);
-      } else if (columnType == ColumnType.FLOAT){
-        valueToUpdate = Float.valueOf(itemString);
-      } else {
+    if (itemType == LiteralValueItem.Type.FLOAT_OR_DOUBLE){
+      if (columnType == ColumnType.STRING) {
         throw new WrongUpdateException(wrongColumnType);
       }
-    } else if (itemType == LiteralValueItem.Type.FLOAT_OR_DOUBLE){
-      if (columnType == ColumnType.DOUBLE){
-        valueToUpdate = Double.valueOf(itemString);
-      } else if (columnType == ColumnType.FLOAT){
-        valueToUpdate = Float.valueOf(itemString);
-      } else {
+      try {
+        if (columnType == ColumnType.INT){
+          valueToUpdate = Integer.valueOf(itemString);
+        } else if (columnType == ColumnType.LONG){
+          valueToUpdate = Long.valueOf(itemString);
+        } else if (columnType == ColumnType.DOUBLE){
+          valueToUpdate = Double.valueOf(itemString);
+        } else {
+          valueToUpdate = Float.valueOf(itemString);
+        }
+      } catch (Exception e) {
         throw new WrongUpdateException(wrongColumnType);
       }
     } else if(itemType == LiteralValueItem.Type.STRING){

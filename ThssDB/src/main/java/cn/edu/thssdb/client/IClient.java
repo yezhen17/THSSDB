@@ -325,7 +325,9 @@ public class IClient {
    * [method] 打印帮助信息
    */
   static void showHelp() {
-    // TODO 添加帮助信息
-    println("DO IT YOURSELF");
+    println("options:\n" +
+            "> connect;\n" +
+            "> disconnect;\n" +
+            "> execute;\n");
   }
 }

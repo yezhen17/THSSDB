@@ -1,21 +1,13 @@
 package cn.edu.thssdb.schema;
-import cn.edu.thssdb.exception.CustomIOException;
-import cn.edu.thssdb.exception.DataFileNotFoundException;
-import cn.edu.thssdb.log.Logger;
 import cn.edu.thssdb.operation.*;
 import cn.edu.thssdb.parser.MyParser;
 import cn.edu.thssdb.rpc.thrift.*;
 import cn.edu.thssdb.transaction.TransactionManager;
 import cn.edu.thssdb.transaction.TransactionStatus;
 import cn.edu.thssdb.utils.Global;
-import cn.edu.thssdb.utils.ShowTable;
 
-import java.time.temporal.Temporal;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.ReentrantLock;
 
 /***************
  * [class] 用户服务
@@ -40,7 +32,6 @@ public class UserService {
     if (user.database != null) {
       Manager.getInstance().quitDatabase(user.database);
     }
-
   }
 
   // 强制提交

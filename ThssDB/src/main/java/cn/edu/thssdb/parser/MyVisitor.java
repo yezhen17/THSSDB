@@ -12,6 +12,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.util.ArrayList;
 
+
 public class MyVisitor extends SQLBaseVisitor{
 
   public MyVisitor(){super();}
@@ -501,24 +502,6 @@ public class MyVisitor extends SQLBaseVisitor{
     } else if (str.charAt(0) == '\'') {
       return new LiteralValueItem(LiteralValueItem.Type.STRING, str.substring(1, str.length() - 1));
     } else return new LiteralValueItem(LiteralValueItem.Type.FLOAT_OR_DOUBLE, str);
-//    else {
-//
-////      try {
-////        Long.parseLong(str);
-////        //int i = Integer.valueOf(str);
-////      }
-////      catch (NumberFormatException e){
-////        try {
-////          Double.valueOf(str);
-////        }
-////        catch (NumberFormatException r){
-////          throw new IllegalArgumentException();
-////        }
-////        return new LiteralValueItem(LiteralValueItem.Type.FLOAT_OR_DOUBLE,str);
-////      }
-////      return new LiteralValueItem(LiteralValueItem.Type.INT_OR_LONG,str);
-////    }
-//  }
   }
 
   @Override

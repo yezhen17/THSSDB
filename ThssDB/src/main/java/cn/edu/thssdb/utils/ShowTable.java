@@ -9,6 +9,9 @@ import javax.swing.table.DefaultTableModel;
 import java.util.ArrayList;
 import java.util.List;
 
+/*
+展示select和show的结果，弹出一个表格，可调节
+ */
 public class ShowTable {
 
 

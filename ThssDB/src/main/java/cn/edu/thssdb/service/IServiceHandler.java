@@ -1,5 +1,6 @@
 package cn.edu.thssdb.service;
 
+import cn.edu.thssdb.exception.DuplicateUserException;
 import cn.edu.thssdb.exception.UserNotExistException;
 import cn.edu.thssdb.exception.WrongPasswordException;
 import cn.edu.thssdb.rpc.thrift.*;
@@ -60,6 +61,11 @@ public class IServiceHandler implements IService.Iface {
       resp.setSessionId(-1);
       resp.setStatus(new Status(Global.FAILURE_CODE));
        resp.setInformation(Global.FAILURE_CONNECT_2);
+    } catch (DuplicateUserException e) {
+      // 失败
+      resp.setSessionId(-1);
+      resp.setStatus(new Status(Global.FAILURE_CODE));
+      resp.setInformation(Global.FAILURE_CONNECT_3);
     }
     // 响应回复
     return resp;

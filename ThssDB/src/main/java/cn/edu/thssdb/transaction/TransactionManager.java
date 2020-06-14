@@ -1,18 +1,22 @@
 package cn.edu.thssdb.transaction;
 
+import cn.edu.thssdb.exception.DatabaseNotExistException;
 import cn.edu.thssdb.exception.DatabaseOccupiedException;
-import cn.edu.thssdb.log.Logger;
+import cn.edu.thssdb.schema.Database;
+import cn.edu.thssdb.schema.Logger;
 import cn.edu.thssdb.operation.*;
 import cn.edu.thssdb.schema.Manager;
 import cn.edu.thssdb.schema.Table;
 import cn.edu.thssdb.utils.Global;
 
 import java.util.ArrayList;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.HashMap;
 import java.util.LinkedList;
 
+/*
+ 事务管理类
+ */
 public class TransactionManager {
   private String databaseName;                                          // 数据库名称
   private Manager manager;                                              // 管理器对象
@@ -25,7 +29,6 @@ public class TransactionManager {
 
 
   public TransactionManager(String databaseName, Logger logger) {
-//    this.loggerBuffer = loggerBuffer;
     this.databaseName = databaseName;
     this.manager = Manager.getInstance();
     this.logger = logger;
@@ -35,9 +38,12 @@ public class TransactionManager {
     this.writeLockList = new LinkedList<>();
   }
 
+  // 设置当前使用的数据库
   public void setDatabase(String databaseName) {
     this.databaseName = databaseName;
-    this.logger = manager.getDatabaseByName(databaseName).getLogger();
+    Database db = manager.getDatabaseByName(databaseName);
+    if (db == null) throw new DatabaseNotExistException();
+    this.logger = db.getLogger();
   }
 
   public TransactionStatus exec(BaseOperation operation) {
@@ -57,6 +63,7 @@ public class TransactionManager {
       commitTransaction();
     }
     try {
+      // 检查删除的数据库此时是否被占用
       if (operation instanceof DropDatabaseOperation) {
         for (Table table: Manager.getInstance().
                 getDatabaseByName(((DropDatabaseOperation) operation).getName()).getTables()) {
@@ -76,7 +83,8 @@ public class TransactionManager {
   }
 
   private TransactionStatus beginTransaction() {
-    if (underTransaction) return new TransactionStatus(false, "Transaction ongoing!");
+    if (databaseName == null) throw new DatabaseNotExistException();
+    if (underTransaction) return new TransactionStatus(false, "Exception: Transaction ongoing!");
     else {
       underTransaction = true;
       return new TransactionStatus(true, "");
@@ -87,13 +95,13 @@ public class TransactionManager {
     if (underTransaction) {
       commitTransaction();
     }
+    if (databaseName == null) throw new DatabaseNotExistException();
     manager.getDatabaseByName(databaseName).persist();
-    // logger.eraseFile();
     return new TransactionStatus(true, "");
   }
 
 
-  // 增删改操作
+  // 读操作
   private TransactionStatus readTransaction(BaseOperation operation) {
     // *** READ_UNCOMMITTED ***
     if (Global.DATABASE_ISOLATION_LEVEL == Global.ISOLATION_LEVEL.READ_UNCOMMITTED) {
@@ -142,7 +150,7 @@ public class TransactionManager {
       return new TransactionStatus(true, "", operation.getData(),
               operation.getColumns(), operation.getStmt());
     }
-    return new TransactionStatus(false, "Unknown isolation level!");
+    return new TransactionStatus(false, "Exception: Unknown isolation level!");
   }
 
   // [method] 增删改操作
@@ -165,11 +173,12 @@ public class TransactionManager {
       }
       return new TransactionStatus(true, "Success");
     }
-    return new TransactionStatus(false, "Unknown isolation level!");
+    return new TransactionStatus(false, "Exception: Unknown isolation level!");
   }
 
 
   private TransactionStatus commitTransaction() {
+    if (databaseName == null) throw new DatabaseNotExistException();
     // 解非即时读写锁
     this.releaseTransactionReadWriteLock();
     LinkedList<String> log = new LinkedList<>();
@@ -186,13 +195,15 @@ public class TransactionManager {
   }
 
   private TransactionStatus savepointTransaction(String name) {
-    if (!underTransaction) return new TransactionStatus(false, "No transaction ongoing!");
-    if (name == null) return new TransactionStatus(false, "No savepoint given.");
+    if (databaseName == null) throw new DatabaseNotExistException();
+    if (!underTransaction) return new TransactionStatus(false, "Exception: No transaction ongoing!");
+    if (name == null) return new TransactionStatus(false, "Exception: No savepoint given.");
     savepoints.put(name, operations.size());
     return new TransactionStatus(true, "Success");
   }
 
   private TransactionStatus rollbackTransaction(String name) {
+    if (databaseName == null) throw new DatabaseNotExistException();
     int index = 0;
     if (name != null) {
       Integer tmp = savepoints.get(name);
@@ -263,19 +274,6 @@ public class TransactionManager {
     writeLockList.add(writeLock);
     return true;
   }
-
-//  // [method] 获取事务读写锁（SERIALIZABLE）（一次加锁法）
-//  // 引用 this.operations
-//  private boolean getTransactionReadWriteLock() {
-//    if (!Global.ISOLATION_STATUS) return true;
-//    try {
-//      TransactionManager.lock.lock();
-//      // 一次加锁 - 先加写锁，再加读锁
-//    } finally {
-//      TransactionManager.lock.unlock();
-//    }
-//    return true;
-//  }
 
   // [method] 释放事务读锁（READ_COMMITTED）
   private boolean releaseTransactionReadLock(String tableName) {
