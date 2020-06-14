@@ -8,7 +8,6 @@ import cn.edu.thssdb.rpc.thrift.ExecuteStatementReq;
 import cn.edu.thssdb.rpc.thrift.ExecuteStatementResp;
 import cn.edu.thssdb.rpc.thrift.IService;
 import cn.edu.thssdb.utils.Global;
-import cn.edu.thssdb.utils.ShowTable;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;

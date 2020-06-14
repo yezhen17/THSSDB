@@ -34,6 +34,19 @@ public class DatabaseTest {
 //    tables.put("t1", new Table("db1", "t1", cs, 0));
 
   }
+
+  public static void delDir(File file) {
+    if (file.isDirectory()) {
+      File zFiles[] = file.listFiles();
+      for (File file2 : zFiles) {
+        delDir(file2);
+      }
+      file.delete();
+    } else {
+      file.delete();
+    }
+  }
+
   @Test
   public void testCreateAndDrop()  {
     boolean flag = false;
@@ -80,6 +93,7 @@ public class DatabaseTest {
 
   @After
   public void clean() {
-    database.wipeData();
+    // database.wipeData();
+    delDir(Paths.get("data", "db1").toFile());
   }
 }

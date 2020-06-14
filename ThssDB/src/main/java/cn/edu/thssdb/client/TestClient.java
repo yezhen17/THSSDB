@@ -262,7 +262,7 @@ public class TestClient {
   }
 
   private static void createDatabase(long sessionId) throws TException {
-    String statement = "create database test;";
+    String statement = "create database test2;";
     ExecuteStatementReq req = new ExecuteStatementReq(sessionId, statement);
     ExecuteStatementResp resp = client.executeStatement(req);
     if (resp.getStatus().code == Global.SUCCESS_CODE) {
@@ -273,7 +273,7 @@ public class TestClient {
   }
 
   private static void useDatabase(long sessionId) throws TException {
-    String statement = "use test;";
+    String statement = "use test2;";
     ExecuteStatementReq req = new ExecuteStatementReq(sessionId, statement);
     ExecuteStatementResp resp = client.executeStatement(req);
     if (resp.getStatus().code == Global.SUCCESS_CODE) {
@@ -387,7 +387,7 @@ public class TestClient {
   }
 
   private static void dropDatabase(long sessionId) throws TException {
-    String statement = "drop database test;";
+    String statement = "drop database test2;";
     ExecuteStatementReq req = new ExecuteStatementReq(sessionId, statement);
     ExecuteStatementResp resp = client.executeStatement(req);
     if (resp.getStatus().code == Global.SUCCESS_CODE) {
